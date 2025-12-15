@@ -79,13 +79,13 @@ function generateTestApplications(jobs, baseTime = Date.now()) {
   const firstNames = ["Ahmed", "Fatima", "Ali", "Ayesha", "Hassan", "Zainab", "Usman", "Mariam", "Bilal", "Sana", "Imran", "Nida", "Faisal", "Hira", "Kamran", "Saad", "Aisha", "Omar", "Rabia", "Tariq"];
   const lastNames = ["Khan", "Ahmed", "Ali", "Hassan", "Hussain", "Shah", "Malik", "Rehman", "Iqbal", "Butt", "Siddiqui", "Rizvi", "Farooq", "Aziz", "Raza", "Jamil", "Nadeem", "Karim", "Younis", "Saleem"];
   const degrees = [
-    "Bachelor in Computer Science",
-    "Master in Finance",
-    "Bachelor in Business Administration",
-    "Master in Economics",
-    "Bachelor in Engineering",
-    "Master in Law",
-    "Bachelor in Statistics",
+    "Bachelor in Computer Science", 
+    "Master in Finance", 
+    "Bachelor in Business Administration", 
+    "Master in Economics", 
+    "Bachelor in Engineering", 
+    "Master in Law", 
+    "Bachelor in Statistics", 
     "PhD in Mathematics",
     "Master in Computer Science",
     "Bachelor in Finance",
@@ -93,10 +93,10 @@ function generateTestApplications(jobs, baseTime = Date.now()) {
     "Bachelor in Accounting"
   ];
   const cities = ["Islamabad", "Karachi", "Lahore", "Rawalpindi", "Faisalabad", "Peshawar", "Multan"];
-
+  
   const applications = [];
   const statuses = ["submitted", "screening", "phone-interview", "interview", "offer", "rejected"];
-
+  
   // Create 3-5 applications per job (all 20 jobs, not just 8)
   jobs.forEach((job, jobIdx) => {
     const numApps = 3 + Math.floor(Math.random() * 3);
@@ -104,7 +104,7 @@ function generateTestApplications(jobs, baseTime = Date.now()) {
       const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
       const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
       const email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}${Math.floor(Math.random() * 100)}@email.com`;
-
+      
       applications.push({
         id: `app-${baseTime}-${jobIdx}-${i}-${Math.random().toString(36).substr(2, 9)}`,
         jobId: job.id,
@@ -127,7 +127,7 @@ function generateTestApplications(jobs, baseTime = Date.now()) {
       });
     }
   });
-
+  
   return applications;
 }
 
@@ -495,41 +495,17 @@ function defaultState() {
       status: "open",
     },
   ];
-
+  
   // Generate test applications for demo
   const testApplications = generateTestApplications(jobs);
-
-  return {
-    jobs,
+  
+  return { 
+    jobs, 
     applications: testApplications,
     candidates: [], // Array of candidate profiles keyed by CNIC
-<<<<<<< Updated upstream
     shortlists: [], 
     audit: [], 
     settings: { scoring: { education: 40, experience: 40, interview: 20 } } 
-=======
-    shortlists: [],
-    audit: [],
-    settings: {
-      scoring: { education: 40, experience: 40, interview: 20 },
-      email: {
-        enabled: false,
-        provider: 'gmail',
-        smtpHost: 'smtp.gmail.com',
-        smtpPort: '587',
-        smtpUser: '',
-        smtpPassword: '',
-        fromEmail: '',
-        fromName: 'PVARA Recruitment'
-      },
-      system: {
-        autoEmailOnSubmit: true,
-        autoEmailOnStatusChange: true,
-        requireApprovalForOffers: false,
-        allowCandidateWithdrawal: true
-      }
-    }
->>>>>>> Stashed changes
   };
 }
 
@@ -553,92 +529,36 @@ function PvaraPhase2() {
   const auth = useAuth();
   const user = auth?.user ?? null;
   const { addToast } = useToast();
-<<<<<<< Updated upstream
   
-=======
-
-  // Fetch data from backend on mount
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-
-        // Fetch jobs (public endpoint)
-        const jobsResponse = await jobsAPI.getAll();
-
-        // Fetch applications if user is authenticated
-        let applicationsData = [];
-        if (user) {
-          try {
-            const appsResponse = await applicationsAPI.getAll();
-            applicationsData = appsResponse.applications || [];
-          } catch (err) {
-            console.log('Could not fetch applications:', err.message);
-          }
-        }
-
-        setState(prev => ({
-          ...prev,
-          jobs: jobsResponse.jobs || [],
-          applications: applicationsData
-        }));
-
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-        addToast('Failed to load data from server', { type: 'error' });
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [user, addToast]);
-
-  // State declarations (must be before useEffect that uses them)
-  const [view, setView] = useState("jobs");
-  const [showLoginModal, setShowLoginModal] = useState(false);
-
-  // Show login modal for protected views if not authenticated
-  useEffect(() => {
-    const protectedViews = ['admin', 'hr', 'test-management', 'interview-management', 'offer-management', 'audit', 'settings', 'system-dashboard', 'dashboard'];
-
-    if (!user && protectedViews.includes(view)) {
-      setShowLoginModal(true);
-      // Redirect to jobs page
-      setView('jobs');
-    }
-  }, [view, user]);
-
->>>>>>> Stashed changes
   // Candidate session (CNIC-based login)
   const [candidateSession, setCandidateSession] = useState(null);
-
+  
   // Handle candidate login (CNIC + phone/email verification)
   const handleCandidateLogin = useCallback((credentials) => {
     const { cnic, phone, email } = credentials;
-
+    
     // Find candidate profile by CNIC
     const candidate = (state.candidates || []).find(c => c.cnic === cnic);
-
+    
     if (!candidate) {
       addToast("No applications found with this CNIC. Please apply first.", { type: "error" });
       return;
     }
-
+    
     // Verify phone or email
     const verificationValue = phone || email;
     const verificationField = phone ? 'phone' : 'email';
-
+    
     if (verificationField === 'phone' && candidate.phone !== verificationValue) {
       addToast("Phone number does not match our records.", { type: "error" });
       return;
     }
-
+    
     if (verificationField === 'email' && !candidate.emails.includes(verificationValue)) {
       addToast("Email does not match our records.", { type: "error" });
       return;
     }
-
+    
     // Login successful
     setCandidateSession(candidate);
     setView("my-apps");
@@ -660,7 +580,7 @@ function PvaraPhase2() {
     const unevaluatedCount = state.applications.filter(
       app => app.status === 'submitted' || !app.aiScore
     ).length;
-
+    
     if (unevaluatedCount === 0) {
       addToast("All applications already evaluated", "info");
       return;
@@ -736,7 +656,6 @@ function PvaraPhase2() {
     if (jobData && typeof jobData.preventDefault === 'function') {
       jobData.preventDefault();
     }
-<<<<<<< Updated upstream
     
     // If jobData is a job object (from JobList), use it directly
     if (jobData && jobData.title && !jobData.preventDefault) {
@@ -745,51 +664,6 @@ function PvaraPhase2() {
       audit("create-job", { jobId: j.id, title: j.title });
       addToast("Job created (local)", { type: "success" });
       return;
-=======
-
-    try {
-      // If jobData is a job object (from JobList), use it directly
-      if (jobData && jobData.title && !jobData.preventDefault) {
-        const response = await jobsAPI.create(jobData);
-        setState((s) => ({ ...s, jobs: [response.job, ...(s.jobs || [])] }));
-        audit("create-job", { jobId: response.job._id, title: response.job.title });
-        addToast("Job created successfully", { type: "success" });
-        return;
-      }
-
-      // Original form-based logic - UPDATE
-      if (editingJobId) {
-        const updated = normalizeJobFormForSave(jobForm);
-        console.log('Updating job:', { id: editingJobId, data: updated, user: user?.username });
-        const response = await jobsAPI.update(editingJobId, updated);
-        setState((s) => ({ ...s, jobs: s.jobs.map((j) => (j._id === editingJobId || j.id === editingJobId ? response.job : j)) }));
-        audit("update-job", { jobId: editingJobId, title: response.job.title });
-        addToast("Job updated successfully", { type: "success" });
-        setEditingJobId(null);
-        setJobForm(emptyJobForm);
-        return;
-      }
-
-      // CREATE new job
-      const jobPayload = normalizeJobFormForSave(jobForm);
-      console.log('Creating job with payload:', jobPayload, 'User:', user?.username, 'Role:', user?.role);
-      const response = await jobsAPI.create(jobPayload);
-      setState((s) => ({ ...s, jobs: [response.job, ...(s.jobs || [])] }));
-      audit("create-job", { jobId: response.job._id, title: response.job.title });
-      setJobForm(emptyJobForm);
-      addToast("Job created successfully", { type: "success" });
-    } catch (error) {
-      console.error('Error creating/updating job:', {
-        message: error.message,
-        status: error.response?.status,
-        data: error.response?.data,
-        user: user?.username,
-        userRole: user?.role,
-        payload: jobForm
-      });
-      const errorMsg = error.response?.data?.message || error.response?.data?.error || 'Failed to save job';
-      addToast(errorMsg, { type: 'error' });
->>>>>>> Stashed changes
     }
     
     // Original form-based logic
@@ -852,7 +726,7 @@ function PvaraPhase2() {
       formData.preventDefault();
       formData = null; // Use appForm state instead
     }
-
+    
     let applicantData = formData || appForm;
     
     // Transform ApplicationForm data structure if needed
@@ -867,8 +741,8 @@ function PvaraPhase2() {
         cnic: applicantData.cnic || 'N/A',
         phone: applicantData.phone,
         degree: primaryEducation.degree || applicantData.degree || 'Not specified',
-        experienceYears: applicantData.experienceYears ||
-          (primaryEmployment.startYear ? new Date().getFullYear() - parseInt(primaryEmployment.startYear) : 0),
+        experienceYears: applicantData.experienceYears || 
+                        (primaryEmployment.startYear ? new Date().getFullYear() - parseInt(primaryEmployment.startYear) : 0),
         address: applicantData.streetAddress1 || applicantData.address || `${applicantData.city}, ${applicantData.state}`.trim(),
         linkedin: applicantData.portfolioLink || applicantData.linkedin || '',
         // Keep additional data
@@ -879,13 +753,8 @@ function PvaraPhase2() {
         coverLetter: applicantData.coverLetter,
       };
     }
-<<<<<<< Updated upstream
     
     const job = (state.jobs || []).find((j) => j.id === applicantData.jobId);
-=======
-
-    const job = (state.jobs || []).find((j) => j._id === applicantData.jobId);
->>>>>>> Stashed changes
     if (!job) {
       addToast("Select job", { type: "error" });
       return;
@@ -914,7 +783,6 @@ function PvaraPhase2() {
     finalizeApplication(job, files, false, applicantData);
   }
 
-<<<<<<< Updated upstream
   function finalizeApplication(job, files, manual, applicantData) {
     const data = applicantData || appForm;
     const filesNames = (files || []).map((f) => f.name);
@@ -932,58 +800,6 @@ function PvaraPhase2() {
         addToast(`You have already applied to ${job.title}`, { type: "warning" });
         return;
       }
-=======
-  async function finalizeApplication(job, files, manual, applicantData) {
-    try {
-      const data = applicantData || appForm;
-      const filesNames = (files || []).map((f) => f.name);
-
-      // Prepare application payload for backend
-      const applicationPayload = {
-        jobId: job._id || job.id,
-        applicant: {
-          name: data.name,
-          email: data.email,
-          phone: data.phone,
-          cnic: data.cnic || 'N/A',
-          degree: data.degree,
-          experienceYears: Number(data.experienceYears) || 0,
-          address: data.address,
-          linkedin: data.linkedin || '',
-          cv: filesNames[0] || 'resume.pdf', // Backend expects cv field
-        },
-        education: data.education,
-        employment: data.employment,
-        skills: data.skills,
-        languages: data.languages,
-        coverLetter: data.coverLetter,
-        status: manual ? "manual-review" : "submitted",
-        files: filesNames
-      };
-
-      // Submit to backend API
-      const response = await applicationsAPI.create(applicationPayload);
-
-      // Add to local state
-      setState((s) => ({ ...s, applications: [response.application, ...(s.applications || [])] }));
-      audit("submit-app", { appId: response.application._id, jobId: job._id || job.id, status: response.application.status });
-
-      // Reset form
-      setAppForm({ jobId: state.jobs[0]?._id || state.jobs[0]?.id || "", name: "", email: "", cnic: "", phone: "", degree: "", experienceYears: "", address: "", linkedin: "" });
-      if (fileRef.current) fileRef.current.value = null;
-
-      addToast(`Application submitted successfully for ${job.title}!`, { type: "success" });
-
-      // Redirect to My Applications page after 1 second
-      setTimeout(() => {
-        setView("my-apps");
-      }, 1500);
-
-    } catch (error) {
-      console.error('Error submitting application:', error);
-      const errorMsg = error.response?.data?.message || error.message || 'Failed to submit application';
-      addToast(errorMsg, { type: "error" });
->>>>>>> Stashed changes
     }
     
     const app = {
@@ -1085,7 +901,6 @@ function PvaraPhase2() {
   }
 
   // Change application status (shortlist, interview, reject, hired, etc.)
-<<<<<<< Updated upstream
   function changeApplicationStatus(appId, status, note) {
     setState((s) => {
       const apps = (s.applications || []).map((a) => (a.id === appId ? { ...a, status, screeningErrors: status === 'rejected' ? [note || 'Rejected by reviewer'] : (a.screeningErrors || []) } : a));
@@ -1130,35 +945,6 @@ function PvaraPhase2() {
           })
           .catch((err) => console.log("📧 Email unavailable:", err.message));
       }
-=======
-  async function changeApplicationStatus(appId, status, note) {
-    try {
-      // Update via API
-      await applicationsAPI.updateStatus(appId, status, note);
-
-      // Update local state
-      setState((s) => {
-        const apps = (s.applications || []).map((a) => {
-          const id = a._id || a.id;
-          return id === appId ? { ...a, status, screeningErrors: status === 'rejected' ? [note || 'Rejected by reviewer'] : (a.screeningErrors || []) } : a;
-        });
-        return { ...s, applications: apps };
-      });
-
-      audit("change-app-status", { appId, status, note });
-      addToast("Application status updated: " + status, { type: status === 'rejected' ? 'error' : 'success' });
-      setDrawer((d) => {
-        if (d.open && d.app) {
-          const id = d.app._id || d.app.id;
-          return id === appId ? { ...d, app: { ...d.app, status } } : d;
-        }
-        return d;
-      });
-
-    } catch (error) {
-      console.error('Error updating application status:', error);
-      addToast(error.response?.data?.message || 'Failed to update status', { type: 'error' });
->>>>>>> Stashed changes
     }
   }
 
@@ -1182,7 +968,7 @@ function PvaraPhase2() {
       author: user?.name || user?.username || 'Unknown',
       timestamp: new Date().toISOString()
     };
-
+    
     setState((s) => ({
       ...s,
       applications: (s.applications || []).map(app =>
@@ -1201,7 +987,7 @@ function PvaraPhase2() {
       'Name', 'Email', 'CNIC', 'Phone', 'Degree', 'Experience (Years)',
       'Status', 'AI Score', 'AI Recommendation', 'Applied Date', 'Notes Count'
     ];
-
+    
     const rows = candidatesToExport.map(c => [
       c.applicant?.name || c.name || '',
       c.applicant?.email || c.email || '',
@@ -1215,12 +1001,12 @@ function PvaraPhase2() {
       c.createdAt ? new Date(c.createdAt).toLocaleDateString() : '',
       c.notes?.length || 0
     ]);
-
+    
     const csvContent = [
       headers.join(','),
       ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
     ].join('\n');
-
+    
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -1230,7 +1016,7 @@ function PvaraPhase2() {
     a.click();
     document.body.removeChild(a);
     window.URL.revokeObjectURL(url);
-
+    
     addToast(`Exported ${candidatesToExport.length} candidate(s)`, { type: "success" });
   }, [addToast]);
 
@@ -1340,15 +1126,14 @@ function PvaraPhase2() {
 
         {/* Sidebar */}
         <div className={`fixed lg:static w-72 glass-sidebar text-gray-800 min-h-screen p-6 flex flex-col z-40 transition-transform duration-300 shadow-2xl ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
-          <div className="flex items-center gap-3 mb-8">
-            <img src={logo} alt="PVARA" className="h-10" />
-            <div>
-              <div className="font-display font-bold text-2xl text-green-700">PVARA</div>
-              <div className="text-xs text-gray-600 font-medium tracking-wide">RECRUITMENT</div>
-            </div>
+        <div className="flex items-center gap-3 mb-8">
+          <img src={logo} alt="PVARA" className="h-10" />
+          <div>
+            <div className="font-display font-bold text-2xl text-green-700">PVARA</div>
+            <div className="text-xs text-gray-600 font-medium tracking-wide">RECRUITMENT</div>
           </div>
+        </div>
 
-<<<<<<< Updated upstream
         <nav className="flex-1 space-y-1">
           {/* Public Candidate Portal - Always Visible */}
           <div className="text-xs uppercase font-semibold text-gray-500 px-3 py-2 mb-1">For Candidates</div>
@@ -1381,20 +1166,13 @@ function PvaraPhase2() {
             <button onClick={() => { setView("admin"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "admin" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
               Admin
-=======
-          <nav className="flex-1 space-y-1">
-            {/* Public Candidate Portal - Always Visible */}
-            <div className="text-xs uppercase font-semibold text-gray-500 px-3 py-2 mb-1">For Candidates</div>
-            <button onClick={() => { setView("jobs"); setMobileMenuOpen(false); setSelectedJobId(null); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "jobs" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>
-              Browse Jobs
->>>>>>> Stashed changes
             </button>
-            <button onClick={() => { setView("apply"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "apply" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 20h9" /><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" /></svg>
-              Apply Now
+          )}
+          {auth.hasRole(['hr','admin','recruiter']) && (
+            <button onClick={() => { setView("hr"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "hr" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              HR Review
             </button>
-<<<<<<< Updated upstream
           )}
           {auth.hasRole(['hr','admin','recruiter']) && (
             <button onClick={() => { setView("ai-screening"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "ai-screening" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
@@ -1488,117 +1266,8 @@ function PvaraPhase2() {
               />
             </div>
           )}
-=======
-            <button onClick={() => { setView("candidate-login"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "candidate-login" || view === "my-apps" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" /><path d="M14 2v4a2 2 0 0 0 2 2h4" /></svg>
-              Track My Applications
-            </button>
-
-            {/* Staff Portal - Only for logged-in HR/Admin */}
-            {user && (
-              <>
-                <div className="border-t border-gray-300/50 mt-4 pt-4 mb-2">
-                  <div className="text-xs uppercase font-semibold text-gray-500 px-3 py-1">Staff Portal</div>
-                </div>
-                <button onClick={() => { setView("system-dashboard"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "system-dashboard" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
-                  System Dashboard
-                </button>
-                <button onClick={() => { setView("dashboard"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "dashboard" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect width="7" height="9" x="3" y="3" rx="1" /><rect width="7" height="5" x="14" y="3" rx="1" /><rect width="7" height="9" x="14" y="12" rx="1" /><rect width="7" height="5" x="3" y="16" rx="1" /></svg>
-                  Analytics Dashboard
-                </button>
-              </>
-            )}
-            {auth.hasRole('admin') && (
-              <button onClick={() => { setView("admin"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "admin" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" /><circle cx="12" cy="12" r="3" /></svg>
-                Admin
-              </button>
-            )}
-            {auth.hasRole(['hr', 'admin', 'recruiter']) && (
-              <button onClick={() => { setView("hr"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "hr" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
-                HR Review
-              </button>
-            )}
-            {auth.hasRole(['hr', 'admin', 'recruiter']) && (
-              <>
-                <button onClick={() => { setView("test-management"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "test-management" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2m-6 9 2 2 4-4" /></svg>
-                  Test Management
-                </button>
-              </>
-            )}
-            {auth.hasRole(['hr', 'admin', 'recruiter']) && (
-              <button onClick={() => { setView("interview-management"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "interview-management" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 20h5v-2a3 3 0 0 0-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 0 1 5.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 0 1 9.288 0M15 7a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm6 3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zM7 10a2 2 0 1 1-4 0 2 2 0 0 1 4 0z" /></svg>
-                Interview Management
-              </button>
-            )}
-            {auth.hasRole(['hr', 'admin', 'recruiter']) && (
-              <button onClick={() => { setView("offer-management"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "offer-management" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12 11 14 15 10" /><circle cx="12" cy="12" r="9" /></svg>
-                Offer Management
-              </button>
-            )}
-            {auth.hasRole(['hr', 'admin']) && (
-              <button onClick={() => { setView("audit"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "audit" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2" /><path d="M9 7h6" /><path d="M9 11h6" /><path d="M9 15h4" /></svg>
-                Audit Log
-              </button>
-            )}
-            {/* Advanced Features Section */}
-            {auth.hasRole(['hr', 'admin', 'recruiter']) && (
-              <div className="border-t border-gray-300/50 mt-3 pt-3">
-                <div className="text-xs uppercase font-semibold text-gray-600 px-3 py-1">Advanced</div>
-                {auth.hasRole(['hr', 'admin', 'recruiter']) && (
-                  <>
-                    <button onClick={() => { setView("settings"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "settings" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" /><circle cx="12" cy="12" r="3" /></svg>
-                      Settings
-                    </button>
-                  </>
-                )}
-              </div>
-            )}
-          </nav>
-
-          <div className="mt-4 text-xs text-gray-700">
-            {user ? (
-              <div className="mt-auto glass-card p-4 rounded-lg">
-                <div className="flex items-center gap-2 font-medium mb-2">
-                  <svg className="w-5 h-5 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
-                  <strong>{user.name}</strong>
-                </div>
-                <div className="text-xs text-gray-600 mb-3">
-                  Role: <span className="font-semibold text-green-700">{user.role}</span>
-                </div>
-                <button
-                  onClick={() => {
-                    auth.logout();
-                    setView("dashboard");
-                  }}
-                  className="text-xs px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium flex items-center gap-2 w-full justify-center"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" x2="9" y1="12" y2="12" /></svg>
-                  Logout
-                </button>
-              </div>
-            ) : (
-              <div className="mt-auto">
-                <LoginInline
-                  onLogin={async (cred) => {
-                    const res = await auth.login(cred);
-                    if (!res.ok) addToast(res.message, { type: 'error' });
-                    else setView("dashboard");
-                  }}
-                />
-              </div>
-            )}
-          </div>
->>>>>>> Stashed changes
         </div>
+      </div>
       </>
     );
   }
@@ -1646,34 +1315,21 @@ function PvaraPhase2() {
 
     const jobErrs = validateJobForm(localForm);
     return (
-<<<<<<< Updated upstream
       <form onSubmit={createJob} className="space-y-2">
         <input 
           value={localForm.title} 
           onChange={(e) => handleLocalChange('title', e.target.value)} 
           placeholder="Title" 
           className="border p-2 rounded w-full" 
-=======
-      <form onSubmit={(e) => {
-        console.log('Form submitted with localForm:', localForm);
-        createJob(e);
-      }} className="space-y-2">
-        <input
-          value={localForm.title}
-          onChange={(e) => handleLocalChange('title', e.target.value)}
-          placeholder="Title"
-          className="border p-2 rounded w-full"
->>>>>>> Stashed changes
           autoComplete="off"
         />
-        <input
-          value={localForm.department}
-          onChange={(e) => handleLocalChange('department', e.target.value)}
-          placeholder="Department"
-          className="border p-2 rounded w-full"
+        <input 
+          value={localForm.department} 
+          onChange={(e) => handleLocalChange('department', e.target.value)} 
+          placeholder="Department" 
+          className="border p-2 rounded w-full" 
           autoComplete="off"
         />
-<<<<<<< Updated upstream
         <textarea 
           value={localForm.description} 
           onChange={(e) => handleLocalChange('description', e.target.value)} 
@@ -1681,29 +1337,6 @@ function PvaraPhase2() {
           className="border p-2 rounded w-full" 
           autoComplete="off"
         />
-=======
-        <input
-          value={localForm.grade}
-          onChange={(e) => handleLocalChange('grade', e.target.value)}
-          placeholder="Grade/Level"
-          className="border p-2 rounded w-full"
-          autoComplete="off"
-        />
-        <textarea
-          value={localForm.description}
-          onChange={(e) => handleLocalChange('description', e.target.value)}
-          placeholder="Description"
-          className="border p-2 rounded w-full"
-          autoComplete="off"
-        />
-        <input
-          value={(localForm.locations || []).join(", ")}
-          onChange={(e) => handleLocalChange('locations', e.target.value.split(",").map(l => l.trim()).filter(l => l))}
-          placeholder="Locations (comma-separated)"
-          className="border p-2 rounded w-full"
-          autoComplete="off"
-        />
->>>>>>> Stashed changes
         <div className="grid grid-cols-2 gap-2">
           <input type="number" value={localForm.openings ?? ""} onChange={(e) => handleLocalChange('openings', e.target.value)} placeholder="Openings" className="border p-2 rounded w-full" />
           <input value={localForm.employmentType} onChange={(e) => handleLocalChange('employmentType', e.target.value)} placeholder="Employment Type" className="border p-2 rounded w-full" />
@@ -1718,34 +1351,30 @@ function PvaraPhase2() {
           </div>
         )}
         <div className="flex gap-2">
-<<<<<<< Updated upstream
             <button className="px-3 py-2 bg-green-700 text-white rounded disabled:opacity-50" disabled={jobErrs.length > 0}>{editingJobId ? 'Update Job' : 'Create Job'}</button>
-=======
-          <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled={jobErrs.length > 0}>{editingJobId ? 'Update Job' : 'Create Job'}</button>
-          <button
-            type="button"
-            onClick={() => {
-              setLocalForm(emptyJobForm);
-              setJobForm(emptyJobForm);
-            }}
-            className="px-3 py-2 border rounded"
-          >
-            Reset
-          </button>
-          {editingJobId && (
->>>>>>> Stashed changes
             <button
               type="button"
               onClick={() => {
-                setEditingJobId(null);
                 setLocalForm(emptyJobForm);
                 setJobForm(emptyJobForm);
               }}
-              className="px-3 py-2 border rounded text-sm"
+              className="px-3 py-2 border rounded"
             >
-              Cancel Edit
+              Reset
             </button>
-          )}
+            {editingJobId && (
+              <button
+                type="button"
+                onClick={() => {
+                  setEditingJobId(null);
+                  setLocalForm(emptyJobForm);
+                  setJobForm(emptyJobForm);
+                }}
+                className="px-3 py-2 border rounded text-sm"
+              >
+                Cancel Edit
+              </button>
+            )}
         </div>
       </form>
     );
@@ -1868,7 +1497,7 @@ function PvaraPhase2() {
           {myApplications.length === 0 ? (
             <div className="text-center py-12">
               <div className="text-gray-500 mb-4">No applications yet</div>
-              <button
+              <button 
                 onClick={() => setView("apply")}
                 className="px-4 py-2 bg-green-700 text-white rounded"
               >
@@ -1932,7 +1561,7 @@ function PvaraPhase2() {
       <div>
         <Header title="Admin - Create Job" />
         <div className="bg-white p-4 rounded shadow">
-          <JobFormComponent
+          <JobFormComponent 
             jobForm={jobForm}
             editingJobId={editingJobId}
             validateJobForm={validateJobForm}
@@ -1987,8 +1616,8 @@ function PvaraPhase2() {
   // eslint-disable-next-line no-unused-vars
   function HRView() {
     if (!user || (user.role !== "hr" && user.role !== "admin" && user.role !== "recruiter")) return <div>Access denied</div>;
-    const apps = (state.applications || []).filter((a) =>
-      (a.applicant.name || "").toLowerCase().includes(hrSearch.toLowerCase()) ||
+    const apps = (state.applications || []).filter((a) => 
+      (a.applicant.name || "").toLowerCase().includes(hrSearch.toLowerCase()) || 
       (a.applicant.email || "").toLowerCase().includes(hrSearch.toLowerCase())
     );
 
@@ -2079,7 +1708,7 @@ function PvaraPhase2() {
   function JobBoardView() {
     const [currentPage, setCurrentPage] = React.useState(1);
     const jobsPerPage = 6;
-
+    
     const openJobs = (state.jobs || []).filter((j) => j.status === "open");
     const normalizedSearch = jobSearch.trim().toLowerCase();
 
@@ -2120,11 +1749,7 @@ function PvaraPhase2() {
       }
 
       return (
-<<<<<<< Updated upstream
         <div className="max-w-5xl mx-auto">
-=======
-        <div style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif' }} className="max-w-5xl mx-auto px-4">
->>>>>>> Stashed changes
           <button
             onClick={() => setSelectedJobId(null)}
             className="mb-6 flex items-center gap-2 glass-button px-4 py-2 rounded-lg text-gray-800 hover:text-green-700 font-medium hover:shadow-md transition-all"
@@ -2155,20 +1780,15 @@ function PvaraPhase2() {
                 </span>
               </div>
             </div>
-
+            
             {/* Job Details */}
             <div className="p-8 space-y-6">
               <div>
                 <h2 className="text-xl font-bold text-gray-800 mb-3">About the Role</h2>
                 <p className="text-gray-700 leading-relaxed">{job.description}</p>
               </div>
-<<<<<<< Updated upstream
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-=======
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
->>>>>>> Stashed changes
                 <div className="p-4 glass-card rounded-lg">
                   <h3 className="font-semibold text-green-700 mb-2">📍 Location</h3>
                   <p className="text-gray-700">{job.locations.join(', ')}</p>
@@ -2189,7 +1809,7 @@ function PvaraPhase2() {
                   </p>
                 </div>
               </div>
-
+              
               <div className="pt-6 border-t">
                 <button
                   onClick={() => {
@@ -2206,9 +1826,8 @@ function PvaraPhase2() {
         </div>
       );
     }
-
+    
     return (
-<<<<<<< Updated upstream
       <div className="max-w-6xl mx-auto">
         <div className="mb-8 text-center">
           <h1 className="font-display text-6xl font-bold text-gray-800 mb-3">Join Our Team</h1>
@@ -2238,103 +1857,10 @@ function PvaraPhase2() {
           <div className="flex items-center justify-center gap-4">
             <div className="glass-button inline-block px-4 py-2 rounded-full text-sm font-medium text-gray-800">
               {visibleJobs.length} open position{visibleJobs.length !== 1 ? 's' : ''} available
-=======
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
-        {/* Hero Section - Premium */}
-        <div className="mb-8 sm:mb-16 text-center relative py-12 sm:py-20 overflow-hidden">
-          {/* Subtle Background */}
-          <div className="absolute inset-0 bg-gradient-to-b from-blue-50/50 via-white to-white rounded-2xl"></div>
-
-          <div className="relative z-10 space-y-8">
-            {/* Main Headline */}
-            <div className="space-y-4">
-              <div style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif' }} className="inline-block px-5 py-2 bg-blue-50 rounded-full border border-blue-200 mb-4">
-                <span className="text-sm font-medium text-blue-600">
-                  Now Hiring • On-site Islamabad
-                </span>
-              </div>
-              <h1 style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", system-ui, sans-serif' }} className="text-4xl sm:text-5xl md:text-6xl font-semibold leading-tight tracking-tight text-gray-900">
-                Opportunities in
-                <br />
-                Digital Asset Regulation
-              </h1>
-              <p style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif' }} className="text-base sm:text-lg md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed font-normal mt-4 px-4">
-                Join Pakistan's Virtual Assets Regulatory Authority in shaping the future of digital finance.
-              </p>
-            </div>
-
-            {/* Apple-Style Search Bar */}
-            <div className="max-w-2xl mx-auto">
-              <form onSubmit={handleJobSearchSubmit} className="relative group">
-                <div className="relative bg-white rounded-xl shadow-sm border border-gray-300 group-hover:border-gray-400 group-hover:shadow-md transition-all duration-300 flex items-center overflow-hidden">
-                  <div className="pl-5 pr-3">
-                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                      <circle cx="11" cy="11" r="8" />
-                      <path d="m21 21-4.35-4.35" />
-                    </svg>
-                  </div>
-                  <input
-                    type="text"
-                    placeholder="Search positions"
-                    style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif' }}
-                    className="flex-1 px-2 py-4 bg-transparent border-none outline-none text-gray-900 placeholder-gray-400 text-base"
-                    value={jobSearch}
-                    onChange={(e) => handleJobSearchChange(e.target.value)}
-                    aria-label="Search jobs"
-                  />
-                  <button
-                    type="submit"
-                    style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif' }}
-                    className="bg-blue-600 text-white px-8 py-4 font-medium hover:bg-blue-700 transition-colors duration-200"
-                  >
-                    Search
-                  </button>
-                </div>
-              </form>
-            </div>
-
-            {/* Clean Stats Grid */}
-            <div style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif' }} className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 max-w-3xl mx-auto mt-6 sm:mt-10 px-4">
-              <div className="bg-white/70 backdrop-blur-sm p-5 rounded-xl border border-gray-200 hover:border-gray-300 hover:shadow-md transition-all duration-300 hover:-translate-y-0.5">
-                <div className="flex items-center justify-center gap-3">
-                  <div className="p-2.5 bg-blue-500 rounded-lg">
-                    <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clipRule="evenodd" /></svg>
-                  </div>
-                  <div className="text-left">
-                    <div className="text-2xl font-semibold text-gray-900">{visibleJobs.length}</div>
-                    <div className="text-sm text-gray-600">Open Roles</div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white/70 backdrop-blur-sm p-5 rounded-xl border border-gray-200 hover:border-gray-300 hover:shadow-md transition-all duration-300 hover:-translate-y-0.5">
-                <div className="flex items-center justify-center gap-3">
-                  <div className="p-2.5 bg-green-500 rounded-lg">
-                    <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" /></svg>
-                  </div>
-                  <div className="text-left">
-                    <div className="text-2xl font-semibold text-gray-900">Islamabad</div>
-                    <div className="text-sm text-gray-600">Location</div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white/70 backdrop-blur-sm p-5 rounded-xl border border-gray-200 hover:border-gray-300 hover:shadow-md transition-all duration-300 hover:-translate-y-0.5">
-                <div className="flex items-center justify-center gap-3">
-                  <div className="p-2.5 bg-purple-500 rounded-lg">
-                    <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" /></svg>
-                  </div>
-                  <div className="text-left">
-                    <div className="text-2xl font-semibold text-gray-900">Full-Time</div>
-                    <div className="text-sm text-gray-600">Employment</div>
-                  </div>
-                </div>
-              </div>
->>>>>>> Stashed changes
             </div>
           </div>
         </div>
-
+        
         {visibleJobs.length === 0 ? (
           <div className="glass-card rounded-lg shadow-md p-12 text-center">
             <svg className="w-16 h-16 mx-auto text-gray-400 mb-4" fill="currentColor" viewBox="0 0 20 20">
@@ -2345,7 +1871,6 @@ function PvaraPhase2() {
           </div>
         ) : (
           <>
-<<<<<<< Updated upstream
           <div className="grid grid-cols-1 gap-6">
             {paginatedJobs.map(job => (
               <div
@@ -2399,177 +1924,59 @@ function PvaraPhase2() {
                       >
                         Quick Apply
                       </button>
-=======
-            <div className="grid grid-cols-1 gap-6 sm:gap-10">
-              {paginatedJobs.map(job => (
-                <div
-                  key={job._id || job.id}
-                  style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif' }}
-                  className="group relative glass-card rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-200 cursor-pointer hover:-translate-y-1 hover:border-gray-300"
-                  onClick={() => setSelectedJobId(job._id || job.id)}
-                >
-                  {/* Subtle Glow on Hover */}
-                  <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500/20 via-green-500/20 to-blue-500/20 rounded-2xl opacity-0 group-hover:opacity-100 blur-sm transition-opacity duration-300"></div>
-
-                  {/* Minimal Top Accent */}
-                  <div className="relative h-0.5 bg-gradient-to-r from-blue-500 to-green-500 group-hover:h-1 transition-all duration-200"></div>
-
-                  <div className="relative p-5 sm:p-8 md:p-10">
-                    {/* Floating Accent */}
-                    <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-green-400/10 to-blue-400/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700"></div>
-
-                    <div className="relative flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 sm:gap-8">
-                      <div className="flex-1 space-y-5">
-                        {/* Job Title with Badge */}
-                        <div className="space-y-3">
-                          <div className="flex items-start gap-3">
-                            <div className="flex-1">
-                              <h2 style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", system-ui, sans-serif' }} className="text-2xl md:text-3xl font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors duration-300 leading-snug tracking-tight">
-                                {job.title}
-                              </h2>
-                            </div>
-                            <div style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif' }} className="px-3 py-1 bg-blue-100 text-blue-600 text-xs font-medium rounded-md">
-                              NEW
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-3 text-sm text-gray-500">
-                            <div className="flex items-center gap-1.5">
-                              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" /></svg>
-                              <span className="font-medium">Posted {new Date(job.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
-                            </div>
-                            <span className="text-gray-300">•</span>
-                            <div className="flex items-center gap-1.5">
-                              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z" /><path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" /></svg>
-                              <span className="font-medium">{Math.floor(Math.random() * 500 + 100)} views</span>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Premium Tags */}
-                        <div className="flex flex-wrap gap-3">
-                          <span style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif' }} className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
-                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clipRule="evenodd" /></svg>
-                            {job.department}
-                          </span>
-                          <span style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif' }} className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
-                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" /></svg>
-                            {job.locations.join(', ')}
-                          </span>
-                          <span style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif' }} className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
-                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" /></svg>
-                            {job.employmentType}
-                          </span>
-                        </div>
-
-                        {/* Description */}
-                        <p style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif' }} className="text-gray-600 text-base line-clamp-2 leading-relaxed">{job.description}</p>
-
-                        {/* Clean Info Cards */}
-                        <div style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif' }} className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3">
-                          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors">
-                            <div className="p-2 bg-white rounded-lg">
-                              <svg className="w-5 h-5 text-gray-700" fill="currentColor" viewBox="0 0 20 20"><path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z" /><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clipRule="evenodd" /></svg>
-                            </div>
-                            <div>
-                              <div className="text-xs text-gray-500 mb-0.5">Salary Package</div>
-                              <div className="text-sm font-semibold text-gray-900">₨{job.salary.min.toLocaleString()} - {job.salary.max.toLocaleString()}</div>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors">
-                            <div className="p-2 bg-white rounded-lg">
-                              <svg className="w-5 h-5 text-gray-700" fill="currentColor" viewBox="0 0 20 20"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" /></svg>
-                            </div>
-                            <div>
-                              <div className="text-xs text-gray-500 mb-0.5">Available Positions</div>
-                              <div className="text-sm font-semibold text-gray-900">{job.openings} Opening{job.openings > 1 ? 's' : ''}</div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Clean Action Buttons */}
-                      <div className="flex flex-col gap-3 lg:min-w-[180px]">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedJobId(job._id || job.id);
-                          }}
-                          style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif' }}
-                          className="relative px-6 py-3 bg-blue-600 text-white rounded-lg font-medium transition-all shadow-sm hover:shadow-lg hover:bg-blue-700 hover:-translate-y-0.5 flex items-center justify-center gap-2 overflow-hidden duration-300 group/btn"
-                        >
-                          <span className="relative">View Details</span>
-                          <svg className="relative w-5 h-5 group-hover/btn:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                          </svg>
-                        </button>
-
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setView('apply');
-                            setAppForm(prev => ({ ...prev, jobId: job._id || job.id }));
-                          }}
-                          className="px-6 py-3 bg-white border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 hover:border-gray-400 font-medium transition-all flex items-center justify-center gap-2"
-                        >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                          </svg>
-                          <span>Apply Now</span>
-                        </button>
-                      </div>
->>>>>>> Stashed changes
                     </div>
                   </div>
                 </div>
-              ))}
-            </div>
-
-            {/* Pagination Controls */}
-            {totalPages > 1 && (
-              <div className="mt-8 flex justify-center items-center gap-2">
-                <button
-                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                  disabled={currentPage === 1}
-                  className="glass-button px-4 py-2 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-md transition"
-                >
-                  ← Previous
-                </button>
-                <div className="flex gap-2">
-                  {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-                    let page;
-                    if (totalPages <= 5) {
-                      page = i + 1;
-                    } else if (currentPage <= 3) {
-                      page = i + 1;
-                    } else if (currentPage >= totalPages - 2) {
-                      page = totalPages - 4 + i;
-                    } else {
-                      page = currentPage - 2 + i;
-                    }
-                    return (
-                      <button
-                        key={page}
-                        onClick={() => setCurrentPage(page)}
-                        className={`px-4 py-2 rounded-lg font-medium transition ${currentPage === page
-                            ? 'bg-green-700 text-white shadow-lg'
-                            : 'glass-button hover:shadow-md'
-                          }`}
-                      >
-                        {page}
-                      </button>
-                    );
-                  })}
-                </div>
-                <button
-                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                  disabled={currentPage === totalPages}
-                  className="glass-button px-4 py-2 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-md transition"
-                >
-                  Next →
-                </button>
               </div>
-            )}
+            ))}
+          </div>
+          
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="mt-8 flex justify-center items-center gap-2">
+              <button
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="glass-button px-4 py-2 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-md transition"
+              >
+                ← Previous
+              </button>
+              <div className="flex gap-2">
+                {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                  let page;
+                  if (totalPages <= 5) {
+                    page = i + 1;
+                  } else if (currentPage <= 3) {
+                    page = i + 1;
+                  } else if (currentPage >= totalPages - 2) {
+                    page = totalPages - 4 + i;
+                  } else {
+                    page = currentPage - 2 + i;
+                  }
+                  return (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`px-4 py-2 rounded-lg font-medium transition ${
+                        currentPage === page
+                          ? 'bg-green-700 text-white shadow-lg'
+                          : 'glass-button hover:shadow-md'
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  );
+                })}
+              </div>
+              <button
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="glass-button px-4 py-2 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-md transition"
+              >
+                Next →
+              </button>
+            </div>
+          )}
           </>
         )}
       </div>
@@ -2578,32 +1985,11 @@ function PvaraPhase2() {
 
   // Two-Panel HR Review with Job Selection
   function HRReviewPanel({ jobs, applications, onStatusChange, onAIEvaluate, onBulkAction, onAddNote, onExport }) {
-<<<<<<< Updated upstream
     const [selectedJobId, setSelectedJobId] = React.useState(jobs[0]?.id || null);
     
     const selectedJob = jobs.find(j => j.id === selectedJobId);
     const filteredApplications = applications.filter(app => app.jobId === selectedJobId);
     
-=======
-    const [selectedJobId, setSelectedJobId] = React.useState(jobs[0]?._id || jobs[0]?.id || null);
-
-    const handleMoveToTest = (candidateIds) => {
-      candidateIds.forEach(id => {
-        onStatusChange(id, 'test-invited');
-      });
-    };
-
-    // Helper to extract jobId - handles both populated object and string
-    const getJobId = (app) => {
-      if (!app.jobId) return null;
-      // If jobId is populated object, get _id; otherwise use as-is
-      return typeof app.jobId === 'object' ? app.jobId._id : app.jobId;
-    };
-
-    const selectedJob = jobs.find(j => j._id === selectedJobId);
-    const filteredApplications = applications.filter(app => getJobId(app) === selectedJobId);
-
->>>>>>> Stashed changes
     // Calculate stats per job
     const jobStats = jobs.map(job => {
       const jobApps = applications.filter(app => app.jobId === job.id);
@@ -2628,19 +2014,13 @@ function PvaraPhase2() {
               const stats = jobStats.find(s => s.jobId === job.id);
               return (
                 <button
-<<<<<<< Updated upstream
                   key={job.id}
                   onClick={() => setSelectedJobId(job.id)}
                   className={`w-full text-left p-3 rounded-lg border-2 transition ${
                     selectedJobId === job.id
-=======
-                  key={jobId}
-                  onClick={() => setSelectedJobId(jobId)}
-                  className={`w-full text-left p-3 rounded-lg border-2 transition ${selectedJobId === jobId
->>>>>>> Stashed changes
                       ? 'border-green-700 bg-green-50'
                       : 'border-gray-200 hover:border-green-300 hover:bg-gray-50'
-                    }`}
+                  }`}
                 >
                   <div className="font-semibold text-sm text-gray-800 mb-1">{job.title}</div>
                   <div className="text-xs text-gray-500 mb-2">{job.department}</div>
@@ -2724,273 +2104,48 @@ function PvaraPhase2() {
   }
 
   return (
-<<<<<<< Updated upstream
     <div className="flex min-h-screen">
-=======
-    <div style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif' }} className="flex min-h-screen">
->>>>>>> Stashed changes
       <Sidebar />
       <div className="flex-1 flex flex-col min-h-screen p-4 md:p-6 lg:ml-0 pt-16 lg:pt-6">
         <div className="flex-1">
           {/* Modularized views for maintainability */}
           {view === "jobs" && <JobBoardView />}
-<<<<<<< Updated upstream
           {view === "dashboard" && <AnalyticsDashboard state={state} onGenerateTestData={handleGenerateTestData} />}
           {view === "apply" && <ApplicationForm onSubmit={submitApplication} jobs={state.jobs} />}
-=======
-          {view === "system-dashboard" && <SystemDashboard />}
-          {view === "dashboard" && (
-            <AnalyticsDashboard
-              state={state}
-              onGenerateTestData={generateTestData}
-            />
-          )}
-          {view === "apply" && <ApplicationForm onSubmit={submitApplication} jobs={state.jobs} selectedJobId={appForm.jobId} />}
->>>>>>> Stashed changes
           {(view === "candidate-login" || view === "my-apps") && !candidateSession && (
-            <CandidateLogin
-              onLogin={handleCandidateLogin}
-              onCancel={() => setView("jobs")}
+            <CandidateLogin 
+              onLogin={handleCandidateLogin} 
+              onCancel={() => setView("jobs")} 
             />
           )}
           {view === "my-apps" && candidateSession && (
-            <MyCandidateApplications
-              applications={state.applications}
+            <MyCandidateApplications 
+              applications={state.applications} 
               candidateProfile={candidateSession}
               jobs={state.jobs}
             />
           )}
           {view === "admin" && <JobList jobs={state.jobs} onCreate={createJob} onEdit={updateJob} onDelete={deleteJob} />}
           {view === "hr" && (
-            <HRReviewPanel
+            <HRReviewPanel 
               jobs={state.jobs}
-              applications={state.applications}
-              onStatusChange={changeApplicationStatus}
-              onAIEvaluate={handleAIEvaluation}
-              onBulkAction={handleBulkAction}
-              onAddNote={handleAddNote}
-              onExport={handleExport}
+              applications={state.applications} 
+              onStatusChange={changeApplicationStatus} 
+              onAIEvaluate={handleAIEvaluation} 
+              onBulkAction={handleBulkAction} 
+              onAddNote={handleAddNote} 
+              onExport={handleExport} 
             />
           )}
-<<<<<<< Updated upstream
           {view === "ai-screening" && <InterviewRubric rubric={state.rubric} onEvaluate={submitInterviewEvaluation} jobs={state.jobs} applications={state.applications} selectedJobForAI={selectedJobForAI} handleSelectJobForAI={handleSelectJobForAI} />}
           {view === "analytics" && <AnalyticsDashboard state={state} onGenerateTestData={handleGenerateTestData} />}
           {view === "shortlists" && <ShortlistPanel shortlist={state.shortlists} onUpdate={createShortlist} />}
-=======
-          {view === "test-management" && (
-            <TestManagement
-              applications={state.applications}
-              jobs={state.jobs}
-              onUpdateApplication={(appId, updates) => {
-                setState(prev => ({
-                  ...prev,
-                  applications: prev.applications.map(app =>
-                    (app._id || app.id) === appId ? { ...app, ...updates } : app
-                  )
-                }));
-              }}
-              onRefreshApplications={async () => {
-                try {
-                  const appsResponse = await applicationsAPI.getAll();
-                  setState(prev => ({
-                    ...prev,
-                    applications: appsResponse.applications || []
-                  }));
-                } catch (err) {
-                  console.error('Failed to refresh applications:', err);
-                }
-              }}
-              onMoveToInterview={async (candidateId) => {
-                try {
-                  await applicationsAPI.updateStatus(candidateId, 'interview');
-                  setState(s => ({
-                    ...s,
-                    applications: s.applications.map(a =>
-                      (a._id || a.id) === candidateId
-                        ? { ...a, status: 'interview' }
-                        : a
-                    )
-                  }));
-                  audit('move-to-interview', { candidateId, from: 'test-completed' });
-                  addToast('Candidate moved to interview stage', { type: 'success' });
-                } catch (err) {
-                  addToast('Failed to move candidate to interview', { type: 'error' });
-                }
-              }}
-            />
-          )}
-
-          {view === "interview-management" && (
-            <InterviewManagement
-              applications={state.applications}
-              jobs={state.jobs}
-              onInterviewFeedback={async (candidateId, feedback) => {
-                const overallScore = ((feedback.technicalRating + feedback.communicationRating + feedback.cultureFitRating + feedback.problemSolvingRating) / 4).toFixed(1);
-
-                // Determine new status based on recommendation
-                let newStatus = 'interview';
-                if (feedback.recommendation === 'hire') {
-                  newStatus = 'offer';
-                } else if (feedback.recommendation === 'reject') {
-                  newStatus = 'rejected';
-                }
-                // 'maybe' keeps them in interview for further discussion
-
-                try {
-                  // Update status in backend if changing
-                  if (newStatus !== 'interview') {
-                    await applicationsAPI.updateStatus(candidateId, newStatus);
-                  }
-
-                  setState(s => ({
-                    ...s,
-                    applications: s.applications.map(a =>
-                      (a._id || a.id) === candidateId
-                        ? {
-                          ...a,
-                          status: newStatus,
-                          interviewFeedback: { ...feedback, overallScore, timestamp: new Date().toISOString() }
-                        }
-                        : a
-                    )
-                  }));
-
-                  audit('interview-feedback', { candidateId, overallScore, recommendation: feedback.recommendation });
-
-                  if (newStatus === 'offer') {
-                    addToast(`🎉 Interview feedback recorded - Candidate moved to Offer stage!`, { type: 'success' });
-                  } else if (newStatus === 'rejected') {
-                    addToast(`Interview feedback recorded - Candidate rejected`, { type: 'info' });
-                  } else {
-                    addToast(`Interview feedback recorded - Score: ${overallScore}/10`, { type: 'success' });
-                  }
-                } catch (err) {
-                  console.error('Failed to update interview feedback:', err);
-                  addToast('Failed to save feedback', { type: 'error' });
-                }
-              }}
-              onAddToShortlist={(candidateIds) => {
-                candidateIds.forEach(id => audit('add-to-shortlist', { candidateId: id }));
-                addToast(`Added ${candidateIds.length} candidate(s) to shortlist`, { type: 'success' });
-              }}
-            />
-          )}
-          {view === "offer-management" && (
-            <OfferManagement
-              applications={state.applications}
-              jobs={state.jobs}
-              onExtendOffer={async (candidateId, offerDetails) => {
-                try {
-                  await applicationsAPI.updateStatus(candidateId, 'offer');
-                  setState(s => ({
-                    ...s,
-                    applications: s.applications.map(a =>
-                      (a._id || a.id) === candidateId
-                        ? { ...a, status: 'offer', offer: { ...offerDetails, status: 'pending', extendedAt: new Date().toISOString() } }
-                        : a
-                    )
-                  }));
-                  audit('extend-offer', { candidateId, salary: offerDetails.salary });
-                  addToast('Job offer extended successfully', { type: 'success' });
-                } catch (err) {
-                  addToast('Failed to extend offer', { type: 'error' });
-                }
-              }}
-              onAcceptOffer={async (candidateId) => {
-                try {
-                  await applicationsAPI.updateStatus(candidateId, 'hired');
-                  setState(s => ({
-                    ...s,
-                    applications: s.applications.map(a =>
-                      (a._id || a.id) === candidateId
-                        ? { ...a, status: 'hired', offer: { ...a.offer, status: 'accepted', acceptedAt: new Date().toISOString() } }
-                        : a
-                    )
-                  }));
-                  audit('accept-offer', { candidateId });
-                  addToast('🎉 Offer accepted! Candidate hired!', { type: 'success' });
-                } catch (err) {
-                  addToast('Failed to accept offer', { type: 'error' });
-                }
-              }}
-              onRejectOffer={async (candidateId) => {
-                try {
-                  await applicationsAPI.updateStatus(candidateId, 'rejected');
-                  setState(s => ({
-                    ...s,
-                    applications: s.applications.map(a =>
-                      (a._id || a.id) === candidateId
-                        ? { ...a, status: 'rejected', offer: { ...a.offer, status: 'rejected', rejectedAt: new Date().toISOString() } }
-                        : a
-                    )
-                  }));
-                  audit('reject-offer', { candidateId });
-                  addToast('Offer rejected by candidate', { type: 'info' });
-                } catch (err) {
-                  addToast('Failed to reject offer', { type: 'error' });
-                }
-              }}
-              onWithdrawOffer={async (candidateId) => {
-                try {
-                  await applicationsAPI.updateStatus(candidateId, 'withdrawn');
-                  setState(s => ({
-                    ...s,
-                    applications: s.applications.map(a =>
-                      (a._id || a.id) === candidateId
-                        ? { ...a, status: 'withdrawn', offer: { ...a.offer, status: 'withdrawn', withdrawnAt: new Date().toISOString() } }
-                        : a
-                    )
-                  }));
-                  audit('withdraw-offer', { candidateId });
-                  addToast('Offer withdrawn successfully', { type: 'info' });
-                } catch (err) {
-                  addToast('Failed to withdraw offer', { type: 'error' });
-                }
-              }}
-            />
-          )}
-
-          {view === "settings" && (
-            <SettingsPanel
-              settings={state.settings}
-              onUpdateSettings={(newSettings) => {
-                setState(s => ({ ...s, settings: newSettings }));
-                addToast('Settings updated successfully', { type: 'success' });
-                audit('update-settings', { settingsUpdated: Object.keys(newSettings) });
-              }}
-              onTestEmail={async (testEmail) => {
-                try {
-                  const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:6080';
-                  const response = await fetch(`${apiUrl}/api/send-email`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                      to: testEmail,
-                      subject: 'PVARA Test Email',
-                      body: 'This is a test email from PVARA Recruitment System. If you received this, your email configuration is working correctly!',
-                      candidateName: 'Test User'
-                    })
-                  });
-
-                  if (response.ok) {
-                    addToast('✅ Test email sent successfully! Check your inbox.', { type: 'success' });
-                  } else {
-                    addToast('❌ Failed to send test email. Check your email settings.', { type: 'error' });
-                  }
-                } catch (error) {
-                  console.error('Test email error:', error);
-                  addToast('❌ Email server not reachable. Make sure backend is running.', { type: 'error' });
-                }
-              }}
-            />
-          )}
->>>>>>> Stashed changes
           {view === "audit" && <AuditLog auditRecords={state.audit} />}
         </div>
 
         {/* Toast notifications */}
         <Toasts toasts={state.toasts} />
-
+        
         {/* Footer */}
         <footer className="mt-16 glass-card rounded-xl p-8 shadow-lg">
           <div className="max-w-6xl mx-auto">
@@ -3006,17 +2161,17 @@ function PvaraPhase2() {
                 </p>
                 <div className="flex gap-4">
                   <button type="button" className="text-gray-600 hover:text-green-700 transition" aria-label="Visit Facebook">
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" /></svg>
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
                   </button>
                   <button type="button" className="text-gray-600 hover:text-green-700 transition" aria-label="Visit Twitter">
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" /></svg>
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/></svg>
                   </button>
                   <button type="button" className="text-gray-600 hover:text-green-700 transition" aria-label="Visit LinkedIn">
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" /></svg>
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
                   </button>
                 </div>
               </div>
-
+              
               {/* Quick Links */}
               <div>
                 <h3 className="font-semibold text-gray-800 mb-4">Quick Links</h3>
@@ -3027,7 +2182,7 @@ function PvaraPhase2() {
                   <li><button type="button" className="text-gray-600 hover:text-green-700 transition">Contact</button></li>
                 </ul>
               </div>
-
+              
               {/* Support */}
               <div>
                 <h3 className="font-semibold text-gray-800 mb-4">Support</h3>
@@ -3039,7 +2194,7 @@ function PvaraPhase2() {
                 </ul>
               </div>
             </div>
-
+            
             <div className="border-t border-gray-300/50 mt-8 pt-6 text-center">
               <p className="text-sm text-gray-600">
                 © {new Date().getFullYear()} PVARA. All rights reserved. | Powered by AI Technology
@@ -3094,17 +2249,6 @@ function PvaraPhase2() {
       {/* Interview Evaluation Modal */}
       {/* TODO: Add InterviewEvaluationForm modal integration here when available */}
 
-<<<<<<< Updated upstream
-=======
-      {/* Login Modal */}
-      {showLoginModal && (
-        <LoginModal
-          onClose={() => setShowLoginModal(false)}
-          onLogin={auth.login}
-        />
-      )}
-
->>>>>>> Stashed changes
       <ConfirmModal
         open={confirm.open}
         title={confirm.title}
