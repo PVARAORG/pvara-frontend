@@ -1,0 +1,11 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - REACT_APP_API_URL=http://localhost:6080
+    ports:
+      - "6076:80"
+    restart: unless-stopped
+    container_name: pvara-frontend

@@ -1,0 +1,55 @@
+import axios from 'axios';
+
+const DEFAULT_REMOTE_API = 'http://localhost:6080';
+const LOCAL_DEV_API = 'http://localhost:6080';
+
+const nodeEnv = process.env.NODE_ENV;
+let API_URL = process.env.REACT_APP_API_URL
+  || (nodeEnv === 'development' ? LOCAL_DEV_API : DEFAULT_REMOTE_API);
+
+if (!API_URL && typeof window !== 'undefined') {
+  const protocol = window.location?.protocol || 'http:';
+  const host = window.location?.hostname || 'localhost';
+  API_URL = `${protocol}//${host}:6080`;
+}
+
+if (nodeEnv === 'development' && typeof window !== 'undefined') {
+  console.info('[api] Using backend base URL:', API_URL);
+}
+
+// Create axios instance
+const apiClient = axios.create({
+  baseURL: `${API_URL}/api`,
+  headers: {
+    'Content-Type': 'application/json',
+    'ngrok-skip-browser-warning': 'true'
+  }
+});
+
+// Request interceptor to add auth token
+apiClient.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Response interceptor for error handling
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Token expired or invalid
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '/';
+    }
+    return Promise.reject(error);
+  }
+);
+
+export default apiClient;
