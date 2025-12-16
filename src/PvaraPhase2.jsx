@@ -20,7 +20,7 @@ const STORAGE_KEY = "pvara_v3";
 function saveState(s) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
-  } catch (e) {}
+  } catch (e) { }
 }
 function loadState() {
   try {
@@ -79,13 +79,13 @@ function generateTestApplications(jobs, baseTime = Date.now()) {
   const firstNames = ["Ahmed", "Fatima", "Ali", "Ayesha", "Hassan", "Zainab", "Usman", "Mariam", "Bilal", "Sana", "Imran", "Nida", "Faisal", "Hira", "Kamran", "Saad", "Aisha", "Omar", "Rabia", "Tariq"];
   const lastNames = ["Khan", "Ahmed", "Ali", "Hassan", "Hussain", "Shah", "Malik", "Rehman", "Iqbal", "Butt", "Siddiqui", "Rizvi", "Farooq", "Aziz", "Raza", "Jamil", "Nadeem", "Karim", "Younis", "Saleem"];
   const degrees = [
-    "Bachelor in Computer Science", 
-    "Master in Finance", 
-    "Bachelor in Business Administration", 
-    "Master in Economics", 
-    "Bachelor in Engineering", 
-    "Master in Law", 
-    "Bachelor in Statistics", 
+    "Bachelor in Computer Science",
+    "Master in Finance",
+    "Bachelor in Business Administration",
+    "Master in Economics",
+    "Bachelor in Engineering",
+    "Master in Law",
+    "Bachelor in Statistics",
     "PhD in Mathematics",
     "Master in Computer Science",
     "Bachelor in Finance",
@@ -93,10 +93,10 @@ function generateTestApplications(jobs, baseTime = Date.now()) {
     "Bachelor in Accounting"
   ];
   const cities = ["Islamabad", "Karachi", "Lahore", "Rawalpindi", "Faisalabad", "Peshawar", "Multan"];
-  
+
   const applications = [];
   const statuses = ["submitted", "screening", "phone-interview", "interview", "offer", "rejected"];
-  
+
   // Create 3-5 applications per job (all 20 jobs, not just 8)
   jobs.forEach((job, jobIdx) => {
     const numApps = 3 + Math.floor(Math.random() * 3);
@@ -104,7 +104,7 @@ function generateTestApplications(jobs, baseTime = Date.now()) {
       const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
       const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
       const email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}${Math.floor(Math.random() * 100)}@email.com`;
-      
+
       applications.push({
         id: `app-${baseTime}-${jobIdx}-${i}-${Math.random().toString(36).substr(2, 9)}`,
         jobId: job.id,
@@ -127,7 +127,7 @@ function generateTestApplications(jobs, baseTime = Date.now()) {
       });
     }
   });
-  
+
   return applications;
 }
 
@@ -495,17 +495,17 @@ function defaultState() {
       status: "open",
     },
   ];
-  
+
   // Generate test applications for demo
   const testApplications = generateTestApplications(jobs);
-  
-  return { 
-    jobs, 
+
+  return {
+    jobs,
     applications: testApplications,
     candidates: [], // Array of candidate profiles keyed by CNIC
-    shortlists: [], 
-    audit: [], 
-    settings: { scoring: { education: 40, experience: 40, interview: 20 } } 
+    shortlists: [],
+    audit: [],
+    settings: { scoring: { education: 40, experience: 40, interview: 20 } }
   };
 }
 
@@ -529,36 +529,36 @@ function PvaraPhase2() {
   const auth = useAuth();
   const user = auth?.user ?? null;
   const { addToast } = useToast();
-  
+
   // Candidate session (CNIC-based login)
   const [candidateSession, setCandidateSession] = useState(null);
-  
+
   // Handle candidate login (CNIC + phone/email verification)
   const handleCandidateLogin = useCallback((credentials) => {
     const { cnic, phone, email } = credentials;
-    
+
     // Find candidate profile by CNIC
     const candidate = (state.candidates || []).find(c => c.cnic === cnic);
-    
+
     if (!candidate) {
       addToast("No applications found with this CNIC. Please apply first.", { type: "error" });
       return;
     }
-    
+
     // Verify phone or email
     const verificationValue = phone || email;
     const verificationField = phone ? 'phone' : 'email';
-    
+
     if (verificationField === 'phone' && candidate.phone !== verificationValue) {
       addToast("Phone number does not match our records.", { type: "error" });
       return;
     }
-    
+
     if (verificationField === 'email' && !candidate.emails.includes(verificationValue)) {
       addToast("Email does not match our records.", { type: "error" });
       return;
     }
-    
+
     // Login successful
     setCandidateSession(candidate);
     setView("my-apps");
@@ -580,7 +580,7 @@ function PvaraPhase2() {
     const unevaluatedCount = state.applications.filter(
       app => app.status === 'submitted' || !app.aiScore
     ).length;
-    
+
     if (unevaluatedCount === 0) {
       addToast("All applications already evaluated", "info");
       return;
@@ -656,7 +656,7 @@ function PvaraPhase2() {
     if (jobData && typeof jobData.preventDefault === 'function') {
       jobData.preventDefault();
     }
-    
+
     // If jobData is a job object (from JobList), use it directly
     if (jobData && jobData.title && !jobData.preventDefault) {
       const j = { ...jobData, createdAt: jobData.createdAt || new Date().toISOString() };
@@ -665,7 +665,7 @@ function PvaraPhase2() {
       addToast("Job created (local)", { type: "success" });
       return;
     }
-    
+
     // Original form-based logic
     if (editingJobId) {
       const updated = { ...normalizeJobFormForSave(jobForm), id: editingJobId };
@@ -726,14 +726,14 @@ function PvaraPhase2() {
       formData.preventDefault();
       formData = null; // Use appForm state instead
     }
-    
+
     let applicantData = formData || appForm;
-    
+
     // Transform ApplicationForm data structure if needed
     if (applicantData.firstName || applicantData.education) {
       const primaryEducation = applicantData.education?.[0] || {};
       const primaryEmployment = applicantData.employment?.[0] || {};
-      
+
       applicantData = {
         jobId: applicantData.jobId,
         name: `${applicantData.firstName || ''} ${applicantData.lastName || ''}`.trim() || applicantData.name,
@@ -741,8 +741,8 @@ function PvaraPhase2() {
         cnic: applicantData.cnic || 'N/A',
         phone: applicantData.phone,
         degree: primaryEducation.degree || applicantData.degree || 'Not specified',
-        experienceYears: applicantData.experienceYears || 
-                        (primaryEmployment.startYear ? new Date().getFullYear() - parseInt(primaryEmployment.startYear) : 0),
+        experienceYears: applicantData.experienceYears ||
+          (primaryEmployment.startYear ? new Date().getFullYear() - parseInt(primaryEmployment.startYear) : 0),
         address: applicantData.streetAddress1 || applicantData.address || `${applicantData.city}, ${applicantData.state}`.trim(),
         linkedin: applicantData.portfolioLink || applicantData.linkedin || '',
         // Keep additional data
@@ -753,7 +753,7 @@ function PvaraPhase2() {
         coverLetter: applicantData.coverLetter,
       };
     }
-    
+
     const job = (state.jobs || []).find((j) => j.id === applicantData.jobId);
     if (!job) {
       addToast("Select job", { type: "error" });
@@ -786,11 +786,11 @@ function PvaraPhase2() {
   function finalizeApplication(job, files, manual, applicantData) {
     const data = applicantData || appForm;
     const filesNames = (files || []).map((f) => f.name);
-    
+
     // Check if candidate profile exists by CNIC
     const cnic = data.cnic || 'N/A';
     let candidate = (state.candidates || []).find(c => c.cnic === cnic);
-    
+
     // Check for duplicate application to same job
     if (candidate) {
       const existingApp = (state.applications || []).find(
@@ -801,7 +801,7 @@ function PvaraPhase2() {
         return;
       }
     }
-    
+
     const app = {
       id: `app-${Date.now()}`,
       jobId: job.id,
@@ -811,7 +811,7 @@ function PvaraPhase2() {
       createdAt: new Date().toISOString(),
       screeningErrors: manual ? ["failed mandatory checks"] : [],
     };
-    
+
     // Create or update candidate profile
     if (!candidate) {
       candidate = {
@@ -852,12 +852,12 @@ function PvaraPhase2() {
     setAppForm({ jobId: state.jobs[0]?.id || "", name: "", email: "", cnic: "", phone: "", degree: "", experienceYears: "", address: "", linkedin: "" });
     if (fileRef.current) fileRef.current.value = null;
     addToast(`Application submitted successfully for ${job.title}!`, { type: "success" });
-    
+
     // Redirect to My Applications page after 1 second
     setTimeout(() => {
       setView("my-apps");
     }, 1500);
-    
+
     // Send confirmation email
     const emailData = {
       to: data.email,
@@ -867,9 +867,9 @@ function PvaraPhase2() {
         jobTitle: job.title,
       },
     };
-    
+
     const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5000";
-    fetch(`${apiUrl}/api/send-email-template`, {
+    fetch(`${apiUrl}/api/email/send-template`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(emailData),
@@ -909,7 +909,7 @@ function PvaraPhase2() {
     audit("change-app-status", { appId, status, note });
     addToast("Application status updated: " + status, { type: status === 'rejected' ? 'error' : 'success' });
     setDrawer((d) => (d.open && d.app && d.app.id === appId ? { ...d, app: { ...d.app, status } } : d));
-    
+
     // Send status update email
     const app = (state.applications || []).find((a) => a.id === appId);
     if (app && app.applicant && app.applicant.email) {
@@ -918,7 +918,7 @@ function PvaraPhase2() {
         interviewed: "INTERVIEW_SCHEDULED",
         rejected: "REJECTION",
       };
-      
+
       const templateType = emailTemplates[status];
       if (templateType) {
         const job = (state.jobs || []).find((j) => j.id === app.jobId);
@@ -930,9 +930,9 @@ function PvaraPhase2() {
             jobTitle: job?.title || "Position",
           },
         };
-        
+
         const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5000";
-        fetch(`${apiUrl}/api/send-email-template`, {
+        fetch(`${apiUrl}/api/email/send-template`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(emailData),
@@ -968,7 +968,7 @@ function PvaraPhase2() {
       author: user?.name || user?.username || 'Unknown',
       timestamp: new Date().toISOString()
     };
-    
+
     setState((s) => ({
       ...s,
       applications: (s.applications || []).map(app =>
@@ -987,7 +987,7 @@ function PvaraPhase2() {
       'Name', 'Email', 'CNIC', 'Phone', 'Degree', 'Experience (Years)',
       'Status', 'AI Score', 'AI Recommendation', 'Applied Date', 'Notes Count'
     ];
-    
+
     const rows = candidatesToExport.map(c => [
       c.applicant?.name || c.name || '',
       c.applicant?.email || c.email || '',
@@ -1001,12 +1001,12 @@ function PvaraPhase2() {
       c.createdAt ? new Date(c.createdAt).toLocaleDateString() : '',
       c.notes?.length || 0
     ]);
-    
+
     const csvContent = [
       headers.join(','),
       ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
     ].join('\n');
-    
+
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -1016,7 +1016,7 @@ function PvaraPhase2() {
     a.click();
     document.body.removeChild(a);
     window.URL.revokeObjectURL(url);
-    
+
     addToast(`Exported ${candidatesToExport.length} candidate(s)`, { type: "success" });
   }, [addToast]);
 
@@ -1126,148 +1126,148 @@ function PvaraPhase2() {
 
         {/* Sidebar */}
         <div className={`fixed lg:static w-72 glass-sidebar text-gray-800 min-h-screen p-6 flex flex-col z-40 transition-transform duration-300 shadow-2xl ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
-        <div className="flex items-center gap-3 mb-8">
-          <img src={logo} alt="PVARA" className="h-10" />
-          <div>
-            <div className="font-display font-bold text-2xl text-green-700">PVARA</div>
-            <div className="text-xs text-gray-600 font-medium tracking-wide">RECRUITMENT</div>
+          <div className="flex items-center gap-3 mb-8">
+            <img src={logo} alt="PVARA" className="h-10" />
+            <div>
+              <div className="font-display font-bold text-2xl text-green-700">PVARA</div>
+              <div className="text-xs text-gray-600 font-medium tracking-wide">RECRUITMENT</div>
+            </div>
           </div>
-        </div>
 
-        <nav className="flex-1 space-y-1">
-          {/* Public Candidate Portal - Always Visible */}
-          <div className="text-xs uppercase font-semibold text-gray-500 px-3 py-2 mb-1">For Candidates</div>
-          <button onClick={() => { setView("jobs"); setMobileMenuOpen(false); setSelectedJobId(null); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "jobs" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-            Browse Jobs
-          </button>
-          <button onClick={() => { setView("apply"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "apply" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
-            Apply Now
-          </button>
-          <button onClick={() => { setView("candidate-login"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "candidate-login" || view === "my-apps" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>
-            Track My Applications
-          </button>
-          
-          {/* Staff Portal - Only for logged-in HR/Admin */}
-          {user && (
-            <>
-              <div className="border-t border-gray-300/50 mt-4 pt-4 mb-2">
-                <div className="text-xs uppercase font-semibold text-gray-500 px-3 py-1">Staff Portal</div>
-              </div>
-              <button onClick={() => { setView("dashboard"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "dashboard" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
-                Dashboard
-              </button>
-            </>
-          )}
-          {auth.hasRole('admin') && (
-            <button onClick={() => { setView("admin"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "admin" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
-              Admin
+          <nav className="flex-1 space-y-1">
+            {/* Public Candidate Portal - Always Visible */}
+            <div className="text-xs uppercase font-semibold text-gray-500 px-3 py-2 mb-1">For Candidates</div>
+            <button onClick={() => { setView("jobs"); setMobileMenuOpen(false); setSelectedJobId(null); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "jobs" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>
+              Browse Jobs
             </button>
-          )}
-          {auth.hasRole(['hr','admin','recruiter']) && (
-            <button onClick={() => { setView("hr"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "hr" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-              HR Review
+            <button onClick={() => { setView("apply"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "apply" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 20h9" /><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" /></svg>
+              Apply Now
             </button>
-          )}
-          {auth.hasRole(['hr','admin','recruiter']) && (
-            <button onClick={() => { setView("ai-screening"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "ai-screening" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
-              AI Screening
+            <button onClick={() => { setView("candidate-login"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "candidate-login" || view === "my-apps" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" /><path d="M14 2v4a2 2 0 0 0 2 2h4" /></svg>
+              Track My Applications
             </button>
-          )}
-          {auth.hasRole(['hr','admin','recruiter']) && (
-            <button onClick={() => { setView("analytics"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "analytics" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
-              Analytics
-            </button>
-          )}
-          {auth.hasRole(['hr','admin','recruiter']) && (
-            <button onClick={() => { setView("shortlists"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "shortlists" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polygon points="12 2 15 9 22 9 17 14 19 21 12 17 5 21 7 14 2 9 9 9 12 2" /></svg>
-              Shortlists
-            </button>
-          )}
-          {auth.hasRole(['hr','admin']) && (
-            <button onClick={() => { setView("audit"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "audit" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 7h6"/><path d="M9 11h6"/><path d="M9 15h4"/></svg>
-              Audit Log
-            </button>
-          )}
-          {/* Advanced Features Section */}
-          {auth.hasRole(['hr','admin','recruiter']) && (
-            <div className="border-t border-gray-300/50 mt-3 pt-3">
-              <div className="text-xs uppercase font-semibold text-gray-600 px-3 py-1">Advanced</div>
-            {auth.hasRole(['hr','admin','recruiter']) && (
+
+            {/* Staff Portal - Only for logged-in HR/Admin */}
+            {user && (
               <>
-                <button onClick={() => { setView("emails"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "emails" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-                  Emails
-                </button>
-                <button onClick={() => { setView("scheduling"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "scheduling" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
-                  Interviews
-                </button>
-                <button onClick={() => { setView("pipeline"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "pipeline" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-                  Pipeline
-                </button>
-                <button onClick={() => { setView("offers"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "offers" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
-                  Offers
-                </button>
-                <button onClick={() => { setView("reports"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "reports" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="12" x2="12" y1="20" y2="10"/><line x1="18" x2="18" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="16"/></svg>
-                  Reports
-                </button>
-                <button onClick={() => { setView("settings"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "settings" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
-                  Settings
+                <div className="border-t border-gray-300/50 mt-4 pt-4 mb-2">
+                  <div className="text-xs uppercase font-semibold text-gray-500 px-3 py-1">Staff Portal</div>
+                </div>
+                <button onClick={() => { setView("dashboard"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "dashboard" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect width="7" height="9" x="3" y="3" rx="1" /><rect width="7" height="5" x="14" y="3" rx="1" /><rect width="7" height="9" x="14" y="12" rx="1" /><rect width="7" height="5" x="3" y="16" rx="1" /></svg>
+                  Dashboard
                 </button>
               </>
             )}
-            </div>
-          )}
-        </nav>
-
-        <div className="mt-4 text-xs text-gray-700">
-          {user ? (
-            <div className="mt-auto glass-card p-4 rounded-lg">
-              <div className="flex items-center gap-2 font-medium mb-2">
-                <svg className="w-5 h-5 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                <strong>{user.name}</strong>
-              </div>
-              <div className="text-xs text-gray-600 mb-3">
-                Role: <span className="font-semibold text-green-700">{user.role}</span>
-              </div>
-              <button
-                onClick={() => {
-                  auth.logout();
-                  setView("dashboard");
-                }}
-                className="text-xs px-3 py-1.5 glass-button rounded-lg hover:shadow-md transition-all font-medium flex items-center gap-2 w-full justify-center"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
-                Logout
+            {auth.hasRole('admin') && (
+              <button onClick={() => { setView("admin"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "admin" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" /><circle cx="12" cy="12" r="3" /></svg>
+                Admin
               </button>
-            </div>
-          ) : (
-            <div className="mt-auto">
-              <LoginInline
-                onLogin={(cred) => {
-                  const res = auth.login(cred);
-                  if (!res.ok) addToast(res.message, { type: 'error' });
-                  else setView("dashboard");
-                }}
-              />
-            </div>
-          )}
+            )}
+            {auth.hasRole(['hr', 'admin', 'recruiter']) && (
+              <button onClick={() => { setView("hr"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "hr" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
+                HR Review
+              </button>
+            )}
+            {auth.hasRole(['hr', 'admin', 'recruiter']) && (
+              <button onClick={() => { setView("ai-screening"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "ai-screening" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8V4H8" /><rect width="16" height="12" x="4" y="8" rx="2" /><path d="M2 14h2" /><path d="M20 14h2" /><path d="M15 13v2" /><path d="M9 13v2" /></svg>
+                AI Screening
+              </button>
+            )}
+            {auth.hasRole(['hr', 'admin', 'recruiter']) && (
+              <button onClick={() => { setView("analytics"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "analytics" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 3v18h18" /><path d="m19 9-5 5-4-4-3 3" /></svg>
+                Analytics
+              </button>
+            )}
+            {auth.hasRole(['hr', 'admin', 'recruiter']) && (
+              <button onClick={() => { setView("shortlists"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "shortlists" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polygon points="12 2 15 9 22 9 17 14 19 21 12 17 5 21 7 14 2 9 9 9 12 2" /></svg>
+                Shortlists
+              </button>
+            )}
+            {auth.hasRole(['hr', 'admin']) && (
+              <button onClick={() => { setView("audit"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "audit" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2" /><path d="M9 7h6" /><path d="M9 11h6" /><path d="M9 15h4" /></svg>
+                Audit Log
+              </button>
+            )}
+            {/* Advanced Features Section */}
+            {auth.hasRole(['hr', 'admin', 'recruiter']) && (
+              <div className="border-t border-gray-300/50 mt-3 pt-3">
+                <div className="text-xs uppercase font-semibold text-gray-600 px-3 py-1">Advanced</div>
+                {auth.hasRole(['hr', 'admin', 'recruiter']) && (
+                  <>
+                    <button onClick={() => { setView("emails"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "emails" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect width="20" height="16" x="2" y="4" rx="2" /><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" /></svg>
+                      Emails
+                    </button>
+                    <button onClick={() => { setView("scheduling"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "scheduling" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="4" rx="2" ry="2" /><line x1="16" x2="16" y1="2" y2="6" /><line x1="8" x2="8" y1="2" y2="6" /><line x1="3" x2="21" y1="10" y2="10" /></svg>
+                      Interviews
+                    </button>
+                    <button onClick={() => { setView("pipeline"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "pipeline" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /></svg>
+                      Pipeline
+                    </button>
+                    <button onClick={() => { setView("offers"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "offers" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="7" rx="2" ry="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" /></svg>
+                      Offers
+                    </button>
+                    <button onClick={() => { setView("reports"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "reports" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="12" x2="12" y1="20" y2="10" /><line x1="18" x2="18" y1="20" y2="4" /><line x1="6" x2="6" y1="20" y2="16" /></svg>
+                      Reports
+                    </button>
+                    <button onClick={() => { setView("settings"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "settings" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" /><circle cx="12" cy="12" r="3" /></svg>
+                      Settings
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
+          </nav>
+
+          <div className="mt-4 text-xs text-gray-700">
+            {user ? (
+              <div className="mt-auto glass-card p-4 rounded-lg">
+                <div className="flex items-center gap-2 font-medium mb-2">
+                  <svg className="w-5 h-5 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+                  <strong>{user.name}</strong>
+                </div>
+                <div className="text-xs text-gray-600 mb-3">
+                  Role: <span className="font-semibold text-green-700">{user.role}</span>
+                </div>
+                <button
+                  onClick={() => {
+                    auth.logout();
+                    setView("dashboard");
+                  }}
+                  className="text-xs px-3 py-1.5 glass-button rounded-lg hover:shadow-md transition-all font-medium flex items-center gap-2 w-full justify-center"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" x2="9" y1="12" y2="12" /></svg>
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <div className="mt-auto">
+                <LoginInline
+                  onLogin={(cred) => {
+                    const res = auth.login(cred);
+                    if (!res.ok) addToast(res.message, { type: 'error' });
+                    else setView("dashboard");
+                  }}
+                />
+              </div>
+            )}
+          </div>
         </div>
-      </div>
       </>
     );
   }
@@ -1316,25 +1316,25 @@ function PvaraPhase2() {
     const jobErrs = validateJobForm(localForm);
     return (
       <form onSubmit={createJob} className="space-y-2">
-        <input 
-          value={localForm.title} 
-          onChange={(e) => handleLocalChange('title', e.target.value)} 
-          placeholder="Title" 
-          className="border p-2 rounded w-full" 
+        <input
+          value={localForm.title}
+          onChange={(e) => handleLocalChange('title', e.target.value)}
+          placeholder="Title"
+          className="border p-2 rounded w-full"
           autoComplete="off"
         />
-        <input 
-          value={localForm.department} 
-          onChange={(e) => handleLocalChange('department', e.target.value)} 
-          placeholder="Department" 
-          className="border p-2 rounded w-full" 
+        <input
+          value={localForm.department}
+          onChange={(e) => handleLocalChange('department', e.target.value)}
+          placeholder="Department"
+          className="border p-2 rounded w-full"
           autoComplete="off"
         />
-        <textarea 
-          value={localForm.description} 
-          onChange={(e) => handleLocalChange('description', e.target.value)} 
-          placeholder="Description" 
-          className="border p-2 rounded w-full" 
+        <textarea
+          value={localForm.description}
+          onChange={(e) => handleLocalChange('description', e.target.value)}
+          placeholder="Description"
+          className="border p-2 rounded w-full"
           autoComplete="off"
         />
         <div className="grid grid-cols-2 gap-2">
@@ -1351,30 +1351,30 @@ function PvaraPhase2() {
           </div>
         )}
         <div className="flex gap-2">
-            <button className="px-3 py-2 bg-green-700 text-white rounded disabled:opacity-50" disabled={jobErrs.length > 0}>{editingJobId ? 'Update Job' : 'Create Job'}</button>
+          <button className="px-3 py-2 bg-green-700 text-white rounded disabled:opacity-50" disabled={jobErrs.length > 0}>{editingJobId ? 'Update Job' : 'Create Job'}</button>
+          <button
+            type="button"
+            onClick={() => {
+              setLocalForm(emptyJobForm);
+              setJobForm(emptyJobForm);
+            }}
+            className="px-3 py-2 border rounded"
+          >
+            Reset
+          </button>
+          {editingJobId && (
             <button
               type="button"
               onClick={() => {
+                setEditingJobId(null);
                 setLocalForm(emptyJobForm);
                 setJobForm(emptyJobForm);
               }}
-              className="px-3 py-2 border rounded"
+              className="px-3 py-2 border rounded text-sm"
             >
-              Reset
+              Cancel Edit
             </button>
-            {editingJobId && (
-              <button
-                type="button"
-                onClick={() => {
-                  setEditingJobId(null);
-                  setLocalForm(emptyJobForm);
-                  setJobForm(emptyJobForm);
-                }}
-                className="px-3 py-2 border rounded text-sm"
-              >
-                Cancel Edit
-              </button>
-            )}
+          )}
         </div>
       </form>
     );
@@ -1497,7 +1497,7 @@ function PvaraPhase2() {
           {myApplications.length === 0 ? (
             <div className="text-center py-12">
               <div className="text-gray-500 mb-4">No applications yet</div>
-              <button 
+              <button
                 onClick={() => setView("apply")}
                 className="px-4 py-2 bg-green-700 text-white rounded"
               >
@@ -1561,7 +1561,7 @@ function PvaraPhase2() {
       <div>
         <Header title="Admin - Create Job" />
         <div className="bg-white p-4 rounded shadow">
-          <JobFormComponent 
+          <JobFormComponent
             jobForm={jobForm}
             editingJobId={editingJobId}
             validateJobForm={validateJobForm}
@@ -1616,8 +1616,8 @@ function PvaraPhase2() {
   // eslint-disable-next-line no-unused-vars
   function HRView() {
     if (!user || (user.role !== "hr" && user.role !== "admin" && user.role !== "recruiter")) return <div>Access denied</div>;
-    const apps = (state.applications || []).filter((a) => 
-      (a.applicant.name || "").toLowerCase().includes(hrSearch.toLowerCase()) || 
+    const apps = (state.applications || []).filter((a) =>
+      (a.applicant.name || "").toLowerCase().includes(hrSearch.toLowerCase()) ||
       (a.applicant.email || "").toLowerCase().includes(hrSearch.toLowerCase())
     );
 
@@ -1708,7 +1708,7 @@ function PvaraPhase2() {
   function JobBoardView() {
     const [currentPage, setCurrentPage] = React.useState(1);
     const jobsPerPage = 6;
-    
+
     const openJobs = (state.jobs || []).filter((j) => j.status === "open");
     const normalizedSearch = jobSearch.trim().toLowerCase();
 
@@ -1780,14 +1780,14 @@ function PvaraPhase2() {
                 </span>
               </div>
             </div>
-            
+
             {/* Job Details */}
             <div className="p-8 space-y-6">
               <div>
                 <h2 className="text-xl font-bold text-gray-800 mb-3">About the Role</h2>
                 <p className="text-gray-700 leading-relaxed">{job.description}</p>
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="p-4 glass-card rounded-lg">
                   <h3 className="font-semibold text-green-700 mb-2">📍 Location</h3>
@@ -1809,7 +1809,7 @@ function PvaraPhase2() {
                   </p>
                 </div>
               </div>
-              
+
               <div className="pt-6 border-t">
                 <button
                   onClick={() => {
@@ -1826,23 +1826,23 @@ function PvaraPhase2() {
         </div>
       );
     }
-    
+
     return (
       <div className="max-w-6xl mx-auto">
         <div className="mb-8 text-center">
           <h1 className="font-display text-6xl font-bold text-gray-800 mb-3">Join Our Team</h1>
           <p className="text-xl text-gray-700 mb-6">Explore exciting opportunities and grow your career with PVARA</p>
-          
+
           {/* Search Bar */}
           <div className="max-w-2xl mx-auto mb-4">
             <form onSubmit={handleJobSearchSubmit} className="glass-card rounded-xl shadow-lg p-1 flex items-center">
               <svg className="w-5 h-5 text-gray-500 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <circle cx="11" cy="11" r="8"/>
-                <path d="m21 21-4.35-4.35"/>
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.35-4.35" />
               </svg>
-              <input 
-                type="text" 
-                placeholder="Search jobs by title, department, or location..." 
+              <input
+                type="text"
+                placeholder="Search jobs by title, department, or location..."
                 className="flex-1 px-4 py-3 bg-transparent border-none outline-none text-gray-800 placeholder-gray-500"
                 value={jobSearch}
                 onChange={(e) => handleJobSearchChange(e.target.value)}
@@ -1853,14 +1853,14 @@ function PvaraPhase2() {
               </button>
             </form>
           </div>
-          
+
           <div className="flex items-center justify-center gap-4">
             <div className="glass-button inline-block px-4 py-2 rounded-full text-sm font-medium text-gray-800">
               {visibleJobs.length} open position{visibleJobs.length !== 1 ? 's' : ''} available
             </div>
           </div>
         </div>
-        
+
         {visibleJobs.length === 0 ? (
           <div className="glass-card rounded-lg shadow-md p-12 text-center">
             <svg className="w-16 h-16 mx-auto text-gray-400 mb-4" fill="currentColor" viewBox="0 0 20 20">
@@ -1871,112 +1871,111 @@ function PvaraPhase2() {
           </div>
         ) : (
           <>
-          <div className="grid grid-cols-1 gap-6">
-            {paginatedJobs.map(job => (
-              <div
-                key={job.id}
-                className="glass-card rounded-xl shadow-lg hover:shadow-2xl transition-all overflow-hidden border-2 border-white/30 hover:border-green-400 cursor-pointer"
-                onClick={() => setSelectedJobId(job.id)}
-              >
-                <div className="p-6">
-                  <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-                    <div className="flex-1">
-                      <h2 className="text-2xl font-bold text-gray-800 mb-2 hover:text-green-700 transition">
-                        {job.title}
-                      </h2>
-                      <div className="flex flex-wrap gap-3 mb-3">
-                        <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
-                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clipRule="evenodd" /></svg>
-                          {job.department}
-                        </span>
-                        <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
-                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" /></svg>
-                          {job.locations.join(', ')}
-                        </span>
-                        <span className="inline-flex items-center gap-1 px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium">
-                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" /></svg>
-                          {job.employmentType}
-                        </span>
+            <div className="grid grid-cols-1 gap-6">
+              {paginatedJobs.map(job => (
+                <div
+                  key={job.id}
+                  className="glass-card rounded-xl shadow-lg hover:shadow-2xl transition-all overflow-hidden border-2 border-white/30 hover:border-green-400 cursor-pointer"
+                  onClick={() => setSelectedJobId(job.id)}
+                >
+                  <div className="p-6">
+                    <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                      <div className="flex-1">
+                        <h2 className="text-2xl font-bold text-gray-800 mb-2 hover:text-green-700 transition">
+                          {job.title}
+                        </h2>
+                        <div className="flex flex-wrap gap-3 mb-3">
+                          <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clipRule="evenodd" /></svg>
+                            {job.department}
+                          </span>
+                          <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" /></svg>
+                            {job.locations.join(', ')}
+                          </span>
+                          <span className="inline-flex items-center gap-1 px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium">
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" /></svg>
+                            {job.employmentType}
+                          </span>
+                        </div>
+                        <p className="text-gray-600 line-clamp-2 mb-3">{job.description}</p>
+                        <div className="flex items-center gap-4 text-sm text-gray-500">
+                          <span>💰 ₨{job.salary.min.toLocaleString()} - ₨{job.salary.max.toLocaleString()}</span>
+                          <span>👥 {job.openings} opening{job.openings > 1 ? 's' : ''}</span>
+                        </div>
                       </div>
-                      <p className="text-gray-600 line-clamp-2 mb-3">{job.description}</p>
-                      <div className="flex items-center gap-4 text-sm text-gray-500">
-                        <span>💰 ₨{job.salary.min.toLocaleString()} - ₨{job.salary.max.toLocaleString()}</span>
-                        <span>👥 {job.openings} opening{job.openings > 1 ? 's' : ''}</span>
+                      <div className="flex flex-col gap-2">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedJobId(job.id);
+                          }}
+                          className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition whitespace-nowrap"
+                        >
+                          View Details →
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setView('apply');
+                            setAppForm(prev => ({ ...prev, jobId: job.id }));
+                          }}
+                          className="px-6 py-2 border-2 border-green-600 text-green-600 rounded-lg hover:bg-green-50 font-medium transition whitespace-nowrap"
+                        >
+                          Quick Apply
+                        </button>
                       </div>
-                    </div>
-                    <div className="flex flex-col gap-2">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedJobId(job.id);
-                        }}
-                        className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition whitespace-nowrap"
-                      >
-                        View Details →
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setView('apply');
-                          setAppForm(prev => ({ ...prev, jobId: job.id }));
-                        }}
-                        className="px-6 py-2 border-2 border-green-600 text-green-600 rounded-lg hover:bg-green-50 font-medium transition whitespace-nowrap"
-                      >
-                        Quick Apply
-                      </button>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-          
-          {/* Pagination Controls */}
-          {totalPages > 1 && (
-            <div className="mt-8 flex justify-center items-center gap-2">
-              <button
-                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-                className="glass-button px-4 py-2 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-md transition"
-              >
-                ← Previous
-              </button>
-              <div className="flex gap-2">
-                {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-                  let page;
-                  if (totalPages <= 5) {
-                    page = i + 1;
-                  } else if (currentPage <= 3) {
-                    page = i + 1;
-                  } else if (currentPage >= totalPages - 2) {
-                    page = totalPages - 4 + i;
-                  } else {
-                    page = currentPage - 2 + i;
-                  }
-                  return (
-                    <button
-                      key={page}
-                      onClick={() => setCurrentPage(page)}
-                      className={`px-4 py-2 rounded-lg font-medium transition ${
-                        currentPage === page
-                          ? 'bg-green-700 text-white shadow-lg'
-                          : 'glass-button hover:shadow-md'
-                      }`}
-                    >
-                      {page}
-                    </button>
-                  );
-                })}
-              </div>
-              <button
-                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                disabled={currentPage === totalPages}
-                className="glass-button px-4 py-2 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-md transition"
-              >
-                Next →
-              </button>
+              ))}
             </div>
-          )}
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="mt-8 flex justify-center items-center gap-2">
+                <button
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="glass-button px-4 py-2 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-md transition"
+                >
+                  ← Previous
+                </button>
+                <div className="flex gap-2">
+                  {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                    let page;
+                    if (totalPages <= 5) {
+                      page = i + 1;
+                    } else if (currentPage <= 3) {
+                      page = i + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      page = totalPages - 4 + i;
+                    } else {
+                      page = currentPage - 2 + i;
+                    }
+                    return (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        className={`px-4 py-2 rounded-lg font-medium transition ${currentPage === page
+                            ? 'bg-green-700 text-white shadow-lg'
+                            : 'glass-button hover:shadow-md'
+                          }`}
+                      >
+                        {page}
+                      </button>
+                    );
+                  })}
+                </div>
+                <button
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  className="glass-button px-4 py-2 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-md transition"
+                >
+                  Next →
+                </button>
+              </div>
+            )}
           </>
         )}
       </div>
@@ -1986,10 +1985,10 @@ function PvaraPhase2() {
   // Two-Panel HR Review with Job Selection
   function HRReviewPanel({ jobs, applications, onStatusChange, onAIEvaluate, onBulkAction, onAddNote, onExport }) {
     const [selectedJobId, setSelectedJobId] = React.useState(jobs[0]?.id || null);
-    
+
     const selectedJob = jobs.find(j => j.id === selectedJobId);
     const filteredApplications = applications.filter(app => app.jobId === selectedJobId);
-    
+
     // Calculate stats per job
     const jobStats = jobs.map(job => {
       const jobApps = applications.filter(app => app.jobId === job.id);
@@ -2016,11 +2015,10 @@ function PvaraPhase2() {
                 <button
                   key={job.id}
                   onClick={() => setSelectedJobId(job.id)}
-                  className={`w-full text-left p-3 rounded-lg border-2 transition ${
-                    selectedJobId === job.id
+                  className={`w-full text-left p-3 rounded-lg border-2 transition ${selectedJobId === job.id
                       ? 'border-green-700 bg-green-50'
                       : 'border-gray-200 hover:border-green-300 hover:bg-gray-50'
-                  }`}
+                    }`}
                 >
                   <div className="font-semibold text-sm text-gray-800 mb-1">{job.title}</div>
                   <div className="text-xs text-gray-500 mb-2">{job.department}</div>
@@ -2113,31 +2111,31 @@ function PvaraPhase2() {
           {view === "dashboard" && <AnalyticsDashboard state={state} onGenerateTestData={handleGenerateTestData} />}
           {view === "apply" && <ApplicationForm onSubmit={submitApplication} jobs={state.jobs} />}
           {(view === "candidate-login" || view === "my-apps") && !candidateSession && (
-            <CandidateLogin 
-              onLogin={handleCandidateLogin} 
-              onCancel={() => setView("jobs")} 
+            <CandidateLogin
+              onLogin={handleCandidateLogin}
+              onCancel={() => setView("jobs")}
             />
           )}
           {view === "my-apps" && candidateSession && (
-            <MyCandidateApplications 
-              applications={state.applications} 
+            <MyCandidateApplications
+              applications={state.applications}
               candidateProfile={candidateSession}
               jobs={state.jobs}
             />
           )}
           {view === "admin" && <JobList jobs={state.jobs} onCreate={createJob} onEdit={updateJob} onDelete={deleteJob} />}
           {view === "hr" && (
-            <HRReviewPanel 
+            <HRReviewPanel
               jobs={state.jobs}
-              applications={state.applications} 
-              onStatusChange={changeApplicationStatus} 
-              onAIEvaluate={handleAIEvaluation} 
-              onBulkAction={handleBulkAction} 
-              onAddNote={handleAddNote} 
-              onExport={handleExport} 
+              applications={state.applications}
+              onStatusChange={changeApplicationStatus}
+              onAIEvaluate={handleAIEvaluation}
+              onBulkAction={handleBulkAction}
+              onAddNote={handleAddNote}
+              onExport={handleExport}
             />
           )}
-          {view === "ai-screening" && <InterviewRubric rubric={state.rubric} onEvaluate={submitInterviewEvaluation} jobs={state.jobs} applications={state.applications} selectedJobForAI={selectedJobForAI} handleSelectJobForAI={handleSelectJobForAI} />}
+          {view === "ai-screening" && <InterviewRubric rubric={state.rubric} onEvaluate={handleAIEvaluation} jobs={state.jobs} applications={state.applications} selectedJobForAI={selectedJobForAI} handleSelectJobForAI={handleSelectJobForAI} />}
           {view === "analytics" && <AnalyticsDashboard state={state} onGenerateTestData={handleGenerateTestData} />}
           {view === "shortlists" && <ShortlistPanel shortlist={state.shortlists} onUpdate={createShortlist} />}
           {view === "audit" && <AuditLog auditRecords={state.audit} />}
@@ -2145,7 +2143,7 @@ function PvaraPhase2() {
 
         {/* Toast notifications */}
         <Toasts toasts={state.toasts} />
-        
+
         {/* Footer */}
         <footer className="mt-16 glass-card rounded-xl p-8 shadow-lg">
           <div className="max-w-6xl mx-auto">
@@ -2161,17 +2159,17 @@ function PvaraPhase2() {
                 </p>
                 <div className="flex gap-4">
                   <button type="button" className="text-gray-600 hover:text-green-700 transition" aria-label="Visit Facebook">
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" /></svg>
                   </button>
                   <button type="button" className="text-gray-600 hover:text-green-700 transition" aria-label="Visit Twitter">
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/></svg>
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" /></svg>
                   </button>
                   <button type="button" className="text-gray-600 hover:text-green-700 transition" aria-label="Visit LinkedIn">
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" /></svg>
                   </button>
                 </div>
               </div>
-              
+
               {/* Quick Links */}
               <div>
                 <h3 className="font-semibold text-gray-800 mb-4">Quick Links</h3>
@@ -2182,7 +2180,7 @@ function PvaraPhase2() {
                   <li><button type="button" className="text-gray-600 hover:text-green-700 transition">Contact</button></li>
                 </ul>
               </div>
-              
+
               {/* Support */}
               <div>
                 <h3 className="font-semibold text-gray-800 mb-4">Support</h3>
@@ -2194,7 +2192,7 @@ function PvaraPhase2() {
                 </ul>
               </div>
             </div>
-            
+
             <div className="border-t border-gray-300/50 mt-8 pt-6 text-center">
               <p className="text-sm text-gray-600">
                 © {new Date().getFullYear()} PVARA. All rights reserved. | Powered by AI Technology

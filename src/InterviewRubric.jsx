@@ -11,37 +11,72 @@ const InterviewRubric = ({ rubric, onEvaluate, jobs = [], applications = [], sel
     ? applications.filter(a => a.jobId === selectedJob.id)
     : [];
 
+  // Count unevaluated applications
+  const unevaluatedCount = applications.filter(app => app.status === 'submitted' || !app.aiScore).length;
+
   return (
     <div>
       <div className="bg-white p-4 rounded shadow">
+        <div className="flex justify-between items-center mb-4">
+          <div>
+            <h2 className="text-xl font-semibold text-green-800">AI Screening</h2>
+            <p className="text-sm text-gray-600">Batch evaluate applications using AI</p>
+          </div>
+          <button
+            onClick={() => onEvaluate()}
+            className="px-4 py-2 bg-green-700 text-white rounded hover:bg-green-800 disabled:opacity-50"
+            disabled={unevaluatedCount === 0}
+          >
+            🤖 Run AI Evaluation ({unevaluatedCount} pending)
+          </button>
+        </div>
+
         <label className="block font-semibold mb-2">Select Job Position</label>
         <select
           value={selectedJobForAI || ''}
           onChange={(e) => handleSelectJobForAI(e.target.value)}
           className="border p-2 rounded w-full"
         >
-          <option value="">-- Choose a job --</option>
+          <option value="">-- Choose a job to view applications --</option>
           {jobList.map(j => (
             <option key={j.id} value={j.id}>{j.title} ({j.department})</option>
           ))}
         </select>
       </div>
-      {/* AI Screening Panel: Add rubric and evaluation logic here as needed */}
-      <div className="mt-4">
+
+      {/* Applications for Selected Job */}
+      <div className="mt-4 bg-white p-4 rounded shadow">
         <h3 className="font-semibold mb-2">Applications for Selected Job</h3>
-        {jobApps.length === 0 ? (
-          <div className="text-gray-500">No applications for this job.</div>
+        {!selectedJobForAI ? (
+          <div className="text-gray-500 text-center py-8">Please select a job position above</div>
+        ) : jobApps.length === 0 ? (
+          <div className="text-gray-500 text-center py-8">No applications for this job.</div>
         ) : (
-          <ul className="space-y-2">
+          <div className="space-y-2">
             {jobApps.map(app => (
-              <li key={app.id} className="p-2 border rounded bg-gray-50">
-                <div className="font-semibold">{app.applicant.name}</div>
-                <div className="text-xs text-gray-500">{app.applicant.email}</div>
-                {/* Add rubric evaluation UI here if needed */}
-                <button onClick={() => onEvaluate(app)} className="mt-2 px-2 py-1 border rounded text-sm bg-green-700 text-white">Evaluate</button>
-              </li>
+              <div key={app.id} className="p-3 border rounded bg-gray-50 hover:bg-gray-100 transition">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <div className="font-semibold">{app.applicant.name}</div>
+                    <div className="text-xs text-gray-500">{app.applicant.email}</div>
+                    <div className="text-xs text-gray-600 mt-1">
+                      Status: <span className="font-medium">{app.status}</span>
+                      {app.aiScore && <span className="ml-3">AI Score: <span className="font-semibold text-green-700">{app.aiScore}</span></span>}
+                    </div>
+                  </div>
+                  {app.aiScore ? (
+                    <span className="px-3 py-1 bg-green-100 text-green-700 rounded text-sm">
+                      ✓ Evaluated
+                    </span>
+                  ) : (
+                    <span className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded text-sm">
+                      ⏳ Pending
+                    </span>
+                  )}
+                </div>
+              </div>
             ))}
-          </ul>
+          </div>
         )}
       </div>
     </div>
