@@ -1198,40 +1198,7 @@ function PvaraPhase2() {
                 Audit Log
               </button>
             )}
-            {/* Advanced Features Section */}
-            {auth.hasRole(['hr', 'admin', 'recruiter']) && (
-              <div className="border-t border-gray-300/50 mt-3 pt-3">
-                <div className="text-xs uppercase font-semibold text-gray-600 px-3 py-1">Advanced</div>
-                {auth.hasRole(['hr', 'admin', 'recruiter']) && (
-                  <>
-                    <button onClick={() => { setView("emails"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "emails" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect width="20" height="16" x="2" y="4" rx="2" /><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" /></svg>
-                      Emails
-                    </button>
-                    <button onClick={() => { setView("scheduling"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "scheduling" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="4" rx="2" ry="2" /><line x1="16" x2="16" y1="2" y2="6" /><line x1="8" x2="8" y1="2" y2="6" /><line x1="3" x2="21" y1="10" y2="10" /></svg>
-                      Interviews
-                    </button>
-                    <button onClick={() => { setView("pipeline"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "pipeline" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /></svg>
-                      Pipeline
-                    </button>
-                    <button onClick={() => { setView("offers"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "offers" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="7" rx="2" ry="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" /></svg>
-                      Offers
-                    </button>
-                    <button onClick={() => { setView("reports"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "reports" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="12" x2="12" y1="20" y2="10" /><line x1="18" x2="18" y1="20" y2="4" /><line x1="6" x2="6" y1="20" y2="16" /></svg>
-                      Reports
-                    </button>
-                    <button onClick={() => { setView("settings"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "settings" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" /><circle cx="12" cy="12" r="3" /></svg>
-                      Settings
-                    </button>
-                  </>
-                )}
-              </div>
-            )}
+
           </nav>
 
           <div className="mt-4 text-xs text-gray-700">
@@ -1958,8 +1925,8 @@ function PvaraPhase2() {
                         key={page}
                         onClick={() => setCurrentPage(page)}
                         className={`px-4 py-2 rounded-lg font-medium transition ${currentPage === page
-                            ? 'bg-green-700 text-white shadow-lg'
-                            : 'glass-button hover:shadow-md'
+                          ? 'bg-green-700 text-white shadow-lg'
+                          : 'glass-button hover:shadow-md'
                           }`}
                       >
                         {page}
@@ -2016,8 +1983,8 @@ function PvaraPhase2() {
                   key={job.id}
                   onClick={() => setSelectedJobId(job.id)}
                   className={`w-full text-left p-3 rounded-lg border-2 transition ${selectedJobId === job.id
-                      ? 'border-green-700 bg-green-50'
-                      : 'border-gray-200 hover:border-green-300 hover:bg-gray-50'
+                    ? 'border-green-700 bg-green-50'
+                    : 'border-gray-200 hover:border-green-300 hover:bg-gray-50'
                     }`}
                 >
                   <div className="font-semibold text-sm text-gray-800 mb-1">{job.title}</div>
