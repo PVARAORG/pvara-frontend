@@ -868,7 +868,7 @@ function PvaraPhase2() {
       },
     };
 
-    const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5000";
+    const apiUrl = process.env.REACT_APP_API_URL || "https://pvara-backend.fortanixor.com";
     fetch(`${apiUrl}/api/email/send-template`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -931,7 +931,7 @@ function PvaraPhase2() {
           },
         };
 
-        const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5000";
+        const apiUrl = process.env.REACT_APP_API_URL || "https://pvara-backend.fortanixor.com";
         fetch(`${apiUrl}/api/email/send-template`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },

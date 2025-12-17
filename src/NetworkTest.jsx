@@ -8,7 +8,7 @@ export default function NetworkTest() {
   useEffect(() => {
     const test = async () => {
       try {
-        const url = process.env.REACT_APP_API_URL || 'http://localhost:6080';
+        const url = process.env.REACT_APP_API_URL || 'https://pvara-backend.fortanixor.com';
         const fullUrl = url + '/api/jobs';
 
         console.log('Testing URL:', fullUrl);

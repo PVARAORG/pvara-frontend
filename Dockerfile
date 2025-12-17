@@ -3,7 +3,7 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . .
-ARG REACT_APP_API_URL=http://localhost:6080
+ARG REACT_APP_API_URL=https://pvara-backend.fortanixor.com
 ENV REACT_APP_API_URL=$REACT_APP_API_URL
 RUN npm run build
 

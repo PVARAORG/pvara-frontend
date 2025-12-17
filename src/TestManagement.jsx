@@ -36,7 +36,7 @@ function TestManagement({
 
   async function fetchAvailableTests() {
     try {
-      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:6080';
+      const apiUrl = process.env.REACT_APP_API_URL || 'https://pvara-backend.fortanixor.com';
       const response = await axios.get(`${apiUrl}/api/testing/assessments`);
       if (response.data.assessments) {
         setAvailableTests(response.data.assessments);
@@ -56,7 +56,7 @@ function TestManagement({
   const handleRefreshStatuses = async () => {
     setRefreshing(true);
     try {
-      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:6080';
+      const apiUrl = process.env.REACT_APP_API_URL || 'https://pvara-backend.fortanixor.com';
       const pendingCandidates = applications.filter(app =>
         app.testing?.status === 'invited' || app.testing?.status === 'pending' || app.testing?.status === 'in-progress'
       );
@@ -213,7 +213,7 @@ function TestManagement({
 
         // Send test via API
         try {
-          const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:6080';
+          const apiUrl = process.env.REACT_APP_API_URL || 'https://pvara-backend.fortanixor.com';
           const cnic = candidate.applicant?.cnic;
           const name = candidate.applicant?.name || candidate.name;
 
@@ -294,7 +294,7 @@ function TestManagement({
 
   const handleSimulateCompletion = async (candidateId) => {
     try {
-      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:6080';
+      const apiUrl = process.env.REACT_APP_API_URL || 'https://pvara-backend.fortanixor.com';
       const response = await axios.post(`${apiUrl}/api/testing/simulate-completion/${candidateId}`);
 
       if (response.data.success) {
@@ -328,7 +328,7 @@ function TestManagement({
   // Handle reject after test
   const handleRejectCandidate = async (candidateId) => {
     try {
-      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:6080';
+      const apiUrl = process.env.REACT_APP_API_URL || 'https://pvara-backend.fortanixor.com';
       await axios.put(`${apiUrl}/api/applications/${candidateId}/status`, { status: 'rejected' });
       onUpdateApplication(candidateId, { status: 'rejected' });
       addToast('❌ Candidate rejected', { type: 'info' });
@@ -538,8 +538,8 @@ function TestManagement({
             <button
               onClick={() => setFilterStatus('all')}
               className={`px-4 py-2 rounded-lg font-medium transition ${filterStatus === 'all'
-                  ? 'bg-green-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                ? 'bg-green-600 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
             >
               All ({statusCounts.ready + statusCounts.pending + statusCounts.completed})
@@ -547,8 +547,8 @@ function TestManagement({
             <button
               onClick={() => setFilterStatus('ready')}
               className={`px-4 py-2 rounded-lg font-medium transition flex items-center gap-2 ${filterStatus === 'ready'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
             >
               Ready ({statusCounts.ready})
@@ -556,8 +556,8 @@ function TestManagement({
             <button
               onClick={() => setFilterStatus('pending')}
               className={`px-4 py-2 rounded-lg font-medium transition flex items-center gap-2 ${filterStatus === 'pending'
-                  ? 'bg-yellow-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                ? 'bg-yellow-600 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
             >
               Pending ({statusCounts.pending})
@@ -565,8 +565,8 @@ function TestManagement({
             <button
               onClick={() => setFilterStatus('completed')}
               className={`px-4 py-2 rounded-lg font-medium transition flex items-center gap-2 ${filterStatus === 'completed'
-                  ? 'bg-purple-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                ? 'bg-purple-600 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
             >
               Completed ({statusCounts.completed})
@@ -735,8 +735,8 @@ function TestManagement({
                               {/* Show score and recommendation if available */}
                               {candidate.testing?.results && (
                                 <span className={`px-2 py-0.5 rounded text-xs font-bold ${candidate.testing.results.score >= 70 ? 'bg-green-200 text-green-800' :
-                                    candidate.testing.results.score >= 50 ? 'bg-yellow-200 text-yellow-800' :
-                                      'bg-red-200 text-red-800'
+                                  candidate.testing.results.score >= 50 ? 'bg-yellow-200 text-yellow-800' :
+                                    'bg-red-200 text-red-800'
                                   }`}>
                                   Score: {candidate.testing.results.score}%
                                 </span>
@@ -765,10 +765,10 @@ function TestManagement({
                                 <div
                                   key={idx}
                                   className={`px-2 py-1 rounded text-xs ${test.category === 'technical' ? 'bg-blue-100 text-blue-700' :
-                                      test.category === 'cognitive' ? 'bg-purple-100 text-purple-700' :
-                                        test.category === 'personality' ? 'bg-pink-100 text-pink-700' :
-                                          test.category === 'soft-skills' ? 'bg-green-100 text-green-700' :
-                                            'bg-orange-100 text-orange-700'
+                                    test.category === 'cognitive' ? 'bg-purple-100 text-purple-700' :
+                                      test.category === 'personality' ? 'bg-pink-100 text-pink-700' :
+                                        test.category === 'soft-skills' ? 'bg-green-100 text-green-700' :
+                                          'bg-orange-100 text-orange-700'
                                     }`}
                                 >
                                   {test.testName}
@@ -787,8 +787,8 @@ function TestManagement({
                       {/* Testing Progress */}
                       {candidate.testing && (
                         <div className={`mt-3 p-3 rounded-lg border ${isTestExpired(candidate.testing.expiresAt) && candidate.testing.status !== 'completed'
-                            ? 'bg-gradient-to-r from-red-50 to-orange-50 border-red-200'
-                            : 'bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200'
+                          ? 'bg-gradient-to-r from-red-50 to-orange-50 border-red-200'
+                          : 'bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200'
                           }`}>
                           <div className="flex items-center justify-between mb-2">
                             <div>
@@ -812,8 +812,8 @@ function TestManagement({
                               )}
                               {candidate.testing.expiresAt && candidate.testing.status !== 'completed' && (
                                 <span className={`text-xs font-medium mt-1 px-2 py-1 rounded ${isTestExpired(candidate.testing.expiresAt)
-                                    ? 'bg-red-100 text-red-700 font-bold'
-                                    : 'bg-yellow-100 text-yellow-700'
+                                  ? 'bg-red-100 text-red-700 font-bold'
+                                  : 'bg-yellow-100 text-yellow-700'
                                   }`}>
                                   {isTestExpired(candidate.testing.expiresAt) ? '⚠️ Expired: ' : '⏰ Deadline: '}
                                   {new Date(candidate.testing.expiresAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
@@ -856,9 +856,9 @@ function TestManagement({
                               {candidate.testing.results.recommendation && (
                                 <div className="mt-2 pt-2 border-t border-purple-200">
                                   <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${candidate.testing.results.recommendation === 'STRONG_YES' ? 'bg-green-100 text-green-700' :
-                                      candidate.testing.results.recommendation === 'YES' ? 'bg-blue-100 text-blue-700' :
-                                        candidate.testing.results.recommendation === 'MAYBE' ? 'bg-yellow-100 text-yellow-700' :
-                                          'bg-red-100 text-red-700'
+                                    candidate.testing.results.recommendation === 'YES' ? 'bg-blue-100 text-blue-700' :
+                                      candidate.testing.results.recommendation === 'MAYBE' ? 'bg-yellow-100 text-yellow-700' :
+                                        'bg-red-100 text-red-700'
                                     }`}>
                                     {candidate.testing.results.recommendation.replace('_', ' ')}
                                   </span>
@@ -1056,9 +1056,9 @@ function TestManagement({
                   <div className="pt-4 border-t border-gray-200">
                     <div className="text-sm text-gray-600 mb-2">Recommendation</div>
                     <span className={`inline-block px-4 py-2 rounded-lg text-sm font-bold ${viewingResults.testing.results.recommendation === 'STRONG_YES' ? 'bg-green-100 text-green-700' :
-                        viewingResults.testing.results.recommendation === 'YES' ? 'bg-blue-100 text-blue-700' :
-                          viewingResults.testing.results.recommendation === 'MAYBE' ? 'bg-yellow-100 text-yellow-700' :
-                            'bg-red-100 text-red-700'
+                      viewingResults.testing.results.recommendation === 'YES' ? 'bg-blue-100 text-blue-700' :
+                        viewingResults.testing.results.recommendation === 'MAYBE' ? 'bg-yellow-100 text-yellow-700' :
+                          'bg-red-100 text-red-700'
                       }`}>
                       {viewingResults.testing.results.recommendation.replace('_', ' ')}
                     </span>

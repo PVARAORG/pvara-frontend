@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        - REACT_APP_API_URL=http://localhost:6080
+        - REACT_APP_API_URL=https://pvara-backend.fortanixor.com
     ports:
       - "6076:80"
     restart: unless-stopped

@@ -39,7 +39,7 @@ const SystemDashboard = () => {
   }, []);
 
   const checkSystemStatus = async () => {
-    const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:6080';
+    const apiUrl = process.env.REACT_APP_API_URL || 'https://pvara-backend.fortanixor.com';
 
     try {
       const start = Date.now();
@@ -80,7 +80,7 @@ const SystemDashboard = () => {
   };
 
   const fetchStats = async () => {
-    const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:6080';
+    const apiUrl = process.env.REACT_APP_API_URL || 'https://pvara-backend.fortanixor.com';
 
     try {
       // Fetch applications

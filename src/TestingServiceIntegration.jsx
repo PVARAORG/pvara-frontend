@@ -64,7 +64,7 @@ function TestingServiceIntegration({ applications = [], jobs = [], onUpdateAppli
     setLoading(true);
     try {
       // Mock API call to send test
-      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:6080';
+      const apiUrl = process.env.REACT_APP_API_URL || 'https://pvara-backend.fortanixor.com';
 
       for (const candidateId of selectedCandidates) {
         const candidate = applications.find(app => app.id === candidateId);
@@ -326,7 +326,7 @@ function TestingServiceIntegration({ applications = [], jobs = [], onUpdateAppli
                         <div className="w-full bg-gray-200 rounded-full h-2">
                           <div
                             className={`h-2 rounded-full ${section.score / section.maxScore >= 0.8 ? 'bg-green-500' :
-                                section.score / section.maxScore >= 0.6 ? 'bg-yellow-500' : 'bg-red-500'
+                              section.score / section.maxScore >= 0.6 ? 'bg-yellow-500' : 'bg-red-500'
                               }`}
                             style={{ width: `${(section.score / section.maxScore) * 100}%` }}
                           />
@@ -362,8 +362,8 @@ function TestingServiceIntegration({ applications = [], jobs = [], onUpdateAppli
                   {/* Recommendation Badge */}
                   <div className="flex items-center gap-3">
                     <span className={`px-3 py-1 rounded-full text-sm font-semibold ${results.recommendation === 'PROCEED' ? 'bg-green-100 text-green-700' :
-                        results.recommendation === 'MAYBE' ? 'bg-yellow-100 text-yellow-700' :
-                          'bg-red-100 text-red-700'
+                      results.recommendation === 'MAYBE' ? 'bg-yellow-100 text-yellow-700' :
+                        'bg-red-100 text-red-700'
                       }`}>
                       {results.recommendation}
                     </span>

@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 
 const AuthCtx = createContext();
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:6080';
+const API_URL = process.env.REACT_APP_API_URL || 'https://pvara-backend.fortanixor.com';
 
 const demoUsers = [
   { username: "admin", password: "admin", role: "admin", name: "Admin User" },

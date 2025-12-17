@@ -1,16 +1,14 @@
 import axios from 'axios';
 
-const DEFAULT_REMOTE_API = 'http://localhost:6080';
-const LOCAL_DEV_API = 'http://localhost:6080';
+const DEFAULT_REMOTE_API = 'https://pvara-backend.fortanixor.com';
+const LOCAL_DEV_API = 'https://pvara-backend.fortanixor.com';
 
 const nodeEnv = process.env.NODE_ENV;
 let API_URL = process.env.REACT_APP_API_URL
   || (nodeEnv === 'development' ? LOCAL_DEV_API : DEFAULT_REMOTE_API);
 
 if (!API_URL && typeof window !== 'undefined') {
-  const protocol = window.location?.protocol || 'http:';
-  const host = window.location?.hostname || 'localhost';
-  API_URL = `${protocol}//${host}:6080`;
+  API_URL = DEFAULT_REMOTE_API;
 }
 
 if (nodeEnv === 'development' && typeof window !== 'undefined') {
