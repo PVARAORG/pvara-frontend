@@ -14,6 +14,7 @@ import ApplicationForm from "./ApplicationForm";
 import ShortlistPanel from "./ShortlistPanel";
 import Toasts from "./Toasts";
 import { batchEvaluateApplications } from "./aiScreening";
+import LoginInline from "./LoginInline"; // Import validated LoginInline component
 
 // ---------- Storage utilities ----------
 const STORAGE_KEY = "pvara_v3";
@@ -51,25 +52,6 @@ function ConfirmModal({ open, title, message, onConfirm, onCancel }) {
           </button>
         </div>
       </div>
-    </div>
-  );
-}
-
-function LoginInline({ onLogin }) {
-  const [u, setU] = useState("");
-  const [p, setP] = useState("");
-  const handleUsernameChange = useCallback((value) => setU(value), []);
-  const handlePasswordChange = useCallback((value) => setP(value), []);
-  return (
-    <div className="space-y-2">
-      <input value={u} onChange={(e) => handleUsernameChange(e.target.value)} placeholder="username" className="border p-1 rounded w-full text-xs" />
-      <input value={p} onChange={(e) => handlePasswordChange(e.target.value)} placeholder="password" type="password" className="border p-1 rounded w-full text-xs" />
-      <div className="flex gap-2">
-        <button onClick={() => onLogin({ username: u.trim(), password: p })} className="px-2 py-1 bg-white border rounded text-green-700 text-xs">
-          Login
-        </button>
-      </div>
-      <div className="text-xs text-gray-400">demo: admin/hr/recruit/viewer (password = anything)</div>
     </div>
   );
 }

@@ -1,11 +1,13 @@
 import React, { useState } from "react";
+import { validateCNIC, validatePhone, validateEmail } from "./utils/validationUtils";
 
 export default function CandidateLogin({ onLogin, onCancel }) {
   const [cnic, setCnic] = useState("");
   const [verificationMethod, setVerificationMethod] = useState("phone");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
-  const [error, setError] = useState("");
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
 
   const handleCnicChange = (e) => {
     let val = e.target.value.replace(/[^0-9]/g, '');
@@ -13,30 +15,81 @@ export default function CandidateLogin({ onLogin, onCancel }) {
     if (val.length > 13) val = val.slice(0, 13) + '-' + val.slice(13);
     if (val.length > 15) val = val.slice(0, 15);
     setCnic(val);
-    setError("");
+
+    if (touched.cnic) {
+      const validation = validateCNIC(val);
+      setErrors(prev => ({ ...prev, cnic: validation.error }));
+    }
+  };
+
+  const handlePhoneChange = (e) => {
+    setPhone(e.target.value);
+
+    if (touched.phone) {
+      const validation = validatePhone(e.target.value);
+      setErrors(prev => ({ ...prev, phone: validation.error }));
+    }
+  };
+
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value);
+
+    if (touched.email) {
+      const validation = validateEmail(e.target.value);
+      setErrors(prev => ({ ...prev, email: validation.error }));
+    }
+  };
+
+  const handleBlur = (field) => {
+    setTouched(prev => ({ ...prev, [field]: true }));
+
+    if (field === 'cnic') {
+      const validation = validateCNIC(cnic);
+      setErrors(prev => ({ ...prev, cnic: validation.error }));
+    } else if (field === 'phone') {
+      const validation = validatePhone(phone);
+      setErrors(prev => ({ ...prev, phone: validation.error }));
+    } else if (field === 'email') {
+      const validation = validateEmail(email);
+      setErrors(prev => ({ ...prev, email: validation.error }));
+    }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
-    // Validate CNIC format
-    if (!cnic || cnic.length !== 15) {
-      setError("Please enter a valid CNIC (e.g., 12345-1234567-1)");
-      return;
-    }
-    
+
+    // Validate CNIC
+    const cnicValidation = validateCNIC(cnic);
+
     // Validate verification field
     const verificationValue = verificationMethod === "phone" ? phone : email;
-    if (!verificationValue) {
-      setError(`Please enter your ${verificationMethod}`);
+    const verificationValidation = verificationMethod === "phone"
+      ? validatePhone(verificationValue)
+      : validateEmail(verificationValue);
+
+    const newErrors = {
+      cnic: cnicValidation.error,
+      [verificationMethod]: verificationValidation.error
+    };
+
+    setErrors(newErrors);
+    setTouched({ cnic: true, [verificationMethod]: true });
+
+    // If any errors, don't submit
+    if (newErrors.cnic || newErrors[verificationMethod]) {
       return;
     }
-    
-    onLogin({ 
-      cnic, 
-      [verificationMethod]: verificationValue 
+
+    onLogin({
+      cnic,
+      [verificationMethod]: verificationValue
     });
   };
+
+  const isValid = !errors.cnic &&
+    !errors[verificationMethod] &&
+    cnic &&
+    (verificationMethod === "phone" ? phone : email);
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -63,12 +116,20 @@ export default function CandidateLogin({ onLogin, onCancel }) {
               type="text"
               value={cnic}
               onChange={handleCnicChange}
+              onBlur={() => handleBlur('cnic')}
               placeholder="12345-1234567-1"
               maxLength="15"
-              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition font-mono text-lg"
+              className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-green-200 transition font-mono text-lg ${touched.cnic && errors.cnic ? 'border-red-500 focus:border-red-500' :
+                  touched.cnic && !errors.cnic ? 'border-green-500 focus:border-green-500' :
+                    'border-gray-300 focus:border-green-500'
+                }`}
               required
             />
-            <p className="text-xs text-gray-500 mt-1">Format: xxxxx-xxxxxxx-x</p>
+            {touched.cnic && errors.cnic ? (
+              <p className="text-sm text-red-600 mt-1">{errors.cnic}</p>
+            ) : (
+              <p className="text-xs text-gray-500 mt-1">Format: xxxxx-xxxxxxx-x</p>
+            )}
           </div>
 
           {/* Verification Method Toggle */}
@@ -79,23 +140,29 @@ export default function CandidateLogin({ onLogin, onCancel }) {
             <div className="flex gap-2 mb-3">
               <button
                 type="button"
-                onClick={() => setVerificationMethod("phone")}
-                className={`flex-1 px-4 py-2 rounded-lg font-medium transition ${
-                  verificationMethod === "phone"
+                onClick={() => {
+                  setVerificationMethod("phone");
+                  setErrors(prev => ({ ...prev, email: null }));
+                  setTouched(prev => ({ ...prev, email: false }));
+                }}
+                className={`flex-1 px-4 py-2 rounded-lg font-medium transition ${verificationMethod === "phone"
                     ? "bg-green-700 text-white"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
+                  }`}
               >
                 Phone Number
               </button>
               <button
                 type="button"
-                onClick={() => setVerificationMethod("email")}
-                className={`flex-1 px-4 py-2 rounded-lg font-medium transition ${
-                  verificationMethod === "email"
+                onClick={() => {
+                  setVerificationMethod("email");
+                  setErrors(prev => ({ ...prev, phone: null }));
+                  setTouched(prev => ({ ...prev, phone: false }));
+                }}
+                className={`flex-1 px-4 py-2 rounded-lg font-medium transition ${verificationMethod === "email"
                     ? "bg-green-700 text-white"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
+                  }`}
               >
                 Email
               </button>
@@ -103,43 +170,52 @@ export default function CandidateLogin({ onLogin, onCancel }) {
 
             {/* Verification Input */}
             {verificationMethod === "phone" ? (
-              <input
-                type="tel"
-                value={phone}
-                onChange={(e) => {
-                  setPhone(e.target.value);
-                  setError("");
-                }}
-                placeholder="0300-1234567"
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition"
-                required
-              />
+              <div>
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={handlePhoneChange}
+                  onBlur={() => handleBlur('phone')}
+                  placeholder="0300-1234567"
+                  className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-green-200 transition ${touched.phone && errors.phone ? 'border-red-500 focus:border-red-500' :
+                      touched.phone && !errors.phone ? 'border-green-500 focus:border-green-500' :
+                        'border-gray-300 focus:border-green-500'
+                    }`}
+                  required
+                />
+                {touched.phone && errors.phone && (
+                  <p className="text-sm text-red-600 mt-1">{errors.phone}</p>
+                )}
+              </div>
             ) : (
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  setError("");
-                }}
-                placeholder="your.email@example.com"
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition"
-                required
-              />
+              <div>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={handleEmailChange}
+                  onBlur={() => handleBlur('email')}
+                  placeholder="your.email@example.com"
+                  className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-green-200 transition ${touched.email && errors.email ? 'border-red-500 focus:border-red-500' :
+                      touched.email && !errors.email ? 'border-green-500 focus:border-green-500' :
+                        'border-gray-300 focus:border-green-500'
+                    }`}
+                  required
+                />
+                {touched.email && errors.email && (
+                  <p className="text-sm text-red-600 mt-1">{errors.email}</p>
+                )}
+              </div>
             )}
           </div>
-
-          {/* Error Message */}
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
-              {error}
-            </div>
-          )}
 
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full bg-green-700 text-white py-3 rounded-lg font-semibold hover:bg-green-800 transition flex items-center justify-center gap-2"
+            disabled={!isValid}
+            className={`w-full py-3 rounded-lg font-semibold transition flex items-center justify-center gap-2 ${isValid
+                ? 'bg-green-700 text-white hover:bg-green-800'
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              }`}
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -173,3 +249,4 @@ export default function CandidateLogin({ onLogin, onCancel }) {
     </div>
   );
 }
+

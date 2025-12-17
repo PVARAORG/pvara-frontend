@@ -1,4 +1,15 @@
 import React from "react";
+import {
+  validateEmail,
+  validatePhone,
+  validateCNIC,
+  validateURL,
+  validateTextLength,
+  validateAlphabetic,
+  validatePostalCode,
+  validateYear,
+  validateRequired
+} from "./utils/validationUtils";
 
 const ApplicationForm = ({ onSubmit, jobs = [] }) => {
   const [currentStep, setCurrentStep] = React.useState(0);
@@ -31,28 +42,142 @@ const ApplicationForm = ({ onSubmit, jobs = [] }) => {
     coverLetter: "",
     portfolioLink: "",
   });
+  const [errors, setErrors] = React.useState({});
+  const [touched, setTouched] = React.useState({});
 
   const steps = [
-    { 
-      name: "Resume", 
+    {
+      name: "Resume",
       icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
     },
-    { 
-      name: "Profile Information", 
+    {
+      name: "Profile Information",
       icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
     },
-    { 
-      name: "Self-Disclosure", 
+    {
+      name: "Self-Disclosure",
       icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
     },
-    { 
-      name: "Review & Submit", 
+    {
+      name: "Review & Submit",
       icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
     },
   ];
 
   function handleChange(field, value) {
     setForm((prev) => ({ ...prev, [field]: value }));
+    // Clear error when user starts typing
+    if (touched[field] && errors[field]) {
+      validateField(field, value);
+    }
+  }
+
+  function handleBlur(field) {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+    validateField(field, form[field]);
+  }
+
+  function validateField(field, value) {
+    let validation = { isValid: true, error: null };
+
+    switch (field) {
+      case 'firstName':
+      case 'lastName':
+        validation = validateAlphabetic(value, true, field === 'firstName' ? 'First name' : 'Last name');
+        if (validation.isValid) {
+          validation = validateTextLength(value, { min: 2, max: 50, required: true, fieldName: field === 'firstName' ? 'First name' : 'Last name' });
+        }
+        break;
+      case 'email':
+        validation = validateEmail(value);
+        break;
+      case 'phone':
+      case 'alternatePhone':
+        validation = validatePhone(value);
+        if (field === 'alternatePhone' && !value) {
+          validation = { isValid: true, error: null }; // Optional
+        }
+        break;
+      case 'cnic':
+        validation = validateCNIC(value);
+        break;
+      case 'city':
+      case 'state':
+        validation = validateTextLength(value, { min: 2, max: 100, required: true, fieldName: field === 'city' ? 'City' : 'State' });
+        break;
+      case 'postalCode':
+        validation = validatePostalCode(value, true);
+        break;
+      case 'coverLetter':
+        validation = validateTextLength(value, { max: 2000, fieldName: 'Cover letter' });
+        break;
+      case 'portfolioLink':
+        validation = validateURL(value, false);
+        break;
+      default:
+        break;
+    }
+
+    setErrors((prev) => ({ ...prev, [field]: validation.error }));
+    return validation.isValid;
+  }
+
+  function validateCurrentStep() {
+    const stepErrors = {};
+    let isValid = true;
+
+    if (currentStep === 0) {
+      // Job selection - always valid if there are jobs
+      if (!form.jobId && jobs.length > 0) {
+        stepErrors.jobId = 'Please select a position';
+        isValid = false;
+      }
+    } else if (currentStep === 1) {
+      // Profile Information
+      const fieldsToValidate = ['firstName', 'lastName', 'email', 'phone', 'cnic', 'city', 'state', 'postalCode'];
+      fieldsToValidate.forEach(field => {
+        const fieldIsValid = validateField(field, form[field]);
+        if (!fieldIsValid) {
+          isValid = false;
+          setTouched((prev) => ({ ...prev, [field]: true }));
+        }
+      });
+
+      // Validate education (at least first entry must be complete)
+      if (form.education[0]) {
+        if (!form.education[0].school || !form.education[0].fieldOfStudy || !form.education[0].degree) {
+          stepErrors.education = 'Please complete at least one education entry';
+          isValid = false;
+        }
+      }
+
+      // Validate employment (at least first entry must be complete)
+      if (form.employment[0]) {
+        if (!form.employment[0].employer || !form.employment[0].jobTitle) {
+          stepErrors.employment = 'Please complete at least one employment entry';
+          isValid = false;
+        }
+      }
+    } else if (currentStep === 2) {
+      // Self-Disclosure (optional but validate format if provided)
+      if (form.coverLetter) {
+        const validation = validateTextLength(form.coverLetter, { max: 2000, fieldName: 'Cover letter' });
+        if (!validation.isValid) {
+          stepErrors.coverLetter = validation.error;
+          isValid = false;
+        }
+      }
+      if (form.portfolioLink) {
+        const validation = validateURL(form.portfolioLink, false);
+        if (!validation.isValid) {
+          stepErrors.portfolioLink = validation.error;
+          isValid = false;
+        }
+      }
+    }
+
+    setErrors((prev) => ({ ...prev, ...stepErrors }));
+    return isValid;
   }
 
   function handleArrayChange(arrayName, index, field, value) {
@@ -71,9 +196,23 @@ const ApplicationForm = ({ onSubmit, jobs = [] }) => {
   }
 
   function addSkill() {
-    if (form.skillInput.trim()) {
-      setForm((prev) => ({ ...prev, skills: [...prev.skills, prev.skillInput.trim()], skillInput: "" }));
+    const trimmed = form.skillInput.trim();
+    if (!trimmed) return;
+
+    // Check for duplicates
+    if (form.skills.includes(trimmed)) {
+      setErrors((prev) => ({ ...prev, skillInput: 'Skill already added' }));
+      return;
     }
+
+    // Check max skills
+    if (form.skills.length >= 50) {
+      setErrors((prev) => ({ ...prev, skillInput: 'Maximum 50 skills allowed' }));
+      return;
+    }
+
+    setForm((prev) => ({ ...prev, skills: [...prev.skills, trimmed], skillInput: "" }));
+    setErrors((prev) => ({ ...prev, skillInput: null }));
   }
 
   function removeSkill(index) {
@@ -86,11 +225,24 @@ const ApplicationForm = ({ onSubmit, jobs = [] }) => {
   }
 
   function nextStep() {
-    if (currentStep < steps.length - 1) setCurrentStep(currentStep + 1);
+    if (validateCurrentStep()) {
+      if (currentStep < steps.length - 1) setCurrentStep(currentStep + 1);
+    }
   }
 
   function prevStep() {
     if (currentStep > 0) setCurrentStep(currentStep - 1);
+  }
+
+  // Helper function to get input className with validation states
+  function getInputClassName(field) {
+    const baseClasses = "w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-green-200 transition";
+    if (touched[field] && errors[field]) {
+      return `${baseClasses} border-red-500 focus:border-red-500`;
+    } else if (touched[field] && !errors[field] && form[field]) {
+      return `${baseClasses} border-green-500 focus:border-green-500`;
+    }
+    return `${baseClasses} border-gray-300 focus:border-green-500`;
   }
 
   return (
@@ -101,9 +253,8 @@ const ApplicationForm = ({ onSubmit, jobs = [] }) => {
           {steps.map((step, index) => (
             <React.Fragment key={index}>
               <div className="flex flex-col items-center flex-1 min-w-0">
-                <div className={`flex items-center justify-center w-12 h-12 rounded-full mb-2 flex-shrink-0 ${
-                  index <= currentStep ? "bg-green-600 text-white" : "bg-gray-200 text-gray-500"
-                }`}>
+                <div className={`flex items-center justify-center w-12 h-12 rounded-full mb-2 flex-shrink-0 ${index <= currentStep ? "bg-green-600 text-white" : "bg-gray-200 text-gray-500"
+                  }`}>
                   {index < currentStep ? (
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -138,9 +289,9 @@ const ApplicationForm = ({ onSubmit, jobs = [] }) => {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Position Applied For *</label>
-                <select 
-                  value={form.jobId} 
-                  onChange={e => handleChange('jobId', e.target.value)} 
+                <select
+                  value={form.jobId}
+                  onChange={e => handleChange('jobId', e.target.value)}
                   className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition"
                   required
                 >
@@ -191,11 +342,29 @@ const ApplicationForm = ({ onSubmit, jobs = [] }) => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">First Name *</label>
-                  <input value={form.firstName} onChange={e => handleChange('firstName', e.target.value)} className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition" required />
+                  <input
+                    value={form.firstName}
+                    onChange={e => handleChange('firstName', e.target.value)}
+                    onBlur={() => handleBlur('firstName')}
+                    className={getInputClassName('firstName')}
+                    required
+                  />
+                  {touched.firstName && errors.firstName && (
+                    <p className="text-sm text-red-600 mt-1">{errors.firstName}</p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Last Name *</label>
-                  <input value={form.lastName} onChange={e => handleChange('lastName', e.target.value)} className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition" required />
+                  <input
+                    value={form.lastName}
+                    onChange={e => handleChange('lastName', e.target.value)}
+                    onBlur={() => handleBlur('lastName')}
+                    className={getInputClassName('lastName')}
+                    required
+                  />
+                  {touched.lastName && errors.lastName && (
+                    <p className="text-sm text-red-600 mt-1">{errors.lastName}</p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Preferred Name</label>
@@ -203,11 +372,30 @@ const ApplicationForm = ({ onSubmit, jobs = [] }) => {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Email Address *</label>
-                  <input type="email" value={form.email} onChange={e => handleChange('email', e.target.value)} className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition" required />
+                  <input
+                    type="email"
+                    value={form.email}
+                    onChange={e => handleChange('email', e.target.value)}
+                    onBlur={() => handleBlur('email')}
+                    className={getInputClassName('email')}
+                    required
+                  />
+                  {touched.email && errors.email && (
+                    <p className="text-sm text-red-600 mt-1">{errors.email}</p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Phone Number *</label>
-                  <input value={form.phone} onChange={e => handleChange('phone', e.target.value)} className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition" required />
+                  <input
+                    value={form.phone}
+                    onChange={e => handleChange('phone', e.target.value)}
+                    onBlur={() => handleBlur('phone')}
+                    className={getInputClassName('phone')}
+                    required
+                  />
+                  {touched.phone && errors.phone && (
+                    <p className="text-sm text-red-600 mt-1">{errors.phone}</p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Alternate Phone</label>
@@ -218,8 +406,8 @@ const ApplicationForm = ({ onSubmit, jobs = [] }) => {
                     CNIC (National Identity Card) *
                     <span className="text-xs text-gray-500 ml-2">Format: 12345-1234567-1</span>
                   </label>
-                  <input 
-                    value={form.cnic} 
+                  <input
+                    value={form.cnic}
                     onChange={e => {
                       let val = e.target.value.replace(/[^0-9]/g, '');
                       if (val.length > 5) val = val.slice(0, 5) + '-' + val.slice(5);
@@ -227,13 +415,18 @@ const ApplicationForm = ({ onSubmit, jobs = [] }) => {
                       if (val.length > 15) val = val.slice(0, 15);
                       handleChange('cnic', val);
                     }}
+                    onBlur={() => handleBlur('cnic')}
                     placeholder="12345-1234567-1"
                     pattern="[0-9]{5}-[0-9]{7}-[0-9]{1}"
                     maxLength="15"
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition font-mono" 
-                    required 
+                    className={`${getInputClassName('cnic')} font-mono`}
+                    required
                   />
-                  <p className="text-xs text-gray-500 mt-1">Your CNIC helps us identify your profile and link all your applications</p>
+                  {touched.cnic && errors.cnic ? (
+                    <p className="text-sm text-red-600 mt-1">{errors.cnic}</p>
+                  ) : (
+                    <p className="text-xs text-gray-500 mt-1">Your CNIC helps us identify your profile and link all your applications</p>
+                  )}
                 </div>
               </div>
 
@@ -255,15 +448,42 @@ const ApplicationForm = ({ onSubmit, jobs = [] }) => {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">City/Town *</label>
-                      <input value={form.city} onChange={e => handleChange('city', e.target.value)} className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition" required />
+                      <input
+                        value={form.city}
+                        onChange={e => handleChange('city', e.target.value)}
+                        onBlur={() => handleBlur('city')}
+                        className={getInputClassName('city')}
+                        required
+                      />
+                      {touched.city && errors.city && (
+                        <p className="text-sm text-red-600 mt-1">{errors.city}</p>
+                      )}
                     </div>
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">State/Province *</label>
-                      <input value={form.state} onChange={e => handleChange('state', e.target.value)} className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition" required />
+                      <input
+                        value={form.state}
+                        onChange={e => handleChange('state', e.target.value)}
+                        onBlur={() => handleBlur('state')}
+                        className={getInputClassName('state')}
+                        required
+                      />
+                      {touched.state && errors.state && (
+                        <p className="text-sm text-red-600 mt-1">{errors.state}</p>
+                      )}
                     </div>
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">Zip/Postal Code *</label>
-                      <input value={form.postalCode} onChange={e => handleChange('postalCode', e.target.value)} className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition" required />
+                      <input
+                        value={form.postalCode}
+                        onChange={e => handleChange('postalCode', e.target.value)}
+                        onBlur={() => handleBlur('postalCode')}
+                        className={getInputClassName('postalCode')}
+                        required
+                      />
+                      {touched.postalCode && errors.postalCode && (
+                        <p className="text-sm text-red-600 mt-1">{errors.postalCode}</p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -406,11 +626,25 @@ const ApplicationForm = ({ onSubmit, jobs = [] }) => {
                 Skills
               </h2>
               <div className="flex gap-2 mb-4">
-                <input value={form.skillInput} onChange={e => handleChange('skillInput', e.target.value)} onKeyPress={e => e.key === 'Enter' && (e.preventDefault(), addSkill())} placeholder="Add a skill..." className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition" />
+                <input
+                  value={form.skillInput}
+                  onChange={e => {
+                    handleChange('skillInput', e.target.value);
+                    if (errors.skillInput) {
+                      setErrors(prev => ({ ...prev, skillInput: null }));
+                    }
+                  }}
+                  onKeyPress={e => e.key === 'Enter' && (e.preventDefault(), addSkill())}
+                  placeholder="Add a skill..."
+                  className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition"
+                />
                 <button type="button" onClick={addSkill} className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition">
                   Add
                 </button>
               </div>
+              {errors.skillInput && (
+                <p className="text-sm text-red-600 mb-2">{errors.skillInput}</p>
+              )}
               <div className="flex flex-wrap gap-2">
                 {form.skills.map((skill, index) => (
                   <span key={index} className="inline-flex items-center gap-2 px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm font-medium">
@@ -474,11 +708,37 @@ const ApplicationForm = ({ onSubmit, jobs = [] }) => {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Cover Letter</label>
-                <textarea value={form.coverLetter} onChange={e => handleChange('coverLetter', e.target.value)} rows="6" placeholder="Why are you interested in this position?" className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition" />
+                <textarea
+                  value={form.coverLetter}
+                  onChange={e => handleChange('coverLetter', e.target.value)}
+                  onBlur={() => handleBlur('coverLetter')}
+                  rows="6"
+                  placeholder="Why are you interested in this position?"
+                  className={getInputClassName('coverLetter')}
+                  maxLength="2000"
+                />
+                <div className="flex justify-between items-center mt-1">
+                  {touched.coverLetter && errors.coverLetter ? (
+                    <p className="text-sm text-red-600">{errors.coverLetter}</p>
+                  ) : (
+                    <span></span>
+                  )}
+                  <p className="text-xs text-gray-500">{form.coverLetter.length}/2000 characters</p>
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Portfolio Link</label>
-                <input type="url" value={form.portfolioLink} onChange={e => handleChange('portfolioLink', e.target.value)} placeholder="https://..." className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition" />
+                <input
+                  type="url"
+                  value={form.portfolioLink}
+                  onChange={e => handleChange('portfolioLink', e.target.value)}
+                  onBlur={() => handleBlur('portfolioLink')}
+                  placeholder="https://..."
+                  className={getInputClassName('portfolioLink')}
+                />
+                {touched.portfolioLink && errors.portfolioLink && (
+                  <p className="text-sm text-red-600 mt-1">{errors.portfolioLink}</p>
+                )}
               </div>
             </div>
           </div>

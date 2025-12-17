@@ -17,11 +17,9 @@ export function AuthProvider({ children }) {
       const stored = localStorage.getItem("pvara_user");
       const token = localStorage.getItem("token");
       if (stored && token) return JSON.parse(stored);
-      // Auto-login as admin for demo
-      const defaultUser = { username: "admin", role: "admin", name: "Admin User" };
-      return defaultUser;
+      return null; // No auto-login - require proper authentication
     } catch {
-      return { username: "admin", role: "admin", name: "Admin User" };
+      return null;
     }
   });
 
