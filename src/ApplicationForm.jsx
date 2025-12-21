@@ -15,6 +15,9 @@ const ApplicationForm = ({ onSubmit, jobs = [] }) => {
   const [currentStep, setCurrentStep] = React.useState(0);
   const [form, setForm] = React.useState({
     jobId: jobs[0]?.id || "",
+    // Files
+    cvFile: null,
+    coverLetterFile: null,
     // Contact Information
     firstName: "",
     lastName: "",
@@ -44,6 +47,9 @@ const ApplicationForm = ({ onSubmit, jobs = [] }) => {
   });
   const [errors, setErrors] = React.useState({});
   const [touched, setTouched] = React.useState({});
+  const [isExtracting, setIsExtracting] = React.useState(false);
+  const [extractedData, setExtractedData] = React.useState(null);
+  const [showAutoFillBanner, setShowAutoFillBanner] = React.useState(false);
 
   const steps = [
     {
@@ -70,6 +76,116 @@ const ApplicationForm = ({ onSubmit, jobs = [] }) => {
     if (touched[field] && errors[field]) {
       validateField(field, value);
     }
+  }
+
+  // AI-based CV extraction and auto-fill
+  async function extractAndUploadCV(file) {
+    setIsExtracting(true);
+    setErrors(prev => ({ ...prev, cvFile: null }));
+
+    try {
+      const formData = new FormData();
+      formData.append('cv', file);
+
+      const apiUrl = process.env.REACT_APP_API_URL || 'https://pvara-backend.fortanixor.com';
+      const response = await fetch(`${apiUrl}/api/upload/cv/extract`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Upload failed');
+      }
+
+      const result = await response.json();
+      console.log('CV Extraction Response:', result);
+
+      if (result.success) {
+        handleChange('cvFile', file);
+        handleChange('cvUrl', result.file?.url);
+        handleChange('cv', result.file?.url); // For backend compatibility
+
+        // Log extraction status for debugging
+        console.log('Extraction Status:', result.extractionStatus);
+        console.log('Extracted Data:', result.extractedData);
+
+        // Check extraction status
+        if (result.extractionStatus === 'no_api_key') {
+          console.warn('CV Extraction: OpenAI API key not configured');
+        } else if (result.extractedData) {
+          // Store extracted data regardless of status
+          setExtractedData(result.extractedData);
+          // Check if any useful data was extracted
+          const hasData = result.extractedData.firstName ||
+            result.extractedData.email ||
+            result.extractedData.phone;
+          console.log('Has extractable data:', hasData);
+          if (hasData) {
+            setShowAutoFillBanner(true);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('CV extraction error:', error);
+      // Fall back to simple file storage
+      handleChange('cvFile', file);
+    } finally {
+      setIsExtracting(false);
+    }
+  }
+
+  // Apply extracted data to form
+  function applyExtractedData() {
+    if (!extractedData) return;
+
+    const updates = {};
+
+    if (extractedData.firstName) updates.firstName = extractedData.firstName;
+    if (extractedData.lastName) updates.lastName = extractedData.lastName;
+    if (extractedData.email) updates.email = extractedData.email;
+    if (extractedData.phone) updates.phone = extractedData.phone;
+    if (extractedData.city) updates.city = extractedData.city;
+    if (extractedData.state) updates.state = extractedData.state;
+    if (extractedData.country) updates.country = extractedData.country;
+    if (extractedData.linkedinUrl) updates.portfolioLink = extractedData.linkedinUrl;
+
+    // Skills
+    if (extractedData.skills && extractedData.skills.length > 0) {
+      updates.skills = extractedData.skills;
+    }
+
+    // Education
+    if (extractedData.highestDegree || extractedData.fieldOfStudy || extractedData.university) {
+      updates.education = [{
+        school: extractedData.university || "",
+        fieldOfStudy: extractedData.fieldOfStudy || "",
+        degree: extractedData.highestDegree || "",
+        graduated: "yes",
+        stillAttending: false
+      }];
+    }
+
+    // Employment
+    if (extractedData.currentJobTitle) {
+      updates.employment = [{
+        employer: "",
+        jobTitle: extractedData.currentJobTitle,
+        currentEmployer: true,
+        startMonth: "",
+        startYear: "",
+        endMonth: "",
+        endYear: "",
+        description: extractedData.professionalSummary || ""
+      }];
+    }
+
+    // Languages
+    if (extractedData.languages && extractedData.languages.length > 0) {
+      updates.languages = extractedData.languages.map(lang => ({ language: lang, proficiency: "Fluent" }));
+    }
+
+    setForm(prev => ({ ...prev, ...updates }));
+    setShowAutoFillBanner(false);
   }
 
   function handleBlur(field) {
@@ -127,9 +243,14 @@ const ApplicationForm = ({ onSubmit, jobs = [] }) => {
     let isValid = true;
 
     if (currentStep === 0) {
-      // Job selection - always valid if there are jobs
+      // Job selection and CV upload validation
       if (!form.jobId && jobs.length > 0) {
         stepErrors.jobId = 'Please select a position';
+        isValid = false;
+      }
+      // CV is required
+      if (!form.cvFile) {
+        stepErrors.cvFile = 'Please upload your CV to continue';
         isValid = false;
       }
     } else if (currentStep === 1) {
@@ -279,48 +400,295 @@ const ApplicationForm = ({ onSubmit, jobs = [] }) => {
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Step 0: Resume/Job Selection */}
         {currentStep === 0 && (
-          <div className="bg-white rounded-lg shadow-md p-8">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
-              <svg className="w-7 h-7 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              Select Position
-            </h2>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Position Applied For *</label>
-                <select
-                  value={form.jobId}
-                  onChange={e => handleChange('jobId', e.target.value)}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition"
-                  required
-                >
-                  {jobs.length === 0 ? (
-                    <option value="">No jobs available</option>
-                  ) : (
-                    jobs.map(j => (
-                      <option key={j.id} value={j.id}>{j.title} — {j.department}</option>
-                    ))
+          <div className="space-y-6">
+            {/* Job Selection */}
+            <div className="bg-white rounded-lg shadow-md p-8">
+              <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+                <svg className="w-7 h-7 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                Select Position
+              </h2>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Position Applied For *</label>
+                  <select
+                    value={form.jobId}
+                    onChange={e => handleChange('jobId', e.target.value)}
+                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition"
+                    required
+                  >
+                    {jobs.length === 0 ? (
+                      <option value="">No jobs available</option>
+                    ) : (
+                      jobs.map(j => (
+                        <option key={j.id} value={j.id}>{j.title} — {j.department}</option>
+                      ))
+                    )}
+                  </select>
+                  {jobs.find(j => j.id === form.jobId) && (
+                    <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                      <h3 className="font-semibold text-blue-900 mb-2">{jobs.find(j => j.id === form.jobId).title}</h3>
+                      <p className="text-sm text-blue-700">{jobs.find(j => j.id === form.jobId).description}</p>
+                      <div className="mt-3 flex flex-wrap gap-3 text-xs">
+                        <span className="flex items-center gap-1 px-2 py-1 bg-blue-100 rounded-full text-blue-700">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                          </svg>
+                          {jobs.find(j => j.id === form.jobId).department}
+                        </span>
+                        <span className="flex items-center gap-1 px-2 py-1 bg-green-100 rounded-full text-green-700">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                          </svg>
+                          {jobs.find(j => j.id === form.jobId).employmentType}
+                        </span>
+                        {jobs.find(j => j.id === form.jobId).discipline && (
+                          <span className="flex items-center gap-1 px-2 py-1 bg-purple-100 rounded-full text-purple-700">
+                            {jobs.find(j => j.id === form.jobId).discipline}
+                          </span>
+                        )}
+                      </div>
+                    </div>
                   )}
-                </select>
-                {jobs.find(j => j.id === form.jobId) && (
-                  <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                    <h3 className="font-semibold text-blue-900 mb-2">{jobs.find(j => j.id === form.jobId).title}</h3>
-                    <p className="text-sm text-blue-700">{jobs.find(j => j.id === form.jobId).description}</p>
-                    <div className="mt-3 flex gap-4 text-xs text-blue-600">
-                      <span className="flex items-center gap-1">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                        </svg>
-                        {jobs.find(j => j.id === form.jobId).department}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                        </svg>
-                        {jobs.find(j => j.id === form.jobId).employmentType}
+                </div>
+              </div>
+            </div>
+
+            {/* CV Upload Section - PROMINENT */}
+            <div className="bg-white rounded-lg shadow-md p-8 border-2 border-green-200">
+              <h2 className="text-2xl font-bold text-gray-800 mb-2 flex items-center gap-3">
+                <svg className="w-7 h-7 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Upload Your CV
+                <span className="ml-2 px-2 py-1 bg-red-100 text-red-700 text-xs font-bold rounded-full">REQUIRED</span>
+              </h2>
+              <p className="text-gray-600 mb-6">Please upload your CV/Resume. Accepted formats: PDF, DOC, DOCX (Max 5MB)</p>
+
+              {/* Drag and Drop Zone */}
+              <div
+                className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all cursor-pointer
+                  ${isExtracting
+                    ? 'border-blue-500 bg-blue-50'
+                    : form.cvFile
+                      ? 'border-green-500 bg-green-50'
+                      : 'border-gray-300 hover:border-green-400 hover:bg-green-50'
+                  }`}
+                onClick={() => !isExtracting && document.getElementById('cv-upload-input').click()}
+                onDragOver={(e) => { e.preventDefault(); if (!isExtracting) e.currentTarget.classList.add('border-green-500', 'bg-green-50'); }}
+                onDragLeave={(e) => { e.preventDefault(); e.currentTarget.classList.remove('border-green-500', 'bg-green-50'); }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  e.currentTarget.classList.remove('border-green-500', 'bg-green-50');
+                  if (isExtracting) return;
+                  const files = e.dataTransfer.files;
+                  if (files.length > 0) {
+                    const file = files[0];
+                    const validTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+                    if (validTypes.includes(file.type)) {
+                      extractAndUploadCV(file);
+                    } else {
+                      setErrors(prev => ({ ...prev, cvFile: 'Invalid file type. Please upload PDF, DOC, or DOCX files only.' }));
+                    }
+                  }
+                }}
+              >
+                <input
+                  id="cv-upload-input"
+                  type="file"
+                  accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                  className="hidden"
+                  disabled={isExtracting}
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                      const validTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+                      if (validTypes.includes(file.type)) {
+                        extractAndUploadCV(file);
+                      } else {
+                        setErrors(prev => ({ ...prev, cvFile: 'Invalid file type. Please upload PDF, DOC, or DOCX files only.' }));
+                      }
+                    }
+                  }}
+                />
+
+                {isExtracting ? (
+                  <div className="space-y-4">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full animate-pulse">
+                      <svg className="w-8 h-8 text-blue-600 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="text-lg font-semibold text-blue-700">Analyzing your CV...</p>
+                      <p className="text-blue-600 text-sm">AI is extracting your information to auto-fill the form</p>
+                    </div>
+                  </div>
+                ) : form.cvFile ? (
+                  <div className="space-y-3">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full">
+                      <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="font-semibold text-green-800">{form.cvFile.name}</p>
+                      <p className="text-sm text-green-600">{(form.cvFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleChange('cvFile', null);
+                      }}
+                      className="px-4 py-2 text-sm text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition"
+                    >
+                      Remove and Upload Different File
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full">
+                      <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="text-lg font-semibold text-gray-700">Drag and drop your CV here</p>
+                      <p className="text-gray-500">or</p>
+                      <span className="inline-block mt-2 px-6 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition">
+                        Browse Files
                       </span>
                     </div>
+                    <p className="text-xs text-gray-400">Supported: PDF, DOC, DOCX • Max size: 5MB</p>
+                  </div>
+                )}
+              </div>
+
+              {errors.cvFile && (
+                <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-700">
+                  <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span className="text-sm">{errors.cvFile}</span>
+                </div>
+              )}
+
+              {!form.cvFile && !errors.cvFile && !isExtracting && (
+                <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-center gap-2 text-amber-700">
+                  <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span className="text-sm">A CV is required to submit your application. Please upload your CV before proceeding.</span>
+                </div>
+              )}
+
+              {/* Auto-fill Banner */}
+              {showAutoFillBanner && extractedData && (
+                <div className="mt-4 p-4 bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-xl">
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0 w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                      <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                      </svg>
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-purple-900 mb-1">AI Extracted Your Information!</h4>
+                      <p className="text-sm text-purple-700 mb-3">
+                        We've analyzed your CV and extracted key details. Would you like to auto-fill the application form?
+                      </p>
+                      <div className="flex flex-wrap gap-2 mb-3 text-xs">
+                        {extractedData.firstName && <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded">Name</span>}
+                        {extractedData.email && <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded">Email</span>}
+                        {extractedData.phone && <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded">Phone</span>}
+                        {extractedData.highestDegree && <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded">Education</span>}
+                        {extractedData.currentJobTitle && <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded">Experience</span>}
+                        {extractedData.skills?.length > 0 && <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded">{extractedData.skills.length} Skills</span>}
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={applyExtractedData}
+                          className="px-4 py-2 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition flex items-center gap-2"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                          Auto-fill Form
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setShowAutoFillBanner(false)}
+                          className="px-4 py-2 text-purple-700 hover:bg-purple-100 rounded-lg transition"
+                        >
+                          No, I'll enter manually
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Cover Letter Upload (Optional) */}
+            <div className="bg-white rounded-lg shadow-md p-8">
+              <h2 className="text-xl font-bold text-gray-800 mb-2 flex items-center gap-3">
+                <svg className="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Cover Letter
+                <span className="ml-2 px-2 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded-full">OPTIONAL</span>
+              </h2>
+              <p className="text-gray-600 mb-4 text-sm">You can optionally upload a cover letter to strengthen your application.</p>
+
+              <div
+                className={`border-2 border-dashed rounded-lg p-6 text-center transition-all cursor-pointer
+                  ${form.coverLetterFile
+                    ? 'border-green-500 bg-green-50'
+                    : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                  }`}
+                onClick={() => document.getElementById('cover-letter-input').click()}
+              >
+                <input
+                  id="cover-letter-input"
+                  type="file"
+                  accept=".pdf,.doc,.docx"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                      handleChange('coverLetterFile', file);
+                    }
+                  }}
+                />
+
+                {form.coverLetterFile ? (
+                  <div className="flex items-center justify-center gap-3">
+                    <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span className="font-medium text-green-800">{form.coverLetterFile.name}</span>
+                    <span className="text-sm text-green-600">({(form.coverLetterFile.size / 1024 / 1024).toFixed(2)} MB)</span>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleChange('coverLetterFile', null);
+                      }}
+                      className="ml-2 text-red-500 hover:text-red-700"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center gap-2 text-gray-500">
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    <span>Click to upload cover letter</span>
                   </div>
                 )}
               </div>

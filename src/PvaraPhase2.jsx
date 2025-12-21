@@ -747,7 +747,10 @@ function PvaraPhase2() {
     if (jf.degreeRequired?.mandatory && !applicantData.degree) errs.push("Degree required");
     if (jf.minExperience?.mandatory && !(Number(applicantData.experienceYears) >= Number(jf.minExperience.value))) errs.push("Min experience not met");
     const files = fileRef.current?.files ? Array.from(fileRef.current.files) : [];
-    if (jf.uploads?.value?.cv && !files.some((f) => /\.pdf$|\.docx?$|\.doc$/i.test(f.name))) errs.push("CV required");
+    // Check for CV: either via file input OR via cvUrl (from AI extraction upload)
+    const hasCvFile = files.some((f) => /\.pdf$|\.docx?$|\.doc$/i.test(f.name));
+    const hasCvUrl = applicantData.cvUrl || applicantData.cv;
+    if (jf.uploads?.value?.cv && !hasCvFile && !hasCvUrl) errs.push("CV required");
 
     if (errs.length) {
       setConfirm({
