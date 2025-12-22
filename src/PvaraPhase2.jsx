@@ -1241,9 +1241,9 @@ function PvaraPhase2() {
             ) : (
               <div className="mt-auto">
                 <LoginInline
-                  onLogin={(cred) => {
-                    const res = auth.login(cred);
-                    if (!res.ok) addToast(res.message, { type: 'error' });
+                  onLogin={async (cred) => {
+                    const res = await auth.login(cred);
+                    if (!res.ok) addToast(res.message || "Login failed", { type: 'error' });
                     else setView("dashboard");
                   }}
                 />
