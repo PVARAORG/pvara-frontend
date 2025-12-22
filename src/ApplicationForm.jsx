@@ -52,6 +52,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
   const [showAutoFillBanner, setShowAutoFillBanner] = React.useState(false);
   const [showValidationPopup, setShowValidationPopup] = React.useState(false);
   const [validationPopupErrors, setValidationPopupErrors] = React.useState([]);
+  const [showSubmitConfirm, setShowSubmitConfirm] = React.useState(false);
 
   // Language options for dropdown
   const LANGUAGE_OPTIONS = [
@@ -376,6 +377,12 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
 
   function handleSubmit(e) {
     e.preventDefault();
+    // Show confirmation modal instead of immediate submit
+    setShowSubmitConfirm(true);
+  }
+
+  function confirmSubmit() {
+    setShowSubmitConfirm(false);
     onSubmit(form);
   }
 
@@ -1292,6 +1299,39 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
             >
               Got it
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Submit Confirmation Modal */}
+      {showSubmitConfirm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setShowSubmitConfirm(false)}>
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 p-6" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-gray-900">Confirm Submission</h3>
+            </div>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to submit your application? Please make sure you have reviewed all your information before proceeding.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowSubmitConfirm(false)}
+                className="flex-1 px-4 py-2 border-2 border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition"
+              >
+                Go Back
+              </button>
+              <button
+                onClick={confirmSubmit}
+                className="flex-1 px-4 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition"
+              >
+                Yes, Submit
+              </button>
+            </div>
           </div>
         </div>
       )}
