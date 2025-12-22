@@ -56,6 +56,30 @@ function ConfirmModal({ open, title, message, onConfirm, onCancel }) {
   );
 }
 
+// Success Modal - Centered on screen for important success messages
+function SuccessModal({ open, title, message, onClose }) {
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-xl shadow-2xl w-96 p-6 text-center animate-bounce-in">
+        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+        <div className="text-xl font-bold text-gray-900 mb-2">{title}</div>
+        <div className="text-gray-600 mb-6">{message}</div>
+        <button
+          onClick={onClose}
+          className="w-full px-4 py-2 bg-green-700 text-white rounded-lg hover:bg-green-800 font-medium transition"
+        >
+          Got it
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ---------- Test Data Generator ----------
 function generateTestApplications(jobs, baseTime = Date.now()) {
   const firstNames = ["Ahmed", "Fatima", "Ali", "Ayesha", "Hassan", "Zainab", "Usman", "Mariam", "Bilal", "Sana", "Imran", "Nida", "Faisal", "Hira", "Kamran", "Saad", "Aisha", "Omar", "Rabia", "Tariq"];
@@ -608,6 +632,9 @@ function PvaraPhase2() {
   const [jobSearch, setJobSearch] = useState("");
   const [selectedApps, setSelectedApps] = useState([]);
   const [selectedJobForAI, setSelectedJobForAI] = useState(null);
+  const [selectedJobForApply, setSelectedJobForApply] = useState(null);
+  const [selectedJobForHR, setSelectedJobForHR] = useState(null);
+  const [successModal, setSuccessModal] = useState({ open: false, title: "", message: "" });
   const handleSelectJobForAI = useCallback((value) => setSelectedJobForAI(value), []);
 
   // Memoized handlers to prevent input focus loss
@@ -644,7 +671,7 @@ function PvaraPhase2() {
       const j = { ...jobData, createdAt: jobData.createdAt || new Date().toISOString() };
       setState((s) => ({ ...s, jobs: [j, ...(s.jobs || [])] }));
       audit("create-job", { jobId: j.id, title: j.title });
-      addToast("Job created (local)", { type: "success" });
+      setSuccessModal({ open: true, title: "Job Created Successfully!", message: `"${j.title}" has been added to the job listings.` });
       return;
     }
 
@@ -659,11 +686,11 @@ function PvaraPhase2() {
       return;
     }
 
-    const j = { ...normalizeJobFormForSave(jobForm), id: `job-${Date.now()}`, createdAt: new Date().toISOString() };
+    const j = { ...normalizeJobFormForSave(jobForm), id: `job-${Date.now()}`, createdAt: new Date().toISOString(), status: 'open' };
     setState((s) => ({ ...s, jobs: [j, ...(s.jobs || [])] }));
     audit("create-job", { jobId: j.id, title: j.title });
     setJobForm(emptyJobForm);
-    addToast("Job created (local)", { type: "success" });
+    setSuccessModal({ open: true, title: "Job Created Successfully!", message: `"${j.title}" has been added to the job listings.` });
   }, [editingJobId, jobForm, addToast, state]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const audit = useCallback((action, details) => {
@@ -727,6 +754,10 @@ function PvaraPhase2() {
           (primaryEmployment.startYear ? new Date().getFullYear() - parseInt(primaryEmployment.startYear) : 0),
         address: applicantData.streetAddress1 || applicantData.address || `${applicantData.city}, ${applicantData.state}`.trim(),
         linkedin: applicantData.portfolioLink || applicantData.linkedin || '',
+        // Keep CV data - THIS IS CRITICAL
+        cvFile: applicantData.cvFile,
+        cvUrl: applicantData.cvUrl,
+        cv: applicantData.cv,
         // Keep additional data
         education: applicantData.education,
         employment: applicantData.employment,
@@ -747,8 +778,8 @@ function PvaraPhase2() {
     if (jf.degreeRequired?.mandatory && !applicantData.degree) errs.push("Degree required");
     if (jf.minExperience?.mandatory && !(Number(applicantData.experienceYears) >= Number(jf.minExperience.value))) errs.push("Min experience not met");
     const files = fileRef.current?.files ? Array.from(fileRef.current.files) : [];
-    // Check for CV: either via file input OR via cvUrl (from AI extraction upload)
-    const hasCvFile = files.some((f) => /\.pdf$|\.docx?$|\.doc$/i.test(f.name));
+    // Check for CV: file input OR cvFile object OR cvUrl (from AI extraction upload) OR cv field
+    const hasCvFile = files.some((f) => /\.pdf$|\.docx?$|\.doc$/i.test(f.name)) || applicantData.cvFile;
     const hasCvUrl = applicantData.cvUrl || applicantData.cv;
     if (jf.uploads?.value?.cv && !hasCvFile && !hasCvUrl) errs.push("CV required");
 
@@ -1869,8 +1900,8 @@ function PvaraPhase2() {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
+                            setSelectedJobForApply(job.id);
                             setView('apply');
-                            setAppForm(prev => ({ ...prev, jobId: job.id }));
                           }}
                           className="px-6 py-2 border-2 border-green-600 text-green-600 rounded-lg hover:bg-green-50 font-medium transition whitespace-nowrap"
                         >
@@ -1935,11 +1966,19 @@ function PvaraPhase2() {
   }
 
   // Two-Panel HR Review with Job Selection
-  function HRReviewPanel({ jobs, applications, onStatusChange, onAIEvaluate, onBulkAction, onAddNote, onExport }) {
-    const [selectedJobId, setSelectedJobId] = React.useState(jobs[0]?.id || null);
+  function HRReviewPanel({ jobs, applications, onStatusChange, onAIEvaluate, onBulkAction, onAddNote, onExport, selectedJobId, onSelectJob }) {
+    // Use the first job if none selected
+    const currentJobId = selectedJobId || jobs[0]?.id || null;
 
-    const selectedJob = jobs.find(j => j.id === selectedJobId);
-    const filteredApplications = applications.filter(app => app.jobId === selectedJobId);
+    // Auto-select first job on mount if none selected
+    React.useEffect(() => {
+      if (!selectedJobId && jobs[0]?.id) {
+        onSelectJob(jobs[0].id);
+      }
+    }, []);
+
+    const selectedJob = jobs.find(j => j.id === currentJobId);
+    const filteredApplications = applications.filter(app => app.jobId === currentJobId);
 
     // Calculate stats per job
     const jobStats = jobs.map(job => {
@@ -1966,8 +2005,8 @@ function PvaraPhase2() {
               return (
                 <button
                   key={job.id}
-                  onClick={() => setSelectedJobId(job.id)}
-                  className={`w-full text-left p-3 rounded-lg border-2 transition ${selectedJobId === job.id
+                  onClick={() => onSelectJob(job.id)}
+                  className={`w-full text-left p-3 rounded-lg border-2 transition ${currentJobId === job.id
                     ? 'border-green-700 bg-green-50'
                     : 'border-gray-200 hover:border-green-300 hover:bg-gray-50'
                     }`}
@@ -2061,7 +2100,7 @@ function PvaraPhase2() {
           {/* Modularized views for maintainability */}
           {view === "jobs" && <JobBoardView />}
           {view === "dashboard" && <AnalyticsDashboard state={state} onGenerateTestData={handleGenerateTestData} />}
-          {view === "apply" && <ApplicationForm onSubmit={submitApplication} jobs={state.jobs} />}
+          {view === "apply" && <ApplicationForm onSubmit={submitApplication} jobs={state.jobs} selectedJobId={selectedJobForApply} />}
           {(view === "candidate-login" || view === "my-apps") && !candidateSession && (
             <CandidateLogin
               onLogin={handleCandidateLogin}
@@ -2085,6 +2124,8 @@ function PvaraPhase2() {
               onBulkAction={handleBulkAction}
               onAddNote={handleAddNote}
               onExport={handleExport}
+              selectedJobId={selectedJobForHR}
+              onSelectJob={setSelectedJobForHR}
             />
           )}
           {view === "ai-screening" && <InterviewRubric rubric={state.rubric} onEvaluate={handleAIEvaluation} jobs={state.jobs} applications={state.applications} selectedJobForAI={selectedJobForAI} handleSelectJobForAI={handleSelectJobForAI} />}
@@ -2208,6 +2249,13 @@ function PvaraPhase2() {
           setConfirm({ open: false, title: "", message: "", onConfirm: null });
         }}
         onCancel={() => setConfirm({ open: false, title: "", message: "", onConfirm: null })}
+      />
+
+      <SuccessModal
+        open={successModal.open}
+        title={successModal.title}
+        message={successModal.message}
+        onClose={() => setSuccessModal({ open: false, title: "", message: "" })}
       />
     </div>
   );

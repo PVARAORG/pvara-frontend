@@ -5,7 +5,8 @@ import React from "react";
 
 const InterviewRubric = ({ rubric, onEvaluate, jobs = [], applications = [], selectedJobForAI, handleSelectJobForAI }) => {
   // AI Screening logic migrated from PvaraPhase2.jsx
-  const jobList = jobs.filter(j => j.status === 'open');
+  // Include jobs that are 'open' or have no status (newly created jobs)
+  const jobList = jobs.filter(j => j.status === 'open' || !j.status);
   const selectedJob = selectedJobForAI ? jobs.find(j => j.id === selectedJobForAI) : jobList[0];
   const jobApps = selectedJob
     ? applications.filter(a => a.jobId === selectedJob.id)

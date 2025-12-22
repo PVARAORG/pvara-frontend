@@ -33,8 +33,8 @@ export function validateEmail(email) {
 }
 
 /**
- * Validates Pakistani phone number formats
- * Accepts: +92-3XX-XXXXXXX, 03XX-XXXXXXX, 923XXXXXXXXX, 03XXXXXXXXX
+ * Validates phone number format
+ * Accepts any phone number format with digits, spaces, dashes, plus signs, and parentheses
  * @param {string} phone - Phone number to validate
  * @returns {{isValid: boolean, error: string|null}}
  */
@@ -48,20 +48,22 @@ export function validatePhone(phone) {
         return { isValid: false, error: 'Phone number is required' };
     }
 
-    // Remove all spaces and dashes for validation
-    const cleaned = trimmed.replace(/[\s-]/g, '');
+    // Remove all non-digit characters for validation
+    const digitsOnly = trimmed.replace(/[^0-9]/g, '');
 
-    // Pakistani phone patterns
-    const patterns = [
-        /^(\+92|92)?3[0-9]{9}$/, // With or without +92/92 prefix
-    ];
-
-    const isValid = patterns.some(pattern => pattern.test(cleaned));
-
-    if (!isValid) {
+    // Just require at least 7 digits (minimum reasonable phone number length)
+    if (digitsOnly.length < 7) {
         return {
             isValid: false,
-            error: 'Please enter a valid Pakistani phone number (e.g., 0300-1234567 or +92-300-1234567)'
+            error: 'Phone number must have at least 7 digits'
+        };
+    }
+
+    // Maximum 15 digits (international standard)
+    if (digitsOnly.length > 15) {
+        return {
+            isValid: false,
+            error: 'Phone number must not exceed 15 digits'
         };
     }
 

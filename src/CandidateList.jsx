@@ -12,11 +12,11 @@ const CandidateList = ({ candidates, onStatusChange, onAIEvaluate, onBulkAction,
   const [isAIScreening, setIsAIScreening] = React.useState(false);
   const [showAllCandidates, setShowAllCandidates] = React.useState(false);
   const itemsPerPage = 10;
-  
+
   // Filter and search logic
   const filteredCandidates = React.useMemo(() => {
     let filtered = candidates || [];
-    
+
     // Status filter
     if (statusFilter !== 'all') {
       filtered = filtered.filter(c => {
@@ -29,12 +29,12 @@ const CandidateList = ({ candidates, onStatusChange, onAIEvaluate, onBulkAction,
         return true;
       });
     }
-    
+
     // Hide rejected unless explicitly shown
     if (!showRejected && statusFilter !== 'rejected') {
       filtered = filtered.filter(c => (c.status || 'submitted') !== 'rejected');
     }
-    
+
     // Search filter
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
@@ -44,18 +44,18 @@ const CandidateList = ({ candidates, onStatusChange, onAIEvaluate, onBulkAction,
         const cnic = (c.applicant?.cnic || '').toLowerCase();
         const degree = (c.applicant?.degree || c.degree || '').toLowerCase();
         const phone = (c.applicant?.phone || '').toLowerCase();
-        
-        return name.includes(query) || 
-               email.includes(query) || 
-               cnic.includes(query) || 
-               degree.includes(query) ||
-               phone.includes(query);
+
+        return name.includes(query) ||
+          email.includes(query) ||
+          cnic.includes(query) ||
+          degree.includes(query) ||
+          phone.includes(query);
       });
     }
-    
+
     return filtered;
   }, [candidates, statusFilter, searchQuery, showRejected]);
-  
+
   // Sort by AI score (descending) and filter top 10%
   const sortedAndFilteredCandidates = React.useMemo(() => {
     // Sort by AI score descending
@@ -64,20 +64,20 @@ const CandidateList = ({ candidates, onStatusChange, onAIEvaluate, onBulkAction,
       const scoreB = b.aiScore || 0;
       return scoreB - scoreA;
     });
-    
-    // Calculate top 10% threshold
-    const topTenPercentCount = Math.max(1, Math.ceil(sorted.length * 0.1));
-    
-    // Show only top 10% unless "Show All" is enabled
+
+    // Show top 5 applicants by default (sorted by AI score)
+    const topCount = Math.min(5, sorted.length);
+
+    // Show only top 5 unless "Show All" is enabled
     if (!showAllCandidates && sorted.length > 0) {
       return {
-        topCandidates: sorted.slice(0, topTenPercentCount),
-        remainingCandidates: sorted.slice(topTenPercentCount),
-        topCount: topTenPercentCount,
+        topCandidates: sorted.slice(0, topCount),
+        remainingCandidates: sorted.slice(topCount),
+        topCount: topCount,
         totalCount: sorted.length
       };
     }
-    
+
     return {
       topCandidates: sorted,
       remainingCandidates: [],
@@ -85,11 +85,11 @@ const CandidateList = ({ candidates, onStatusChange, onAIEvaluate, onBulkAction,
       totalCount: sorted.length
     };
   }, [filteredCandidates, showAllCandidates]);
-  
+
   const unevaluatedCount = (candidates || []).filter(
     c => (c.status === 'submitted' || !c.aiScore) && c.status !== 'rejected'
   ).length;
-  
+
   // Status counts
   const statusCounts = React.useMemo(() => {
     const all = candidates || [];
@@ -102,24 +102,29 @@ const CandidateList = ({ candidates, onStatusChange, onAIEvaluate, onBulkAction,
       offer: all.filter(c => c.status === 'offer').length,
     };
   }, [candidates]);
-  
-  const displayCandidates = showAllCandidates 
-    ? sortedAndFilteredCandidates.topCandidates 
+
+  const displayCandidates = showAllCandidates
+    ? sortedAndFilteredCandidates.topCandidates
     : sortedAndFilteredCandidates.topCandidates;
-  
+
   const totalPages = Math.ceil(displayCandidates.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const paginatedCandidates = displayCandidates.slice(startIndex, endIndex);
-  
+
   // Reset to page 1 when filters change
   React.useEffect(() => {
     setCurrentPage(1);
   }, [statusFilter, searchQuery, showRejected, showAllCandidates]);
 
+  // Clear selections when candidates change (job switched)
+  React.useEffect(() => {
+    setSelectedIds([]);
+  }, [candidates]);
+
   // Selection handlers
   const toggleSelect = (id) => {
-    setSelectedIds(prev => 
+    setSelectedIds(prev =>
       prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
     );
   };
@@ -139,7 +144,7 @@ const CandidateList = ({ candidates, onStatusChange, onAIEvaluate, onBulkAction,
   };
 
   const handleExport = () => {
-    const toExport = selectedIds.length > 0 
+    const toExport = selectedIds.length > 0
       ? candidates.filter(c => selectedIds.includes(c.id))
       : candidates;
     onExport?.(toExport);
@@ -163,14 +168,14 @@ const CandidateList = ({ candidates, onStatusChange, onAIEvaluate, onBulkAction,
     setNoteText("");
     setShowNotesModal(null);
   };
-  
+
   const handleAIScreenAll = async () => {
     if (unevaluatedCount === 0) return;
     setIsAIScreening(true);
     await onAIEvaluate?.();
     setIsAIScreening(false);
   };
-  
+
   return (
     <div>
       {/* Search and Filters Bar */}
@@ -201,7 +206,7 @@ const CandidateList = ({ candidates, onStatusChange, onAIEvaluate, onBulkAction,
               )}
             </div>
           </div>
-          
+
           {/* Quick Actions */}
           <div className="flex gap-2 flex-wrap">
             {onAIEvaluate && unevaluatedCount > 0 && (
@@ -239,26 +244,24 @@ const CandidateList = ({ candidates, onStatusChange, onAIEvaluate, onBulkAction,
             </button>
           </div>
         </div>
-        
+
         {/* Status Filter Tabs */}
         <div className="flex gap-2 mt-4 overflow-x-auto pb-2">
           <button
             onClick={() => setStatusFilter('all')}
-            className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition ${
-              statusFilter === 'all'
-                ? 'bg-green-700 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
+            className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition ${statusFilter === 'all'
+              ? 'bg-green-700 text-white'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
           >
             All ({statusCounts.all})
           </button>
           <button
             onClick={() => setStatusFilter('new')}
-            className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition flex items-center gap-2 ${
-              statusFilter === 'new'
-                ? 'bg-gray-700 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
+            className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition flex items-center gap-2 ${statusFilter === 'new'
+              ? 'bg-gray-700 text-white'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -267,11 +270,10 @@ const CandidateList = ({ candidates, onStatusChange, onAIEvaluate, onBulkAction,
           </button>
           <button
             onClick={() => setStatusFilter('screening')}
-            className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition flex items-center gap-2 ${
-              statusFilter === 'screening'
-                ? 'bg-yellow-600 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
+            className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition flex items-center gap-2 ${statusFilter === 'screening'
+              ? 'bg-yellow-600 text-white'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
@@ -280,11 +282,10 @@ const CandidateList = ({ candidates, onStatusChange, onAIEvaluate, onBulkAction,
           </button>
           <button
             onClick={() => setStatusFilter('interview')}
-            className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition flex items-center gap-2 ${
-              statusFilter === 'interview'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
+            className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition flex items-center gap-2 ${statusFilter === 'interview'
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -293,11 +294,10 @@ const CandidateList = ({ candidates, onStatusChange, onAIEvaluate, onBulkAction,
           </button>
           <button
             onClick={() => setStatusFilter('offer')}
-            className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition flex items-center gap-2 ${
-              statusFilter === 'offer'
-                ? 'bg-green-600 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
+            className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition flex items-center gap-2 ${statusFilter === 'offer'
+              ? 'bg-green-600 text-white'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -314,11 +314,10 @@ const CandidateList = ({ candidates, onStatusChange, onAIEvaluate, onBulkAction,
                 setShowRejected(true);
               }
             }}
-            className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition flex items-center gap-2 ${
-              statusFilter === 'rejected'
-                ? 'bg-red-600 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
+            className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition flex items-center gap-2 ${statusFilter === 'rejected'
+              ? 'bg-red-600 text-white'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -326,7 +325,7 @@ const CandidateList = ({ candidates, onStatusChange, onAIEvaluate, onBulkAction,
             Rejected ({statusCounts.rejected})
           </button>
         </div>
-        
+
         {/* Results Summary */}
         <div className="mt-3 pt-3 border-t text-sm text-gray-600">
           <div className="flex items-center justify-between">
@@ -350,7 +349,7 @@ const CandidateList = ({ candidates, onStatusChange, onAIEvaluate, onBulkAction,
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
                     </svg>
-                    Show Top 10% Only
+                    Show Top 5 Only
                   </>
                 ) : (
                   <>
@@ -406,7 +405,7 @@ const CandidateList = ({ candidates, onStatusChange, onAIEvaluate, onBulkAction,
           </div>
         </div>
       )}
-      
+
       {displayCandidates.length === 0 ? (
         <div className="text-center py-12 text-gray-500">
           <svg className="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -427,153 +426,158 @@ const CandidateList = ({ candidates, onStatusChange, onAIEvaluate, onBulkAction,
         </div>
       ) : (
         <>
-        {/* Select All */}
-        <div className="bg-gray-50 border rounded-lg p-3 mb-3 flex items-center gap-3">
-          <input
-            type="checkbox"
-            checked={selectedIds.length === paginatedCandidates.length && paginatedCandidates.length > 0}
-            onChange={toggleSelectAll}
-            className="w-4 h-4 rounded border-gray-300"
-          />
-          <span className="text-sm font-medium text-gray-700">
-            {selectedIds.length === paginatedCandidates.length && paginatedCandidates.length > 0
-              ? 'Deselect all on this page'
-              : 'Select all on this page'}
-          </span>
-        </div>
+          {/* Select All */}
+          <div className="bg-gray-50 border rounded-lg p-3 mb-3 flex items-center gap-3">
+            <input
+              type="checkbox"
+              checked={selectedIds.length === paginatedCandidates.length && paginatedCandidates.length > 0}
+              onChange={toggleSelectAll}
+              className="w-4 h-4 rounded border-gray-300"
+            />
+            <span className="text-sm font-medium text-gray-700">
+              {selectedIds.length === paginatedCandidates.length && paginatedCandidates.length > 0
+                ? 'Deselect all on this page'
+                : 'Select all on this page'}
+            </span>
+          </div>
 
-        <ul className="space-y-3">
-          {paginatedCandidates.map((c) => (
-            <li key={c.id} className={`bg-white p-4 rounded shadow flex gap-3 ${
-              selectedIds.includes(c.id) ? 'ring-2 ring-green-500' : ''
-            }`}>
-              {/* Checkbox */}
-              <div className="flex-shrink-0">
-                <input
-                  type="checkbox"
-                  checked={selectedIds.includes(c.id)}
-                  onChange={() => toggleSelect(c.id)}
-                  className="w-5 h-5 rounded border-gray-300 mt-1"
-                />
-              </div>
-              
-              {/* Content */}
-              <div className="flex-1 flex flex-col gap-2">
-                <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <div className="font-semibold">{c.applicant?.name || c.name}</div>
-                    <div className="text-xs text-gray-500">
-                      {c.applicant?.email || c.email} • {c.applicant?.degree || c.degree} • {c.applicant?.experienceYears || c.experienceYears} yrs
+          <ul className="space-y-3">
+            {paginatedCandidates.map((c) => (
+              <li key={c.id} className={`bg-white p-4 rounded shadow flex gap-3 ${selectedIds.includes(c.id) ? 'ring-2 ring-green-500' : ''
+                }`}>
+                {/* Checkbox */}
+                <div className="flex-shrink-0">
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.includes(c.id)}
+                    onChange={() => toggleSelect(c.id)}
+                    className="w-5 h-5 rounded border-gray-300 mt-1"
+                  />
+                </div>
+
+                {/* Content */}
+                <div className="flex-1 flex flex-col gap-2">
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold">{c.applicant?.name || c.name}</span>
+                        {/* Status badge beside name */}
+                        <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${c.status === 'offer' ? 'bg-green-100 text-green-700' :
+                            c.status === 'interview' || c.status === 'phone-interview' ? 'bg-blue-100 text-blue-700' :
+                              c.status === 'screening' ? 'bg-yellow-100 text-yellow-700' :
+                                c.status === 'rejected' ? 'bg-red-100 text-red-700' :
+                                  'bg-gray-100 text-gray-700'
+                          }`}>
+                          {c.status || "submitted"}
+                        </span>
+                        {/* Notes Badge */}
+                        {c.notes && c.notes.length > 0 && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-purple-100 text-purple-700 rounded text-xs">
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                            </svg>
+                            {c.notes.length}
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-xs text-gray-500 mt-1">
+                        {c.applicant?.email || c.email} • {c.applicant?.degree || c.degree} • {c.applicant?.experienceYears || c.experienceYears} yrs
+                      </div>
+                      {c.applicant?.cnic && (
+                        <div className="text-xs text-gray-400 mt-0.5">CNIC: {c.applicant.cnic}</div>
+                      )}
                     </div>
-                    {c.applicant?.cnic && (
-                      <div className="text-xs text-gray-400 mt-0.5">CNIC: {c.applicant.cnic}</div>
+                    {c.aiScore && (
+                      <div className="text-center ml-4">
+                        <div className={`text-2xl font-bold ${c.aiScore >= 75 ? 'text-green-600' : c.aiScore >= 60 ? 'text-yellow-600' : 'text-red-600'
+                          }`}>
+                          {c.aiScore}
+                        </div>
+                        <div className="text-xs text-gray-500">AI Score</div>
+                      </div>
                     )}
                   </div>
-                  {c.aiScore && (
-                    <div className="text-center ml-4">
-                      <div className={`text-2xl font-bold ${
-                        c.aiScore >= 75 ? 'text-green-600' : c.aiScore >= 60 ? 'text-yellow-600' : 'text-red-600'
-                      }`}>
-                        {c.aiScore}
-                      </div>
-                      <div className="text-xs text-gray-500">AI Score</div>
+
+                  {c.aiRecommendation && (
+                    <div className="text-xs text-gray-600 italic bg-gray-50 p-2 rounded">
+                      💡 {c.aiRecommendation}
                     </div>
                   )}
-                </div>
-                
-                <div className="flex items-center gap-2">
-                  <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${
-                    c.status === 'offer' ? 'bg-green-100 text-green-700' :
-                    c.status === 'interview' || c.status === 'phone-interview' ? 'bg-blue-100 text-blue-700' :
-                    c.status === 'screening' ? 'bg-yellow-100 text-yellow-700' :
-                    c.status === 'rejected' ? 'bg-red-100 text-red-700' :
-                    'bg-gray-100 text-gray-700'
-                  }`}>
-                    {c.status || "submitted"}
-                  </span>
-                  
-                  {/* Notes Badge */}
+
+                  {/* Latest Note */}
                   {c.notes && c.notes.length > 0 && (
-                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs">
-                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
-                      </svg>
-                      {c.notes.length} note{c.notes.length > 1 ? 's' : ''}
-                    </span>
-                  )}
-                </div>
-                
-                {c.aiRecommendation && (
-                  <div className="text-xs text-gray-600 italic bg-gray-50 p-2 rounded">
-                    💡 {c.aiRecommendation}
-                  </div>
-                )}
-                
-                {/* Latest Note */}
-                {c.notes && c.notes.length > 0 && (
-                  <div className="text-xs bg-purple-50 p-2 rounded border border-purple-100">
-                    <div className="font-medium text-purple-900">Latest Note:</div>
-                    <div className="text-purple-700 mt-1">{c.notes[c.notes.length - 1].text}</div>
-                    <div className="text-purple-500 text-xs mt-1">
-                      by {c.notes[c.notes.length - 1].author} • {new Date(c.notes[c.notes.length - 1].timestamp).toLocaleDateString()}
+                    <div className="text-xs bg-purple-50 p-2 rounded border border-purple-100">
+                      <div className="font-medium text-purple-900">Latest Note:</div>
+                      <div className="text-purple-700 mt-1">{c.notes[c.notes.length - 1].text}</div>
+                      <div className="text-purple-500 text-xs mt-1">
+                        by {c.notes[c.notes.length - 1].author} • {new Date(c.notes[c.notes.length - 1].timestamp).toLocaleDateString()}
+                      </div>
                     </div>
-                  </div>
-                )}
-                
-                <div className="flex gap-2 flex-wrap">
-                  {onStatusChange && (
-                    <>
-                      <button className="px-2 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700" onClick={() => onStatusChange(c.id, "interview")}>Interview</button>
-                      <button className="px-2 py-1 bg-yellow-600 text-white rounded text-xs hover:bg-yellow-700" onClick={() => onStatusChange(c.id, "screening")}>Screen</button>
-                      <button className="px-2 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700" onClick={() => onStatusChange(c.id, "rejected")}>Reject</button>
-                    </>
                   )}
-                  <button 
-                    className="px-2 py-1 bg-purple-600 text-white rounded text-xs hover:bg-purple-700"
-                    onClick={() => setShowNotesModal(c.id)}
-                  >
-                    Add Note
-                  </button>
+
+                  <div className="flex gap-2 flex-wrap">
+                    {onStatusChange && (
+                      <>
+                        {/* Only show status actions that are different from current status */}
+                        {c.status !== 'offer' && (
+                          <button className="px-2 py-1 bg-emerald-600 text-white rounded text-xs hover:bg-emerald-700" onClick={() => onStatusChange(c.id, "offer")}>Offer</button>
+                        )}
+                        {c.status !== 'interview' && c.status !== 'phone-interview' && (
+                          <button className="px-2 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700" onClick={() => onStatusChange(c.id, "interview")}>Interview</button>
+                        )}
+                        {c.status !== 'screening' && (
+                          <button className="px-2 py-1 bg-yellow-600 text-white rounded text-xs hover:bg-yellow-700" onClick={() => onStatusChange(c.id, "screening")}>Screen</button>
+                        )}
+                        {c.status !== 'rejected' && (
+                          <button className="px-2 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700" onClick={() => onStatusChange(c.id, "rejected")}>Reject</button>
+                        )}
+                      </>
+                    )}
+                    <button
+                      className="px-2 py-1 bg-purple-600 text-white rounded text-xs hover:bg-purple-700"
+                      onClick={() => setShowNotesModal(c.id)}
+                    >
+                      Add Note
+                    </button>
+                  </div>
                 </div>
-              </div>
-            </li>
-          ))}
-        </ul>
-        
-        {/* Pagination Controls */}
-        {totalPages > 1 && (
-          <div className="mt-6 flex justify-center items-center gap-2">
-            <button
-              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-              disabled={currentPage === 1}
-              className="px-3 py-2 border rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              ← Previous
-            </button>
-            <div className="flex gap-1">
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                <button
-                  key={page}
-                  onClick={() => setCurrentPage(page)}
-                  className={`px-3 py-2 rounded ${
-                    currentPage === page
+              </li>
+            ))}
+          </ul>
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="mt-6 flex justify-center items-center gap-2">
+              <button
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="px-3 py-2 border rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                ← Previous
+              </button>
+              <div className="flex gap-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                  <button
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    className={`px-3 py-2 rounded ${currentPage === page
                       ? 'bg-green-700 text-white'
                       : 'border hover:bg-gray-50'
-                  }`}
-                >
-                  {page}
-                </button>
-              ))}
+                      }`}
+                  >
+                    {page}
+                  </button>
+                ))}
+              </div>
+              <button
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="px-3 py-2 border rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Next →
+              </button>
             </div>
-            <button
-              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-              disabled={currentPage === totalPages}
-              className="px-3 py-2 border rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Next →
-            </button>
-          </div>
-        )}
+          )}
         </>
       )}
 
@@ -625,26 +629,25 @@ const CandidateList = ({ candidates, onStatusChange, onAIEvaluate, onBulkAction,
                 </svg>
               </button>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {selectedIds.map(id => {
                 const candidate = (candidates || []).find(c => c.id === id);
                 if (!candidate) return null;
-                
+
                 return (
                   <div key={id} className="border rounded-lg p-4 bg-gray-50">
                     <div className="font-bold text-lg mb-2">{candidate.applicant?.name || candidate.name}</div>
-                    
+
                     {candidate.aiScore && (
-                      <div className={`text-4xl font-bold mb-4 ${
-                        candidate.aiScore >= 75 ? 'text-green-600' : 
+                      <div className={`text-4xl font-bold mb-4 ${candidate.aiScore >= 75 ? 'text-green-600' :
                         candidate.aiScore >= 60 ? 'text-yellow-600' : 'text-red-600'
-                      }`}>
+                        }`}>
                         {candidate.aiScore}
                         <span className="text-sm text-gray-500 ml-1">/ 100</span>
                       </div>
                     )}
-                    
+
                     <div className="space-y-2 text-sm">
                       <div>
                         <div className="text-gray-500 text-xs">Email</div>
@@ -660,13 +663,12 @@ const CandidateList = ({ candidates, onStatusChange, onAIEvaluate, onBulkAction,
                       </div>
                       <div>
                         <div className="text-gray-500 text-xs">Status</div>
-                        <span className={`inline-block px-2 py-1 rounded text-xs ${
-                          candidate.status === 'offer' ? 'bg-green-100 text-green-700' :
+                        <span className={`inline-block px-2 py-1 rounded text-xs ${candidate.status === 'offer' ? 'bg-green-100 text-green-700' :
                           candidate.status === 'interview' ? 'bg-blue-100 text-blue-700' :
-                          candidate.status === 'screening' ? 'bg-yellow-100 text-yellow-700' :
-                          candidate.status === 'rejected' ? 'bg-red-100 text-red-700' :
-                          'bg-gray-100 text-gray-700'
-                        }`}>
+                            candidate.status === 'screening' ? 'bg-yellow-100 text-yellow-700' :
+                              candidate.status === 'rejected' ? 'bg-red-100 text-red-700' :
+                                'bg-gray-100 text-gray-700'
+                          }`}>
                           {candidate.status || 'submitted'}
                         </span>
                       </div>
@@ -687,7 +689,7 @@ const CandidateList = ({ candidates, onStatusChange, onAIEvaluate, onBulkAction,
                 );
               })}
             </div>
-            
+
             <div className="mt-6 text-center">
               <button
                 onClick={() => setShowCompareModal(false)}

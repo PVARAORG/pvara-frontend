@@ -11,10 +11,10 @@ import {
   validateRequired
 } from "./utils/validationUtils";
 
-const ApplicationForm = ({ onSubmit, jobs = [] }) => {
+const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
   const [currentStep, setCurrentStep] = React.useState(0);
   const [form, setForm] = React.useState({
-    jobId: jobs[0]?.id || "",
+    jobId: selectedJobId || jobs[0]?.id || "",
     // Files
     cvFile: null,
     coverLetterFile: null,
@@ -50,6 +50,14 @@ const ApplicationForm = ({ onSubmit, jobs = [] }) => {
   const [isExtracting, setIsExtracting] = React.useState(false);
   const [extractedData, setExtractedData] = React.useState(null);
   const [showAutoFillBanner, setShowAutoFillBanner] = React.useState(false);
+  const [showValidationPopup, setShowValidationPopup] = React.useState(false);
+  const [validationPopupErrors, setValidationPopupErrors] = React.useState([]);
+
+  // Language options for dropdown
+  const LANGUAGE_OPTIONS = [
+    "English", "Urdu", "Punjabi", "Sindhi", "Pashto", "Balochi",
+    "Arabic", "French", "German", "Spanish", "Chinese", "Hindi", "Other"
+  ];
 
   const steps = [
     {
@@ -70,6 +78,13 @@ const ApplicationForm = ({ onSubmit, jobs = [] }) => {
     },
   ];
 
+  // Update jobId when selectedJobId prop changes (from Quick Apply)
+  React.useEffect(() => {
+    if (selectedJobId && selectedJobId !== form.jobId) {
+      setForm(prev => ({ ...prev, jobId: selectedJobId }));
+    }
+  }, [selectedJobId]);
+
   function handleChange(field, value) {
     setForm((prev) => ({ ...prev, [field]: value }));
     // Clear error when user starts typing
@@ -83,6 +98,16 @@ const ApplicationForm = ({ onSubmit, jobs = [] }) => {
     setIsExtracting(true);
     setErrors(prev => ({ ...prev, cvFile: null }));
 
+    // ALWAYS save the file first, regardless of API response
+    // Use setForm directly to ensure immediate update
+    setForm(prev => ({
+      ...prev,
+      cvFile: file,
+      cvUrl: null, // Will be set if upload succeeds
+      cv: null // Will be set if upload succeeds
+    }));
+    console.log('CV File saved to form state:', file.name);
+
     try {
       const formData = new FormData();
       formData.append('cv', file);
@@ -94,16 +119,22 @@ const ApplicationForm = ({ onSubmit, jobs = [] }) => {
       });
 
       if (!response.ok) {
-        throw new Error('Upload failed');
+        console.error('CV upload failed with status:', response.status);
+        // CV is already saved as cvFile, so just continue
+        return;
       }
 
       const result = await response.json();
       console.log('CV Extraction Response:', result);
 
-      if (result.success) {
-        handleChange('cvFile', file);
-        handleChange('cvUrl', result.file?.url);
-        handleChange('cv', result.file?.url); // For backend compatibility
+      if (result.success && result.file?.url) {
+        // Update with URL from server
+        setForm(prev => ({
+          ...prev,
+          cvUrl: result.file.url,
+          cv: result.file.url
+        }));
+        console.log('CV URL saved:', result.file.url);
 
         // Log extraction status for debugging
         console.log('Extraction Status:', result.extractionStatus);
@@ -127,8 +158,7 @@ const ApplicationForm = ({ onSubmit, jobs = [] }) => {
       }
     } catch (error) {
       console.error('CV extraction error:', error);
-      // Fall back to simple file storage
-      handleChange('cvFile', file);
+      // CV is already saved as cvFile, so just log the error
     } finally {
       setIsExtracting(false);
     }
@@ -248,8 +278,8 @@ const ApplicationForm = ({ onSubmit, jobs = [] }) => {
         stepErrors.jobId = 'Please select a position';
         isValid = false;
       }
-      // CV is required
-      if (!form.cvFile) {
+      // CV is required - check both file and URL (URL is set after upload)
+      if (!form.cvFile && !form.cvUrl && !form.cv) {
         stepErrors.cvFile = 'Please upload your CV to continue';
         isValid = false;
       }
@@ -272,10 +302,14 @@ const ApplicationForm = ({ onSubmit, jobs = [] }) => {
         }
       }
 
-      // Validate employment (at least first entry must be complete)
+      // Validate employment (at least first entry must have employer and job title)
       if (form.employment[0]) {
-        if (!form.employment[0].employer || !form.employment[0].jobTitle) {
-          stepErrors.employment = 'Please complete at least one employment entry';
+        if (!form.employment[0].employer) {
+          stepErrors.employer = 'Employer name is required';
+          isValid = false;
+        }
+        if (!form.employment[0].jobTitle) {
+          stepErrors.jobTitle = 'Job title is required';
           isValid = false;
         }
       }
@@ -298,7 +332,7 @@ const ApplicationForm = ({ onSubmit, jobs = [] }) => {
     }
 
     setErrors((prev) => ({ ...prev, ...stepErrors }));
-    return isValid;
+    return { isValid, stepErrors };
   }
 
   function handleArrayChange(arrayName, index, field, value) {
@@ -346,8 +380,18 @@ const ApplicationForm = ({ onSubmit, jobs = [] }) => {
   }
 
   function nextStep() {
-    if (validateCurrentStep()) {
+    const result = validateCurrentStep();
+    if (result.isValid) {
       if (currentStep < steps.length - 1) setCurrentStep(currentStep + 1);
+    } else {
+      // Collect all errors for popup - merge existing field errors with step errors
+      const allFieldErrors = Object.values(errors).filter(e => e);
+      const allStepErrors = Object.values(result.stepErrors).filter(e => e);
+      const allErrors = [...new Set([...allFieldErrors, ...allStepErrors])]; // Remove duplicates
+      if (allErrors.length > 0) {
+        setValidationPopupErrors(allErrors);
+        setShowValidationPopup(true);
+      }
     }
   }
 
@@ -471,7 +515,7 @@ const ApplicationForm = ({ onSubmit, jobs = [] }) => {
                 className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all cursor-pointer
                   ${isExtracting
                     ? 'border-blue-500 bg-blue-50'
-                    : form.cvFile
+                    : (form.cvFile || form.cvUrl || form.cv)
                       ? 'border-green-500 bg-green-50'
                       : 'border-gray-300 hover:border-green-400 hover:bg-green-50'
                   }`}
@@ -525,7 +569,7 @@ const ApplicationForm = ({ onSubmit, jobs = [] }) => {
                       <p className="text-blue-600 text-sm">AI is extracting your information to auto-fill the form</p>
                     </div>
                   </div>
-                ) : form.cvFile ? (
+                ) : (form.cvFile || form.cvUrl || form.cv) ? (
                   <div className="space-y-3">
                     <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full">
                       <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -533,14 +577,23 @@ const ApplicationForm = ({ onSubmit, jobs = [] }) => {
                       </svg>
                     </div>
                     <div>
-                      <p className="font-semibold text-green-800">{form.cvFile.name}</p>
-                      <p className="text-sm text-green-600">{(form.cvFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                      <p className="font-semibold text-green-800">
+                        {form.cvFile?.name || 'CV Uploaded Successfully'}
+                      </p>
+                      {form.cvFile?.size && (
+                        <p className="text-sm text-green-600">{(form.cvFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                      )}
+                      {!form.cvFile && (form.cvUrl || form.cv) && (
+                        <p className="text-sm text-green-600">File saved to server</p>
+                      )}
                     </div>
                     <button
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleChange('cvFile', null);
+                        handleChange('cvUrl', null);
+                        handleChange('cv', null);
                       }}
                       className="px-4 py-2 text-sm text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition"
                     >
@@ -575,7 +628,7 @@ const ApplicationForm = ({ onSubmit, jobs = [] }) => {
                 </div>
               )}
 
-              {!form.cvFile && !errors.cvFile && !isExtracting && (
+              {!form.cvFile && !form.cvUrl && !form.cv && !errors.cvFile && !isExtracting && (
                 <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-center gap-2 text-amber-700">
                   <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -934,11 +987,27 @@ const ApplicationForm = ({ onSubmit, jobs = [] }) => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">Employer *</label>
-                        <input value={emp.employer} onChange={e => handleArrayChange('employment', index, 'employer', e.target.value)} className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition" required />
+                        <input
+                          value={emp.employer}
+                          onChange={e => handleArrayChange('employment', index, 'employer', e.target.value)}
+                          className={`w-full px-4 py-3 border-2 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition ${errors.employer && index === 0 ? 'border-red-500' : 'border-gray-300'}`}
+                          required
+                        />
+                        {errors.employer && index === 0 && (
+                          <p className="text-sm text-red-600 mt-1">{errors.employer}</p>
+                        )}
                       </div>
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">Job Title *</label>
-                        <input value={emp.jobTitle} onChange={e => handleArrayChange('employment', index, 'jobTitle', e.target.value)} className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition" required />
+                        <input
+                          value={emp.jobTitle}
+                          onChange={e => handleArrayChange('employment', index, 'jobTitle', e.target.value)}
+                          className={`w-full px-4 py-3 border-2 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition ${errors.jobTitle && index === 0 ? 'border-red-500' : 'border-gray-300'}`}
+                          required
+                        />
+                        {errors.jobTitle && index === 0 && (
+                          <p className="text-sm text-red-600 mt-1">{errors.jobTitle}</p>
+                        )}
                       </div>
                     </div>
                     <label className="flex items-center gap-2 cursor-pointer">
@@ -1038,7 +1107,12 @@ const ApplicationForm = ({ onSubmit, jobs = [] }) => {
                   <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">Language</label>
-                      <input value={lang.language} onChange={e => handleArrayChange('languages', index, 'language', e.target.value)} className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition" />
+                      <select value={lang.language} onChange={e => handleArrayChange('languages', index, 'language', e.target.value)} className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition">
+                        <option value="">Select Language</option>
+                        {LANGUAGE_OPTIONS.map(langOpt => (
+                          <option key={langOpt} value={langOpt}>{langOpt}</option>
+                        ))}
+                      </select>
                     </div>
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">Proficiency</label>
@@ -1191,6 +1265,36 @@ const ApplicationForm = ({ onSubmit, jobs = [] }) => {
           )}
         </div>
       </form>
+
+      {/* Validation Error Popup */}
+      {showValidationPopup && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setShowValidationPopup(false)}>
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 p-6" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-bold text-gray-900">Please Fix the Following</h3>
+            </div>
+            <ul className="space-y-2 mb-6">
+              {validationPopupErrors.map((err, idx) => (
+                <li key={idx} className="flex items-start gap-2 text-sm text-gray-700">
+                  <span className="text-red-500 mt-0.5">•</span>
+                  {err}
+                </li>
+              ))}
+            </ul>
+            <button
+              onClick={() => setShowValidationPopup(false)}
+              className="w-full px-4 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition"
+            >
+              Got it
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
