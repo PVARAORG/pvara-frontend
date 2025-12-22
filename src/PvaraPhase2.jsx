@@ -15,6 +15,7 @@ import ShortlistPanel from "./ShortlistPanel";
 import Toasts from "./Toasts";
 import { batchEvaluateApplications } from "./aiScreening";
 import LoginInline from "./LoginInline"; // Import validated LoginInline component
+import apiClient from "./api/client";
 
 // ---------- Storage utilities ----------
 const STORAGE_KEY = "pvara_v3";
@@ -124,27 +125,14 @@ function CandidateProfileModal({ open, candidate, onClose }) {
               </div>
             </section>
 
-            <section>
+            {/* Documents section temporarily hidden as per request */}
+            {/* <section>
               <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
                 <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                 Documents
               </h3>
-              <div className="flex gap-3">
-                {c.resumeUrl ? (
-                  <a href={c.resumeUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 border border-blue-200 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                    View CV / Resume
-                  </a>
-                ) : (
-                  <span className="text-gray-400 italic text-sm">No CV available</span>
-                )}
-                {c.coverLetterUrl && (
-                  <a href={c.coverLetterUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 border border-gray-200 bg-gray-50 text-gray-700 rounded-lg hover:bg-gray-100 transition">
-                    View Cover Letter
-                  </a>
-                )}
-              </div>
-            </section>
+              ...
+            </section> */}
           </div>
 
           {/* Right Column: AI & Qualifications */}
