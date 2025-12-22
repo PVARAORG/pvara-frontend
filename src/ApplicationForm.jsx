@@ -285,14 +285,26 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
         isValid = false;
       }
     } else if (currentStep === 1) {
-      // Profile Information
-      const fieldsToValidate = ['firstName', 'lastName', 'email', 'phone', 'cnic', 'city', 'state', 'postalCode'];
-      fieldsToValidate.forEach(field => {
-        const fieldIsValid = validateField(field, form[field]);
-        if (!fieldIsValid) {
+      // Profile Information - collect all validation errors synchronously
+      const fieldConfigs = {
+        firstName: { validator: () => validateAlphabetic(form.firstName, true, 'First name'), label: 'First name' },
+        lastName: { validator: () => validateAlphabetic(form.lastName, true, 'Last name'), label: 'Last name' },
+        email: { validator: () => validateEmail(form.email), label: 'Email' },
+        phone: { validator: () => validatePhone(form.phone), label: 'Phone' },
+        cnic: { validator: () => validateCNIC(form.cnic), label: 'CNIC' },
+        city: { validator: () => validateTextLength(form.city, { min: 2, max: 100, required: true, fieldName: 'City' }), label: 'City' },
+        state: { validator: () => validateTextLength(form.state, { min: 2, max: 100, required: true, fieldName: 'State' }), label: 'State' },
+        postalCode: { validator: () => validatePostalCode(form.postalCode, true), label: 'Postal Code' },
+      };
+
+      Object.entries(fieldConfigs).forEach(([field, config]) => {
+        const validation = config.validator();
+        if (!validation.isValid) {
           isValid = false;
+          stepErrors[field] = validation.error || `${config.label} is invalid`;
           setTouched((prev) => ({ ...prev, [field]: true }));
         }
+        setErrors((prev) => ({ ...prev, [field]: validation.error }));
       });
 
       // Validate education (at least first entry must be complete)
@@ -314,6 +326,13 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
           isValid = false;
         }
       }
+
+      // Clear errors that are now fixed
+      if (form.employment[0]?.employer) delete stepErrors.employer;
+      if (form.employment[0]?.jobTitle) delete stepErrors.jobTitle;
+      if (form.education[0]?.school && form.education[0]?.fieldOfStudy && form.education[0]?.degree) {
+        delete stepErrors.education;
+      }
     } else if (currentStep === 2) {
       // Self-Disclosure (optional but validate format if provided)
       if (form.coverLetter) {
@@ -332,6 +351,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
       }
     }
 
+    // Update errors state with step errors
     setErrors((prev) => ({ ...prev, ...stepErrors }));
     return { isValid, stepErrors };
   }
@@ -377,7 +397,16 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
 
   function handleSubmit(e) {
     e.preventDefault();
-    // Show confirmation modal instead of immediate submit
+    // Form submission should just advance to next step (handles Enter key presses)
+    // Confirmation is triggered by Submit button click, not form submission
+    if (currentStep < steps.length - 1) {
+      nextStep();
+    }
+    // If on final step, do nothing - Submit button handles confirmation
+  }
+
+  function handleSubmitClick() {
+    // Show confirmation before submitting
     setShowSubmitConfirm(true);
   }
 
@@ -1261,7 +1290,8 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
             </button>
           ) : (
             <button
-              type="submit"
+              type="button"
+              onClick={handleSubmitClick}
               className="px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-bold text-lg transition shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

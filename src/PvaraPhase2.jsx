@@ -607,7 +607,7 @@ function PvaraPhase2() {
         }
       ]
     }));
-    addToast(`AI evaluated ${unevaluatedCount} applications`, "success");
+    setSuccessModal({ open: true, title: "AI Evaluation Complete!", message: `Successfully evaluated ${unevaluatedCount} application(s).` });
   }, [state.applications, state.jobs, user, addToast]);
 
   const [view, setView] = useState("jobs");
@@ -680,7 +680,7 @@ function PvaraPhase2() {
       const updated = { ...normalizeJobFormForSave(jobForm), id: editingJobId };
       setState((s) => ({ ...s, jobs: s.jobs.map((j) => (j.id === editingJobId ? updated : j)) }));
       audit("update-job", { jobId: editingJobId, title: updated.title });
-      addToast("Job updated", { type: "success" });
+      setSuccessModal({ open: true, title: "Job Updated Successfully!", message: `"${updated.title}" has been updated.` });
       setEditingJobId(null);
       setJobForm(emptyJobForm);
       return;
@@ -717,7 +717,7 @@ function PvaraPhase2() {
     if (jobData && jobData.id) {
       setState((s) => ({ ...s, jobs: s.jobs.map((j) => (j.id === jobData.id ? jobData : j)) }));
       audit("update-job", { jobId: jobData.id, title: jobData.title });
-      addToast("Job updated", { type: "success" });
+      setSuccessModal({ open: true, title: "Job Updated!", message: `Job has been updated successfully.` });
       setEditingJobId(null);
       setJobForm(emptyJobForm);
     }
@@ -923,7 +923,7 @@ function PvaraPhase2() {
       return { ...s, applications: apps };
     });
     audit("change-app-status", { appId, status, note });
-    addToast("Application status updated: " + status, { type: status === 'rejected' ? 'error' : 'success' });
+    setSuccessModal({ open: true, title: "Status Updated!", message: `Application status changed to "${status}".` });
     setDrawer((d) => (d.open && d.app && d.app.id === appId ? { ...d, app: { ...d.app, status } } : d));
 
     // Send status update email
@@ -973,7 +973,7 @@ function PvaraPhase2() {
       )
     }));
     audit("bulk-action", { selectedIds, action, count: selectedIds.length });
-    addToast(`${selectedIds.length} candidate(s) moved to ${action}`, { type: "success" });
+    setSuccessModal({ open: true, title: "Bulk Action Complete!", message: `${selectedIds.length} candidate(s) moved to "${action}".` });
   }, [addToast, audit]);
 
   // Add note to application
@@ -994,7 +994,7 @@ function PvaraPhase2() {
       )
     }));
     audit("add-note", { candidateId, noteText: noteText.substring(0, 50) });
-    addToast("Note added successfully", { type: "success" });
+    setSuccessModal({ open: true, title: "Note Added!", message: "Your note has been saved successfully." });
   }, [addToast, user, audit]);
 
   // Export candidates to CSV
