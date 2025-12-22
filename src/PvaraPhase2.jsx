@@ -528,6 +528,146 @@ const emptyJobForm = {
   fields: {},
 };
 
+// Job Button Component for HR Review Panel (separate component to use hooks properly)
+function JobButton({ job, stats, isSelected, onSelectJob }) {
+  return (
+    <button
+      onClick={() => onSelectJob(job.id)}
+      className={`w-full text-left p-3 rounded-lg border-2 transition ${isSelected
+        ? 'border-green-700 bg-green-50'
+        : 'border-gray-200 hover:border-green-300 hover:bg-gray-50'
+        }`}
+    >
+      <div className="font-semibold text-sm text-gray-800 mb-1">{job.title}</div>
+      <div className="text-xs text-gray-500 mb-2">{job.department}</div>
+      <div className="flex items-center justify-between">
+        <span className="text-lg font-bold text-green-700">{stats.total}</span>
+        <div className="flex gap-1">
+          {stats.submitted > 0 && (
+            <span className="px-2 py-0.5 bg-gray-100 text-gray-700 rounded text-xs">
+              {stats.submitted} new
+            </span>
+          )}
+          {stats.interview > 0 && (
+            <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs">
+              {stats.interview} int
+            </span>
+          )}
+        </div>
+      </div>
+    </button>
+  );
+}
+
+// Two-Panel HR Review with Job Selection
+function HRReviewPanel({ jobs, applications, onStatusChange, onAIEvaluate, onBulkAction, onAddNote, onExport, selectedJobId, onSelectJob }) {
+  // Use the first job if none selected
+  const currentJobId = selectedJobId || jobs[0]?.id || null;
+
+  // Auto-select first job on mount if none selected
+  React.useEffect(() => {
+    if (!selectedJobId && jobs[0]?.id) {
+      onSelectJob(jobs[0].id);
+    }
+  }, []);
+
+  const selectedJob = jobs.find(j => j.id === currentJobId);
+  const filteredApplications = applications.filter(app => app.jobId === currentJobId);
+
+  // Calculate stats per job
+  const jobStats = jobs.map(job => {
+    const jobApps = applications.filter(app => app.jobId === job.id);
+    return {
+      jobId: job.id,
+      total: jobApps.length,
+      submitted: jobApps.filter(a => a.status === 'submitted').length,
+      screening: jobApps.filter(a => a.status === 'screening').length,
+      interview: jobApps.filter(a => a.status === 'interview' || a.status === 'phone-interview').length,
+      rejected: jobApps.filter(a => a.status === 'rejected').length,
+      offer: jobApps.filter(a => a.status === 'offer').length,
+    };
+  });
+
+  return (
+    <div className="flex gap-6 h-[calc(100vh-8rem)]">
+      {/* Left Panel - Job List */}
+      <div className="w-80 flex-shrink-0 bg-white rounded-lg shadow-lg p-4 overflow-y-auto">
+        <h2 className="text-xl font-bold mb-4 text-gray-800">Open Positions</h2>
+        <div className="space-y-2">
+          {jobs.map(job => {
+            const stats = jobStats.find(s => s.jobId === job.id);
+            const isSelected = currentJobId === job.id;
+            return (
+              <JobButton
+                key={job.id}
+                job={job}
+                stats={stats}
+                isSelected={isSelected}
+                onSelectJob={onSelectJob}
+              />
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Right Panel - Applications for Selected Job */}
+      <div className="flex-1 bg-white rounded-lg shadow-lg p-6 overflow-y-auto">
+        {selectedJob ? (
+          <>
+            {/* Job Header */}
+            <div className="mb-6 pb-4 border-b">
+              <h2 className="text-2xl font-bold text-gray-800 mb-2">{selectedJob.title}</h2>
+              <div className="flex items-center gap-4 text-sm text-gray-600">
+                <span className="flex items-center gap-1">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                  {selectedJob.department}
+                </span>
+                <span className="flex items-center gap-1">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                  {selectedJob.employmentType}
+                </span>
+                <span className="flex items-center gap-1">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                  {filteredApplications.length} applicant{filteredApplications.length !== 1 ? 's' : ''}
+                </span>
+              </div>
+            </div>
+
+            {/* Applications List */}
+            {filteredApplications.length === 0 ? (
+              <div className="text-center py-12 text-gray-500">
+                <svg className="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <p className="font-medium">No applications yet for this position</p>
+              </div>
+            ) : (
+              <CandidateList
+                candidates={filteredApplications}
+                onStatusChange={onStatusChange}
+                onAIEvaluate={() => onAIEvaluate()}
+                onBulkAction={onBulkAction}
+                onAddNote={onAddNote}
+                onExport={onExport}
+              />
+            )}
+          </>
+        ) : (
+          <div className="text-center py-12 text-gray-500">
+            Select a job position to view applications
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function PvaraPhase2() {
   const [state, setState] = useState(() => loadState() || defaultState());
   useEffect(() => saveState(state), [state]);
@@ -1965,132 +2105,10 @@ function PvaraPhase2() {
     );
   }
 
+
+
   // Two-Panel HR Review with Job Selection
-  function HRReviewPanel({ jobs, applications, onStatusChange, onAIEvaluate, onBulkAction, onAddNote, onExport, selectedJobId, onSelectJob }) {
-    // Use the first job if none selected
-    const currentJobId = selectedJobId || jobs[0]?.id || null;
 
-    // Auto-select first job on mount if none selected
-    React.useEffect(() => {
-      if (!selectedJobId && jobs[0]?.id) {
-        onSelectJob(jobs[0].id);
-      }
-    }, []);
-
-    const selectedJob = jobs.find(j => j.id === currentJobId);
-    const filteredApplications = applications.filter(app => app.jobId === currentJobId);
-
-    // Calculate stats per job
-    const jobStats = jobs.map(job => {
-      const jobApps = applications.filter(app => app.jobId === job.id);
-      return {
-        jobId: job.id,
-        total: jobApps.length,
-        submitted: jobApps.filter(a => a.status === 'submitted').length,
-        screening: jobApps.filter(a => a.status === 'screening').length,
-        interview: jobApps.filter(a => a.status === 'interview' || a.status === 'phone-interview').length,
-        rejected: jobApps.filter(a => a.status === 'rejected').length,
-        offer: jobApps.filter(a => a.status === 'offer').length,
-      };
-    });
-
-    return (
-      <div className="flex gap-6 h-[calc(100vh-8rem)]">
-        {/* Left Panel - Job List */}
-        <div className="w-80 flex-shrink-0 bg-white rounded-lg shadow-lg p-4 overflow-y-auto">
-          <h2 className="text-xl font-bold mb-4 text-gray-800">Open Positions</h2>
-          <div className="space-y-2">
-            {jobs.map(job => {
-              const stats = jobStats.find(s => s.jobId === job.id);
-              return (
-                <button
-                  key={job.id}
-                  onClick={() => onSelectJob(job.id)}
-                  className={`w-full text-left p-3 rounded-lg border-2 transition ${currentJobId === job.id
-                    ? 'border-green-700 bg-green-50'
-                    : 'border-gray-200 hover:border-green-300 hover:bg-gray-50'
-                    }`}
-                >
-                  <div className="font-semibold text-sm text-gray-800 mb-1">{job.title}</div>
-                  <div className="text-xs text-gray-500 mb-2">{job.department}</div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-lg font-bold text-green-700">{stats.total}</span>
-                    <div className="flex gap-1">
-                      {stats.submitted > 0 && (
-                        <span className="px-2 py-0.5 bg-gray-100 text-gray-700 rounded text-xs">
-                          {stats.submitted} new
-                        </span>
-                      )}
-                      {stats.interview > 0 && (
-                        <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs">
-                          {stats.interview} int
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Right Panel - Applications for Selected Job */}
-        <div className="flex-1 bg-white rounded-lg shadow-lg p-6 overflow-y-auto">
-          {selectedJob ? (
-            <>
-              {/* Job Header */}
-              <div className="mb-6 pb-4 border-b">
-                <h2 className="text-2xl font-bold text-gray-800 mb-2">{selectedJob.title}</h2>
-                <div className="flex items-center gap-4 text-sm text-gray-600">
-                  <span className="flex items-center gap-1">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                    </svg>
-                    {selectedJob.department}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                    </svg>
-                    {selectedJob.employmentType}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                    {filteredApplications.length} applicant{filteredApplications.length !== 1 ? 's' : ''}
-                  </span>
-                </div>
-              </div>
-
-              {/* Applications List */}
-              {filteredApplications.length === 0 ? (
-                <div className="text-center py-12 text-gray-500">
-                  <svg className="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                  <p className="font-medium">No applications yet for this position</p>
-                </div>
-              ) : (
-                <CandidateList
-                  candidates={filteredApplications}
-                  onStatusChange={onStatusChange}
-                  onAIEvaluate={() => onAIEvaluate()}
-                  onBulkAction={onBulkAction}
-                  onAddNote={onAddNote}
-                  onExport={onExport}
-                />
-              )}
-            </>
-          ) : (
-            <div className="text-center py-12 text-gray-500">
-              Select a job position to view applications
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="flex min-h-screen">
