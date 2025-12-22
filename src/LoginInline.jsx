@@ -68,7 +68,7 @@ export default function LoginInline({ onLogin }) {
         <input
           placeholder="username"
           className={`border p-1 rounded w-full text-xs ${touched.username && errors.username ? 'border-red-500' :
-              touched.username && !errors.username ? 'border-green-500' : ''
+            touched.username && !errors.username ? 'border-green-500' : ''
             }`}
           value={username}
           onChange={handleUsernameChange}
@@ -84,7 +84,7 @@ export default function LoginInline({ onLogin }) {
           placeholder="password"
           type="password"
           className={`border p-1 rounded w-full text-xs ${touched.password && errors.password ? 'border-red-500' :
-              touched.password && !errors.password ? 'border-green-500' : ''
+            touched.password && !errors.password ? 'border-green-500' : ''
             }`}
           value={password}
           onChange={handlePasswordChange}
@@ -105,7 +105,6 @@ export default function LoginInline({ onLogin }) {
           Login
         </button>
       </div>
-      <div className="text-xs text-gray-400">demo: admin/hr/recruit/viewer (password = anything)</div>
     </div>
   );
 }

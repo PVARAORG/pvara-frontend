@@ -2167,10 +2167,10 @@ function PvaraPhase2() {
               <div>
                 <h3 className="font-semibold text-gray-800 mb-4">Quick Links</h3>
                 <ul className="space-y-2 text-sm">
-                  <li><button type="button" className="text-gray-600 hover:text-green-700 transition">Browse Jobs</button></li>
-                  <li><button type="button" className="text-gray-600 hover:text-green-700 transition">About Us</button></li>
-                  <li><button type="button" className="text-gray-600 hover:text-green-700 transition">Careers</button></li>
-                  <li><button type="button" className="text-gray-600 hover:text-green-700 transition">Contact</button></li>
+                  <li><button type="button" onClick={() => setView("jobs")} className="text-gray-600 hover:text-green-700 transition">Browse Jobs</button></li>
+                  <li><button type="button" onClick={() => setView("dashboard")} className="text-gray-600 hover:text-green-700 transition">About Us</button></li>
+                  <li><button type="button" onClick={() => setView("jobs")} className="text-gray-600 hover:text-green-700 transition">Careers</button></li>
+                  <li><button type="button" onClick={() => setView("apply")} className="text-gray-600 hover:text-green-700 transition">Apply Now</button></li>
                 </ul>
               </div>
 
@@ -2178,10 +2178,10 @@ function PvaraPhase2() {
               <div>
                 <h3 className="font-semibold text-gray-800 mb-4">Support</h3>
                 <ul className="space-y-2 text-sm">
-                  <li><button type="button" className="text-gray-600 hover:text-green-700 transition">Help Center</button></li>
-                  <li><button type="button" className="text-gray-600 hover:text-green-700 transition">Privacy Policy</button></li>
-                  <li><button type="button" className="text-gray-600 hover:text-green-700 transition">Terms of Service</button></li>
-                  <li><button type="button" className="text-gray-600 hover:text-green-700 transition">FAQ</button></li>
+                  <li><button type="button" onClick={() => setView("dashboard")} className="text-gray-600 hover:text-green-700 transition">Help Center</button></li>
+                  <li><button type="button" onClick={() => addToast("Privacy Policy page coming soon", { type: "info" })} className="text-gray-600 hover:text-green-700 transition">Privacy Policy</button></li>
+                  <li><button type="button" onClick={() => addToast("Terms of Service page coming soon", { type: "info" })} className="text-gray-600 hover:text-green-700 transition">Terms of Service</button></li>
+                  <li><button type="button" onClick={() => setView("dashboard")} className="text-gray-600 hover:text-green-700 transition">FAQ</button></li>
                 </ul>
               </div>
             </div>
