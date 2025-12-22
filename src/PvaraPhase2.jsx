@@ -867,7 +867,7 @@ function PvaraPhase2() {
     audit("submit-app", { appId: app.id, jobId: job.id, status: app.status });
     setAppForm({ jobId: state.jobs[0]?.id || "", name: "", email: "", cnic: "", phone: "", degree: "", experienceYears: "", address: "", linkedin: "" });
     if (fileRef.current) fileRef.current.value = null;
-    addToast(`Application submitted successfully for ${job.title}!`, { type: "success" });
+    setSuccessModal({ open: true, title: "Application Submitted!", message: `Your application for "${job.title}" has been submitted successfully.` });
 
     // Redirect to My Applications page after 1 second
     setTimeout(() => {
