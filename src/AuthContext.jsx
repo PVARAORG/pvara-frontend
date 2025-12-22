@@ -74,6 +74,8 @@ export function AuthProvider({ children }) {
     setUser(null);
     localStorage.removeItem("pvara_user");
     localStorage.removeItem("token");
+    // Refresh the page to fully reset app state and hide authenticated content
+    window.location.reload();
   }
 
   const hasRole = (roles) => {
