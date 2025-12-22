@@ -80,6 +80,118 @@ function SuccessModal({ open, title, message, onClose }) {
   );
 }
 
+// Candidate Profile Modal
+function CandidateProfileModal({ open, candidate, onClose }) {
+  if (!open || !candidate) return null;
+  const c = candidate;
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={onClose}>
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+        {/* Header */}
+        <div className="p-6 border-b flex justify-between items-start sticky top-0 bg-white z-10">
+          <div>
+            <div className="flex items-center gap-3">
+              <h2 className="text-2xl font-bold text-gray-900">{c.applicant?.name || c.name}</h2>
+              <span className={`px-2 py-1 text-xs rounded-full font-semibold ${c.status === 'offer' ? 'bg-green-100 text-green-700' :
+                c.status === 'interview' || c.status === 'phone-interview' ? 'bg-blue-100 text-blue-700' :
+                  c.status === 'screening' ? 'bg-yellow-100 text-yellow-700' :
+                    c.status === 'rejected' ? 'bg-red-100 text-red-700' :
+                      'bg-gray-100 text-gray-700'
+                }`}>
+                {c.status || 'Submitted'}
+              </span>
+            </div>
+            <p className="text-gray-500 mt-1">{c.applicant?.email || c.email}</p>
+          </div>
+          <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full transition">
+            <svg className="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+          </button>
+        </div>
+
+        <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Left Column: Basic Info & Documents */}
+          <div className="space-y-6">
+            <section>
+              <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                Personal Information
+              </h3>
+              <div className="bg-gray-50 rounded-lg p-4 space-y-3 text-sm">
+                <div className="grid grid-cols-3 gap-2"><dt className="text-gray-500">Phone</dt><dd className="col-span-2 font-medium">{c.applicant?.phone || '-'}</dd></div>
+                <div className="grid grid-cols-3 gap-2"><dt className="text-gray-500">CNIC</dt><dd className="col-span-2 font-medium">{c.applicant?.cnic || '-'}</dd></div>
+                <div className="grid grid-cols-3 gap-2"><dt className="text-gray-500">Address</dt><dd className="col-span-2 font-medium">{c.applicant?.address || '-'}</dd></div>
+                <div className="grid grid-cols-3 gap-2"><dt className="text-gray-500">LinkedIn</dt><dd className="col-span-2 font-medium text-blue-600 truncate">{c.applicant?.linkedin || '-'}</dd></div>
+              </div>
+            </section>
+
+            <section>
+              <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                Documents
+              </h3>
+              <div className="flex gap-3">
+                {c.resumeUrl ? (
+                  <a href={c.resumeUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 border border-blue-200 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                    View CV / Resume
+                  </a>
+                ) : (
+                  <span className="text-gray-400 italic text-sm">No CV available</span>
+                )}
+                {c.coverLetterUrl && (
+                  <a href={c.coverLetterUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 border border-gray-200 bg-gray-50 text-gray-700 rounded-lg hover:bg-gray-100 transition">
+                    View Cover Letter
+                  </a>
+                )}
+              </div>
+            </section>
+          </div>
+
+          {/* Right Column: AI & Qualifications */}
+          <div className="space-y-6">
+            {c.aiScore && (
+              <section className="bg-gradient-to-r from-purple-50 to-indigo-50 p-5 rounded-lg border border-purple-100">
+                <h3 className="font-semibold text-purple-900 mb-3 flex items-center gap-2">
+                  <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>
+                  AI Evaluation
+                </h3>
+                <div className="flex items-start gap-4">
+                  <div className="flex flex-col items-center">
+                    <span className={`text-4xl font-bold ${c.aiScore >= 75 ? 'text-green-600' : c.aiScore >= 60 ? 'text-yellow-600' : 'text-red-600'}`}>{c.aiScore}</span>
+                    <span className="text-xs text-gray-500 uppercase font-semibold mt-1">Score</span>
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm text-gray-800 italic bg-white/50 p-2 rounded border border-purple-100">
+                      "{c.aiRecommendation}"
+                    </p>
+                  </div>
+                </div>
+              </section>
+            )}
+
+            <section>
+              <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+                Qualifications & Experience
+              </h3>
+              <div className="space-y-3">
+                <div className="border rounded-lg p-3">
+                  <span className="block text-xs text-gray-500 uppercase font-semibold mb-1">Education</span>
+                  <div className="font-medium text-gray-900">{c.applicant?.degree || 'No Degree specified'}</div>
+                </div>
+                <div className="border rounded-lg p-3">
+                  <span className="block text-xs text-gray-500 uppercase font-semibold mb-1">Experience</span>
+                  <div className="font-medium text-gray-900">{c.applicant?.experienceYears || 0} Years</div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ---------- Test Data Generator ----------
 function generateTestApplications(jobs, baseTime = Date.now()) {
   const firstNames = ["Ahmed", "Fatima", "Ali", "Ayesha", "Hassan", "Zainab", "Usman", "Mariam", "Bilal", "Sana", "Imran", "Nida", "Faisal", "Hira", "Kamran", "Saad", "Aisha", "Omar", "Rabia", "Tariq"];
@@ -560,7 +672,7 @@ function JobButton({ job, stats, isSelected, onSelectJob }) {
 }
 
 // Two-Panel HR Review with Job Selection
-function HRReviewPanel({ jobs, applications, onStatusChange, onAIEvaluate, onBulkAction, onAddNote, onExport, selectedJobId, onSelectJob }) {
+function HRReviewPanel({ jobs, applications, onStatusChange, onAIEvaluate, onBulkAction, onAddNote, onExport, selectedJobId, onSelectJob, onSelectCandidate }) {
   // Use the first job if none selected
   const currentJobId = selectedJobId || jobs[0]?.id || null;
 
@@ -655,6 +767,7 @@ function HRReviewPanel({ jobs, applications, onStatusChange, onAIEvaluate, onBul
                 onBulkAction={onBulkAction}
                 onAddNote={onAddNote}
                 onExport={onExport}
+                onSelectCandidate={onSelectCandidate}
               />
             )}
           </>
@@ -678,6 +791,7 @@ function PvaraPhase2() {
 
   // Candidate session (CNIC-based login)
   const [candidateSession, setCandidateSession] = useState(null);
+  const [selectedCandidate, setSelectedCandidate] = useState(null);
 
   // Handle candidate login (CNIC + phone/email verification)
   const handleCandidateLogin = useCallback((credentials) => {
@@ -2144,6 +2258,7 @@ function PvaraPhase2() {
               onExport={handleExport}
               selectedJobId={selectedJobForHR}
               onSelectJob={setSelectedJobForHR}
+              onSelectCandidate={setSelectedCandidate}
             />
           )}
           {view === "ai-screening" && <InterviewRubric rubric={state.rubric} onEvaluate={handleAIEvaluation} jobs={state.jobs} applications={state.applications} selectedJobForAI={selectedJobForAI} handleSelectJobForAI={handleSelectJobForAI} />}
@@ -2274,6 +2389,13 @@ function PvaraPhase2() {
         title={successModal.title}
         message={successModal.message}
         onClose={() => setSuccessModal({ open: false, title: "", message: "" })}
+      />
+
+      {/* Candidate Profile Modal */}
+      <CandidateProfileModal
+        open={!!selectedCandidate}
+        candidate={selectedCandidate}
+        onClose={() => setSelectedCandidate(null)}
       />
     </div>
   );

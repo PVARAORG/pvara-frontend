@@ -1,6 +1,6 @@
 import React from "react";
 
-const CandidateList = ({ candidates, onStatusChange, onAIEvaluate, onBulkAction, onAddNote, onExport }) => {
+const CandidateList = ({ candidates, onStatusChange, onAIEvaluate, onBulkAction, onAddNote, onExport, onSelectCandidate }) => {
   const [currentPage, setCurrentPage] = React.useState(1);
   const [selectedIds, setSelectedIds] = React.useState([]);
   const [showCompareModal, setShowCompareModal] = React.useState(false);
@@ -443,10 +443,13 @@ const CandidateList = ({ candidates, onStatusChange, onAIEvaluate, onBulkAction,
 
           <ul className="space-y-3">
             {paginatedCandidates.map((c) => (
-              <li key={c.id} className={`bg-white p-4 rounded shadow flex gap-3 ${selectedIds.includes(c.id) ? 'ring-2 ring-green-500' : ''
-                }`}>
+              <li
+                key={c.id}
+                className={`bg-white p-4 rounded shadow flex gap-3 cursor-pointer hover:bg-gray-50 transition ${selectedIds.includes(c.id) ? 'ring-2 ring-green-500' : ''}`}
+                onClick={() => onSelectCandidate && onSelectCandidate(c)}
+              >
                 {/* Checkbox */}
-                <div className="flex-shrink-0">
+                <div className="flex-shrink-0" onClick={(e) => e.stopPropagation()}>
                   <input
                     type="checkbox"
                     checked={selectedIds.includes(c.id)}
@@ -463,10 +466,10 @@ const CandidateList = ({ candidates, onStatusChange, onAIEvaluate, onBulkAction,
                         <span className="font-semibold">{c.applicant?.name || c.name}</span>
                         {/* Status badge beside name */}
                         <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${c.status === 'offer' ? 'bg-green-100 text-green-700' :
-                            c.status === 'interview' || c.status === 'phone-interview' ? 'bg-blue-100 text-blue-700' :
-                              c.status === 'screening' ? 'bg-yellow-100 text-yellow-700' :
-                                c.status === 'rejected' ? 'bg-red-100 text-red-700' :
-                                  'bg-gray-100 text-gray-700'
+                          c.status === 'interview' || c.status === 'phone-interview' ? 'bg-blue-100 text-blue-700' :
+                            c.status === 'screening' ? 'bg-yellow-100 text-yellow-700' :
+                              c.status === 'rejected' ? 'bg-red-100 text-red-700' :
+                                'bg-gray-100 text-gray-700'
                           }`}>
                           {c.status || "submitted"}
                         </span>
@@ -515,7 +518,7 @@ const CandidateList = ({ candidates, onStatusChange, onAIEvaluate, onBulkAction,
                     </div>
                   )}
 
-                  <div className="flex gap-2 flex-wrap">
+                  <div className="flex gap-2 flex-wrap" onClick={(e) => e.stopPropagation()}>
                     {onStatusChange && (
                       <>
                         {/* Only show status actions that are different from current status */}

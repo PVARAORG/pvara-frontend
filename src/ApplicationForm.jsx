@@ -49,7 +49,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
   const [touched, setTouched] = React.useState({});
   const [isExtracting, setIsExtracting] = React.useState(false);
   const [extractedData, setExtractedData] = React.useState(null);
-  const [showAutoFillBanner, setShowAutoFillBanner] = React.useState(false);
+  const [showAutoInfoModal, setShowAutoInfoModal] = React.useState(false);
   const [showValidationPopup, setShowValidationPopup] = React.useState(false);
   const [validationPopupErrors, setValidationPopupErrors] = React.useState([]);
   const [showSubmitConfirm, setShowSubmitConfirm] = React.useState(false);
@@ -153,7 +153,8 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
             result.extractedData.phone;
           console.log('Has extractable data:', hasData);
           if (hasData) {
-            setShowAutoFillBanner(true);
+            // Automatically apply extracted data
+            applyExtractedData(result.extractedData);
           }
         }
       }
@@ -166,57 +167,58 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
   }
 
   // Apply extracted data to form
-  function applyExtractedData() {
-    if (!extractedData) return;
+  function applyExtractedData(data = extractedData) {
+    if (!data) return;
+    const currentData = data;
 
     const updates = {};
 
-    if (extractedData.firstName) updates.firstName = extractedData.firstName;
-    if (extractedData.lastName) updates.lastName = extractedData.lastName;
-    if (extractedData.email) updates.email = extractedData.email;
-    if (extractedData.phone) updates.phone = extractedData.phone;
-    if (extractedData.city) updates.city = extractedData.city;
-    if (extractedData.state) updates.state = extractedData.state;
-    if (extractedData.country) updates.country = extractedData.country;
-    if (extractedData.linkedinUrl) updates.portfolioLink = extractedData.linkedinUrl;
+    if (currentData.firstName) updates.firstName = currentData.firstName;
+    if (currentData.lastName) updates.lastName = currentData.lastName;
+    if (currentData.email) updates.email = currentData.email;
+    if (currentData.phone) updates.phone = currentData.phone;
+    if (currentData.city) updates.city = currentData.city;
+    if (currentData.state) updates.state = currentData.state;
+    if (currentData.country) updates.country = currentData.country;
+    if (currentData.linkedinUrl) updates.portfolioLink = currentData.linkedinUrl;
 
     // Skills
-    if (extractedData.skills && extractedData.skills.length > 0) {
-      updates.skills = extractedData.skills;
+    if (currentData.skills && currentData.skills.length > 0) {
+      updates.skills = currentData.skills;
     }
 
     // Education
-    if (extractedData.highestDegree || extractedData.fieldOfStudy || extractedData.university) {
+    if (currentData.highestDegree || currentData.fieldOfStudy || currentData.university) {
       updates.education = [{
-        school: extractedData.university || "",
-        fieldOfStudy: extractedData.fieldOfStudy || "",
-        degree: extractedData.highestDegree || "",
+        school: currentData.university || "",
+        fieldOfStudy: currentData.fieldOfStudy || "",
+        degree: currentData.highestDegree || "",
         graduated: "yes",
         stillAttending: false
       }];
     }
 
     // Employment
-    if (extractedData.currentJobTitle) {
+    if (currentData.currentJobTitle) {
       updates.employment = [{
         employer: "",
-        jobTitle: extractedData.currentJobTitle,
+        jobTitle: currentData.currentJobTitle,
         currentEmployer: true,
         startMonth: "",
         startYear: "",
         endMonth: "",
         endYear: "",
-        description: extractedData.professionalSummary || ""
+        description: currentData.professionalSummary || ""
       }];
     }
 
     // Languages
-    if (extractedData.languages && extractedData.languages.length > 0) {
-      updates.languages = extractedData.languages.map(lang => ({ language: lang, proficiency: "Fluent" }));
+    if (currentData.languages && currentData.languages.length > 0) {
+      updates.languages = currentData.languages.map(lang => ({ language: lang, proficiency: "Fluent" }));
     }
 
     setForm(prev => ({ ...prev, ...updates }));
-    setShowAutoFillBanner(false);
+    // No banner to hide anymore
   }
 
   function handleBlur(field) {
@@ -418,7 +420,13 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
   function nextStep() {
     const result = validateCurrentStep();
     if (result.isValid) {
-      if (currentStep < steps.length - 1) setCurrentStep(currentStep + 1);
+      if (currentStep < steps.length - 1) {
+        // Show popup if moving from Step 0 to Step 1 and data was extracted
+        if (currentStep === 0 && (form.cvFile || form.cvUrl) && extractedData) {
+          setShowAutoInfoModal(true);
+        }
+        setCurrentStep(currentStep + 1);
+      }
     } else {
       // Collect all errors for popup - merge existing field errors with step errors
       const allFieldErrors = Object.values(errors).filter(e => e);
@@ -673,51 +681,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
                 </div>
               )}
 
-              {/* Auto-fill Banner */}
-              {showAutoFillBanner && extractedData && (
-                <div className="mt-4 p-4 bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-xl">
-                  <div className="flex items-start gap-3">
-                    <div className="flex-shrink-0 w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                      <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                      </svg>
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-purple-900 mb-1">AI Extracted Your Information!</h4>
-                      <p className="text-sm text-purple-700 mb-3">
-                        We've analyzed your CV and extracted key details. Would you like to auto-fill the application form?
-                      </p>
-                      <div className="flex flex-wrap gap-2 mb-3 text-xs">
-                        {extractedData.firstName && <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded">Name</span>}
-                        {extractedData.email && <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded">Email</span>}
-                        {extractedData.phone && <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded">Phone</span>}
-                        {extractedData.highestDegree && <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded">Education</span>}
-                        {extractedData.currentJobTitle && <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded">Experience</span>}
-                        {extractedData.skills?.length > 0 && <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded">{extractedData.skills.length} Skills</span>}
-                      </div>
-                      <div className="flex gap-2">
-                        <button
-                          type="button"
-                          onClick={applyExtractedData}
-                          className="px-4 py-2 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition flex items-center gap-2"
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                          Auto-fill Form
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setShowAutoFillBanner(false)}
-                          className="px-4 py-2 text-purple-700 hover:bg-purple-100 rounded-lg transition"
-                        >
-                          No, I'll enter manually
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
+
             </div>
 
             {/* Cover Letter Upload (Optional) */}
@@ -1328,6 +1292,31 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
               className="w-full px-4 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition"
             >
               Got it
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Info Updated Popup */}
+      {showAutoInfoModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-bold text-gray-900">Information Updated</h3>
+            </div>
+            <p className="text-gray-600 mb-6">
+              We have already updated the available information from your CV. Please review and edit if required.
+            </p>
+            <button
+              onClick={() => setShowAutoInfoModal(false)}
+              className="w-full px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition"
+            >
+              Okay, Review
             </button>
           </div>
         </div>
