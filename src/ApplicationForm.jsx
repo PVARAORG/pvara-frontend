@@ -94,76 +94,102 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
     }
   }
 
-  // AI-based CV extraction and auto-fill
+  // Step 0: Store CV locally and extract data (NO upload yet - CNIC not known)
   async function extractAndUploadCV(file) {
     setIsExtracting(true);
     setErrors(prev => ({ ...prev, cvFile: null }));
 
-    // ALWAYS save the file first, regardless of API response
-    // Use setForm directly to ensure immediate update
+    // Store file locally (NOT uploaded yet)
     setForm(prev => ({
       ...prev,
       cvFile: file,
-      cvUrl: null, // Will be set if upload succeeds
-      cv: null // Will be set if upload succeeds
+      cvUrl: null,
+      cv: null,
+      cvUploaded: false // Track if CV has been uploaded to server
     }));
-    console.log('CV File saved to form state:', file.name);
+    console.log('CV File stored locally:', file.name);
 
+    // Try to extract data from CV using backend (but don't save the file permanently yet)
     try {
       const formData = new FormData();
       formData.append('cv', file);
 
       const apiUrl = process.env.REACT_APP_API_URL || 'https://pvara-backend.fortanixor.com';
+      // Use extract endpoint without CNIC - file will be temporary
       const response = await fetch(`${apiUrl}/api/upload/cv/extract`, {
         method: 'POST',
         body: formData,
       });
 
       if (!response.ok) {
-        console.error('CV upload failed with status:', response.status);
-        // CV is already saved as cvFile, so just continue
+        console.error('CV extraction failed with status:', response.status);
         return;
       }
 
       const result = await response.json();
       console.log('CV Extraction Response:', result);
 
-      if (result.success && result.file?.url) {
-        // Update with URL from server
-        setForm(prev => ({
-          ...prev,
-          cvUrl: result.file.url,
-          cv: result.file.url
-        }));
-        console.log('CV URL saved:', result.file.url);
+      // We DON'T save the URL since this is just for extraction
+      // The real upload will happen after Step 1 when CNIC is known
 
-        // Log extraction status for debugging
-        console.log('Extraction Status:', result.extractionStatus);
-        console.log('Extracted Data:', result.extractedData);
-
-        // Check extraction status
-        if (result.extractionStatus === 'no_api_key') {
-          console.warn('CV Extraction: OpenAI API key not configured');
-        } else if (result.extractedData) {
-          // Store extracted data regardless of status
-          setExtractedData(result.extractedData);
-          // Check if any useful data was extracted
-          const hasData = result.extractedData.firstName ||
-            result.extractedData.email ||
-            result.extractedData.phone;
-          console.log('Has extractable data:', hasData);
-          if (hasData) {
-            // Automatically apply extracted data
-            applyExtractedData(result.extractedData);
-          }
+      if (result.extractedData) {
+        setExtractedData(result.extractedData);
+        const hasData = result.extractedData.firstName ||
+          result.extractedData.email ||
+          result.extractedData.phone;
+        if (hasData) {
+          applyExtractedData(result.extractedData);
         }
       }
     } catch (error) {
       console.error('CV extraction error:', error);
-      // CV is already saved as cvFile, so just log the error
     } finally {
       setIsExtracting(false);
     }
+  }
+
+  // Upload CV with CNIC after Step 1 - called when transitioning from Step 1 to Step 2
+  async function uploadCVWithCNIC() {
+    if (!form.cvFile || !form.cnic || form.cvUploaded) {
+      return true; // No file to upload, or already uploaded
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append('cv', form.cvFile);
+
+      // Sanitize CNIC for URL parameter
+      const cleanCnic = form.cnic.replace(/-/g, '');
+
+      const apiUrl = process.env.REACT_APP_API_URL || 'https://pvara-backend.fortanixor.com';
+      const response = await fetch(`${apiUrl}/api/upload/cv?cnic=${cleanCnic}`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        console.error('CV upload failed with status:', response.status);
+        return false;
+      }
+
+      const result = await response.json();
+      console.log('CV Upload with CNIC Response:', result);
+
+      if (result.success && result.file?.url) {
+        setForm(prev => ({
+          ...prev,
+          cvUrl: result.file.url,
+          cv: result.file.url,
+          cvUploaded: true
+        }));
+        console.log('CV uploaded with CNIC:', result.file.url);
+        return true;
+      }
+    } catch (error) {
+      console.error('CV upload with CNIC error:', error);
+      return false;
+    }
+    return false;
   }
 
   // Apply extracted data to form
@@ -417,7 +443,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
     onSubmit(form);
   }
 
-  function nextStep() {
+  async function nextStep() {
     const result = validateCurrentStep();
     if (result.isValid) {
       if (currentStep < steps.length - 1) {
@@ -425,6 +451,16 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
         if (currentStep === 0 && (form.cvFile || form.cvUrl) && extractedData) {
           setShowAutoInfoModal(true);
         }
+
+        // Upload CV with CNIC when moving from Step 1 to Step 2
+        if (currentStep === 1 && form.cvFile && form.cnic && !form.cvUploaded) {
+          const uploaded = await uploadCVWithCNIC();
+          if (!uploaded) {
+            console.warn('CV upload failed, but continuing with application');
+            // Don't block the user - CV might be uploaded later or manually handled
+          }
+        }
+
         setCurrentStep(currentStep + 1);
       }
     } else {

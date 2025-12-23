@@ -83,6 +83,46 @@ function SuccessModal({ open, title, message, onClose }) {
 
 // Candidate Profile Modal
 function CandidateProfileModal({ open, candidate, onClose }) {
+  const [cvExists, setCvExists] = React.useState(null); // null = loading, true/false = result
+  const [cvUrl, setCvUrl] = React.useState(null);
+
+  const apiUrl = process.env.REACT_APP_API_URL || "https://pvara-backend.fortanixor.com";
+
+  // Check if CV exists when modal opens
+  React.useEffect(() => {
+    if (!open || !candidate?.applicant?.cnic) {
+      setCvExists(null);
+      setCvUrl(null);
+      return;
+    }
+
+    const cnic = candidate.applicant.cnic;
+    // Try both .pdf and .docx extensions
+    const extensions = ['.pdf', '.docx', '.doc'];
+
+    const checkCvExists = async () => {
+      setCvExists(null);
+
+      for (const ext of extensions) {
+        const url = `${apiUrl}/uploads/${cnic}${ext}`;
+        try {
+          const response = await fetch(url, { method: 'HEAD' });
+          if (response.ok) {
+            setCvExists(true);
+            setCvUrl(url);
+            return;
+          }
+        } catch (e) {
+          // Continue to next extension
+        }
+      }
+      setCvExists(false);
+      setCvUrl(null);
+    };
+
+    checkCvExists();
+  }, [open, candidate, apiUrl]);
+
   if (!open || !candidate) return null;
   const c = candidate;
   return (
@@ -125,14 +165,60 @@ function CandidateProfileModal({ open, candidate, onClose }) {
               </div>
             </section>
 
-            {/* Documents section temporarily hidden as per request */}
-            {/* <section>
+            {/* Documents Section - CV Lookup by CNIC */}
+            <section>
               <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
                 <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                 Documents
               </h3>
-              ...
-            </section> */}
+              <div className="bg-gray-50 rounded-lg p-4">
+                {cvExists === null ? (
+                  <div className="flex items-center gap-2 text-gray-500">
+                    <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Checking for CV...
+                  </div>
+                ) : cvExists && cvUrl ? (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3 p-3 bg-white border rounded-lg">
+                      <svg className="w-10 h-10 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
+                      </svg>
+                      <div className="flex-1">
+                        <div className="font-medium text-gray-900">CV / Resume</div>
+                        <div className="text-xs text-gray-500">{c.applicant?.cnic}.pdf</div>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <a
+                        href={cvUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg text-center text-sm font-medium hover:bg-blue-700 transition flex items-center justify-center gap-2"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                        View CV
+                      </a>
+                      <a
+                        href={cvUrl}
+                        download
+                        className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-center text-sm font-medium hover:bg-gray-50 transition flex items-center justify-center gap-2"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                        Download
+                      </a>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-gray-500 text-sm flex items-center gap-2">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                    No CV uploaded for this candidate
+                  </div>
+                )}
+              </div>
+            </section>
           </div>
 
           {/* Right Column: AI & Qualifications */}
