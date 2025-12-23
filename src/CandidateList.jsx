@@ -519,23 +519,45 @@ const CandidateList = ({ candidates, onStatusChange, onAIEvaluate, onBulkAction,
                   )}
 
                   <div className="flex gap-2 flex-wrap" onClick={(e) => e.stopPropagation()}>
-                    {onStatusChange && (
-                      <>
-                        {/* Only show status actions that are different from current status */}
-                        {c.status !== 'offer' && (
-                          <button className="px-2 py-1 bg-emerald-600 text-white rounded text-xs hover:bg-emerald-700" onClick={() => onStatusChange(c.id, "offer")}>Offer</button>
-                        )}
-                        {c.status !== 'interview' && c.status !== 'phone-interview' && (
-                          <button className="px-2 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700" onClick={() => onStatusChange(c.id, "interview")}>Interview</button>
-                        )}
-                        {c.status !== 'screening' && (
-                          <button className="px-2 py-1 bg-yellow-600 text-white rounded text-xs hover:bg-yellow-700" onClick={() => onStatusChange(c.id, "screening")}>Screen</button>
-                        )}
-                        {c.status !== 'rejected' && (
-                          <button className="px-2 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700" onClick={() => onStatusChange(c.id, "rejected")}>Reject</button>
-                        )}
-                      </>
-                    )}
+                    {onStatusChange && (() => {
+                      // Funnel-aware status options: only show valid next steps
+                      const currentStatus = c.status || 'submitted';
+                      const getNextActions = (status) => {
+                        switch (status) {
+                          case 'submitted': return ['screening', 'rejected'];
+                          case 'screening': return ['phone-interview', 'rejected'];
+                          case 'phone-interview': return ['interview', 'rejected'];
+                          case 'interview': return ['offer', 'rejected'];
+                          case 'offer': return ['hired', 'rejected'];
+                          case 'hired':
+                          case 'rejected':
+                          default: return [];
+                        }
+                      };
+                      const nextActions = getNextActions(currentStatus);
+                      
+                      const buttonConfig = {
+                        'screening': { label: 'Screen', color: 'bg-yellow-600 hover:bg-yellow-700' },
+                        'phone-interview': { label: 'Phone Interview', color: 'bg-blue-600 hover:bg-blue-700' },
+                        'interview': { label: 'Interview', color: 'bg-blue-600 hover:bg-blue-700' },
+                        'offer': { label: 'Offer', color: 'bg-emerald-600 hover:bg-emerald-700' },
+                        'hired': { label: 'Hire', color: 'bg-green-600 hover:bg-green-700' },
+                        'rejected': { label: 'Reject', color: 'bg-red-600 hover:bg-red-700' },
+                      };
+                      
+                      return nextActions.map(action => {
+                        const config = buttonConfig[action];
+                        return (
+                          <button
+                            key={action}
+                            className={`px-2 py-1 ${config.color} text-white rounded text-xs`}
+                            onClick={() => onStatusChange(c.id, action)}
+                          >
+                            {config.label}
+                          </button>
+                        );
+                      });
+                    })()}
                     <button
                       className="px-2 py-1 bg-purple-600 text-white rounded text-xs hover:bg-purple-700"
                       onClick={() => setShowNotesModal(c.id)}

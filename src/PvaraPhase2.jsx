@@ -2343,11 +2343,50 @@ function PvaraPhase2() {
                 <div className="mt-4 border-t pt-4">
                   <div className="font-semibold mb-2 text-sm">Actions</div>
                   <div className="space-y-2">
-                    <button onClick={() => changeApplicationStatus(drawer.app.id, "screening", "")} className="w-full px-2 py-1 border rounded text-sm bg-yellow-50 hover:bg-yellow-100">Screen</button>
-                    <button onClick={() => changeApplicationStatus(drawer.app.id, "phone-interview", "")} className="w-full px-2 py-1 border rounded text-sm bg-blue-50 hover:bg-blue-100">Phone Interview</button>
-                    <button onClick={() => changeApplicationStatus(drawer.app.id, "interview", "")} className="w-full px-2 py-1 border rounded text-sm bg-blue-50 hover:bg-blue-100">In-Person Interview</button>
-                    <button onClick={() => changeApplicationStatus(drawer.app.id, "offer", "")} className="w-full px-2 py-1 border rounded text-sm bg-green-50 hover:bg-green-100">Send Offer</button>
-                    <button onClick={() => changeApplicationStatus(drawer.app.id, "rejected", "Does not meet criteria")} className="w-full px-2 py-1 border rounded text-sm bg-red-50 hover:bg-red-100">Reject</button>
+                    {(() => {
+                      // Funnel-aware status options: only show valid next steps
+                      const currentStatus = drawer.app.status || 'submitted';
+                      const getNextActions = (status) => {
+                        switch (status) {
+                          case 'submitted': return ['screening', 'rejected'];
+                          case 'screening': return ['phone-interview', 'rejected'];
+                          case 'phone-interview': return ['interview', 'rejected'];
+                          case 'interview': return ['offer', 'rejected'];
+                          case 'offer': return ['hired', 'rejected'];
+                          case 'hired':
+                          case 'rejected':
+                          default: return [];
+                        }
+                      };
+                      const nextActions = getNextActions(currentStatus);
+
+                      const buttonConfig = {
+                        'screening': { label: 'Screen', className: 'bg-yellow-50 hover:bg-yellow-100' },
+                        'phone-interview': { label: 'Phone Interview', className: 'bg-blue-50 hover:bg-blue-100' },
+                        'interview': { label: 'In-Person Interview', className: 'bg-blue-50 hover:bg-blue-100' },
+                        'offer': { label: 'Send Offer', className: 'bg-green-50 hover:bg-green-100' },
+                        'hired': { label: 'Mark as Hired', className: 'bg-emerald-50 hover:bg-emerald-100' },
+                        'rejected': { label: 'Reject', className: 'bg-red-50 hover:bg-red-100' },
+                      };
+
+                      if (nextActions.length === 0) {
+                        return <div className="text-sm text-gray-500 italic">No further actions available (terminal status)</div>;
+                      }
+
+                      return nextActions.map(action => {
+                        const config = buttonConfig[action];
+                        const note = action === 'rejected' ? 'Does not meet criteria' : '';
+                        return (
+                          <button
+                            key={action}
+                            onClick={() => changeApplicationStatus(drawer.app.id, action, note)}
+                            className={`w-full px-2 py-1 border rounded text-sm ${config.className}`}
+                          >
+                            {config.label}
+                          </button>
+                        );
+                      });
+                    })()}
                   </div>
                 </div>
               )}
