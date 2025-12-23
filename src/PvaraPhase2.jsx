@@ -97,6 +97,8 @@ function CandidateProfileModal({ open, candidate, onClose }) {
     }
 
     const cnic = candidate.applicant.cnic;
+    // Sanitize CNIC (remove dashes to match saved filename format)
+    const cleanCnic = cnic.replace(/-/g, '');
     // Try both .pdf and .docx extensions
     const extensions = ['.pdf', '.docx', '.doc'];
 
@@ -104,7 +106,7 @@ function CandidateProfileModal({ open, candidate, onClose }) {
       setCvExists(null);
 
       for (const ext of extensions) {
-        const url = `${apiUrl}/uploads/${cnic}${ext}`;
+        const url = `${apiUrl}/uploads/${cleanCnic}${ext}`;
         try {
           const response = await fetch(url, { method: 'HEAD' });
           if (response.ok) {
@@ -188,7 +190,7 @@ function CandidateProfileModal({ open, candidate, onClose }) {
                       </svg>
                       <div className="flex-1">
                         <div className="font-medium text-gray-900">CV / Resume</div>
-                        <div className="text-xs text-gray-500">{c.applicant?.cnic}.pdf</div>
+                        <div className="text-xs text-gray-500">{c.applicant?.cnic?.replace(/-/g, '')}.pdf</div>
                       </div>
                     </div>
                     <div className="flex gap-2">
