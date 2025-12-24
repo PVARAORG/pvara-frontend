@@ -108,6 +108,7 @@ export function validateCNIC(cnic) {
 
 /**
  * Validates URL format
+ * Accepts URLs with or without http:// or https:// prefix
  * @param {string} url - URL to validate
  * @param {boolean} required - Whether URL is required
  * @returns {{isValid: boolean, error: string|null}}
@@ -126,15 +127,36 @@ export function validateURL(url, required = false) {
             : { isValid: true, error: null };
     }
 
+    // Try parsing with protocol first
     try {
         const urlObj = new URL(trimmed);
-        if (!['http:', 'https:'].includes(urlObj.protocol)) {
-            return { isValid: false, error: 'URL must start with http:// or https://' };
+        if (['http:', 'https:'].includes(urlObj.protocol)) {
+            return { isValid: true, error: null };
         }
-        return { isValid: true, error: null };
     } catch (e) {
-        return { isValid: false, error: 'Please enter a valid URL (e.g., https://example.com)' };
+        // URL doesn't have protocol, try adding one
     }
+
+    // Try with https:// prefix added
+    try {
+        const urlWithProtocol = 'https://' + trimmed;
+        const urlObj = new URL(urlWithProtocol);
+        // Basic validation: must have a valid hostname with at least one dot
+        if (urlObj.hostname && urlObj.hostname.includes('.')) {
+            return { isValid: true, error: null };
+        }
+    } catch (e) {
+        // Still invalid
+    }
+
+    // Fallback: check with a flexible regex for common URL patterns
+    // Allows: domain.com, domain.com/path, www.domain.com, etc.
+    const urlPattern = /^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z]{2,})+(\/[\w\-._~:/?#[\]@!$&'()*+,;=%]*)?$/;
+    if (urlPattern.test(trimmed)) {
+        return { isValid: true, error: null };
+    }
+
+    return { isValid: false, error: 'Please enter a valid URL (e.g., linkedin.com/in/username or example.com)' };
 }
 
 /**

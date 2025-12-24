@@ -396,6 +396,24 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
       ...prev,
       [arrayName]: prev[arrayName].map((item, i) => (i === index ? { ...item, [field]: value } : item)),
     }));
+
+    // Clear validation errors for employment fields when user types (first entry only)
+    if (arrayName === 'employment' && index === 0) {
+      if (field === 'employer' && value) {
+        setErrors((prev) => ({ ...prev, employer: null }));
+      }
+      if (field === 'jobTitle' && value) {
+        setErrors((prev) => ({ ...prev, jobTitle: null }));
+      }
+    }
+
+    // Clear validation errors for education fields when user types (first entry only)
+    if (arrayName === 'education' && index === 0) {
+      const currentEducation = { ...form.education[0], [field]: value };
+      if (currentEducation.school && currentEducation.fieldOfStudy && currentEducation.degree) {
+        setErrors((prev) => ({ ...prev, education: null }));
+      }
+    }
   }
 
   function addArrayItem(arrayName, template) {
