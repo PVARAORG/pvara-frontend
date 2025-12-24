@@ -82,7 +82,7 @@ function SuccessModal({ open, title, message, onClose }) {
 }
 
 // Candidate Profile Modal
-function CandidateProfileModal({ open, candidate, onClose }) {
+function CandidateProfileModal({ open, candidate, onClose, jobs }) {
   const [cvExists, setCvExists] = React.useState(null); // null = loading, true/false = result
   const [cvUrl, setCvUrl] = React.useState(null);
 
@@ -99,6 +99,22 @@ function CandidateProfileModal({ open, candidate, onClose }) {
     const cnic = candidate.applicant.cnic;
     // Sanitize CNIC (remove dashes to match saved filename format)
     const cleanCnic = cnic.replace(/-/g, '');
+
+    // Get job title and sanitize it to match backend naming convention
+    const job = (jobs || []).find(j => j.id === candidate.jobId);
+    if (!job) {
+      setCvExists(false);
+      setCvUrl(null);
+      return;
+    }
+    const jobTitle = job.title;
+    // Sanitize: remove special chars, replace spaces with underscores, lowercase
+    const cleanJobTitle = jobTitle
+      .replace(/[^a-zA-Z0-9\s]/g, '')
+      .trim()
+      .replace(/\s+/g, '_')
+      .toLowerCase();
+
     // Try both .pdf and .docx extensions
     const extensions = ['.pdf', '.docx', '.doc'];
 
@@ -106,7 +122,8 @@ function CandidateProfileModal({ open, candidate, onClose }) {
       setCvExists(null);
 
       for (const ext of extensions) {
-        const url = `${apiUrl}/uploads/${cleanCnic}${ext}`;
+        // Format: cnic_jobtitle.ext
+        const url = `${apiUrl}/uploads/${cleanCnic}_${cleanJobTitle}${ext}`;
         try {
           const response = await fetch(url, { method: 'HEAD' });
           if (response.ok) {
@@ -123,7 +140,7 @@ function CandidateProfileModal({ open, candidate, onClose }) {
     };
 
     checkCvExists();
-  }, [open, candidate, apiUrl]);
+  }, [open, candidate, apiUrl, jobs]);
 
   if (!open || !candidate) return null;
   const c = candidate;
@@ -2511,6 +2528,7 @@ function PvaraPhase2() {
         open={!!selectedCandidate}
         candidate={selectedCandidate}
         onClose={() => setSelectedCandidate(null)}
+        jobs={state.jobs}
       />
     </div>
   );

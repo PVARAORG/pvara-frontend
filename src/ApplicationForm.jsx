@@ -148,7 +148,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
     }
   }
 
-  // Upload CV with CNIC after Step 1 - called when transitioning from Step 1 to Step 2
+  // Upload CV with CNIC and Job Title after Step 1 - called when transitioning from Step 1 to Step 2
   async function uploadCVWithCNIC() {
     if (!form.cvFile || !form.cnic || form.cvUploaded) {
       return true; // No file to upload, or already uploaded
@@ -161,8 +161,15 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
       // Sanitize CNIC for URL parameter
       const cleanCnic = form.cnic.replace(/-/g, '');
 
+      // Get job title for the selected job
+      console.log('DEBUG uploadCVWithCNIC - jobId:', form.jobId, 'jobs count:', jobs?.length);
+      const selectedJob = jobs.find(j => j.id === form.jobId);
+      console.log('DEBUG uploadCVWithCNIC - selectedJob:', selectedJob?.title);
+      const jobTitle = selectedJob?.title || '';
+
       const apiUrl = process.env.REACT_APP_API_URL || 'https://pvara-backend.fortanixor.com';
-      const response = await fetch(`${apiUrl}/api/upload/cv?cnic=${cleanCnic}`, {
+      console.log('DEBUG uploadCVWithCNIC - posting with cnic:', cleanCnic, 'job_title:', jobTitle);
+      const response = await fetch(`${apiUrl}/api/upload/cv?cnic=${cleanCnic}&job_title=${encodeURIComponent(jobTitle)}`, {
         method: 'POST',
         body: formData,
       });
@@ -173,7 +180,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
       }
 
       const result = await response.json();
-      console.log('CV Upload with CNIC Response:', result);
+      console.log('CV Upload with CNIC & Job Title Response:', result);
 
       if (result.success && result.file?.url) {
         setForm(prev => ({
@@ -182,7 +189,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
           cv: result.file.url,
           cvUploaded: true
         }));
-        console.log('CV uploaded with CNIC:', result.file.url);
+        console.log('CV uploaded with CNIC & Job Title:', result.file.url);
         return true;
       }
     } catch (error) {
