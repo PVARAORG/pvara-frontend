@@ -27,18 +27,73 @@ export function AnalyticsDashboard({ state, onGenerateTestData }) {
           </button>
         )}
       </div>
-      
+
+      {/* Recruitment Pipeline Workflow Visualization */}
+      <div className="bg-gradient-to-r from-green-50 to-blue-50 p-6 rounded-xl shadow-md border border-green-200">
+        <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+          <svg className="w-6 h-6 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+          </svg>
+          Recruitment Pipeline Workflow
+        </h3>
+        <div className="flex flex-wrap items-center justify-center gap-2 md:gap-4">
+          {[
+            { name: 'HR Review', icon: '👥', color: 'bg-blue-500', count: (state.applications || []).filter(a => ['submitted', 'hr-review'].includes(a.status)).length },
+            { name: 'AI Screening', icon: '🤖', color: 'bg-purple-500', count: (state.applications || []).filter(a => ['screening', 'ai-reviewed', 'shortlisted'].includes(a.status)).length },
+            { name: 'Test Management', icon: '📝', color: 'bg-yellow-500', count: (state.applications || []).filter(a => ['testing', 'testing-complete'].includes(a.status)).length },
+            { name: 'Interview', icon: '🎤', color: 'bg-orange-500', count: (state.applications || []).filter(a => ['interview', 'interview-complete'].includes(a.status)).length },
+            { name: 'Offer', icon: '📄', color: 'bg-green-500', count: (state.applications || []).filter(a => ['offer'].includes(a.status)).length },
+          ].map((stage, index, arr) => (
+            <div key={stage.name} className="flex items-center">
+              <div className="flex flex-col items-center">
+                <div className={`${stage.color} text-white rounded-full w-12 h-12 md:w-16 md:h-16 flex items-center justify-center text-xl md:text-2xl shadow-lg`}>
+                  {stage.icon}
+                </div>
+                <div className="text-xs md:text-sm font-semibold text-gray-700 mt-2 text-center">{stage.name}</div>
+                <div className="text-xs text-gray-500 font-bold">{stage.count} candidates</div>
+              </div>
+              {index < arr.length - 1 && (
+                <div className="flex items-center mx-1 md:mx-3 text-gray-400">
+                  <svg className="w-6 h-6 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                </div>
+              )}
+            </div>
+          ))}
+          {/* Final States */}
+          <div className="flex items-center mx-1 md:mx-3 text-gray-400">
+            <svg className="w-6 h-6 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </div>
+          <div className="flex flex-col items-center">
+            <div className="flex gap-2">
+              <div className="bg-emerald-600 text-white rounded-full w-10 h-10 md:w-12 md:h-12 flex items-center justify-center text-lg shadow-lg">✓</div>
+              <div className="bg-red-500 text-white rounded-full w-10 h-10 md:w-12 md:h-12 flex items-center justify-center text-lg shadow-lg">✗</div>
+            </div>
+            <div className="text-xs md:text-sm font-semibold text-gray-700 mt-2 text-center">Final Decision</div>
+            <div className="text-xs text-gray-500">
+              <span className="text-emerald-600 font-bold">{(state.applications || []).filter(a => a.status === 'hired').length}</span> /
+              <span className="text-red-500 font-bold"> {(state.applications || []).filter(a => a.status === 'rejected').length}</span>
+            </div>
+          </div>
+        </div>
+        <div className="mt-4 text-center text-xs text-gray-500 italic">
+          Sequential workflow enforced — candidates must complete each stage before advancing
+        </div>
+      </div>
+
       {/* Tabs */}
       <div className="flex gap-2 border-b">
         {["overview", "funnel", "jobs", "recommendations"].map((tab) => (
           <button
             key={tab}
             onClick={() => setSelectedTab(tab)}
-            className={`px-4 py-2 font-semibold border-b-2 ${
-              selectedTab === tab
+            className={`px-4 py-2 font-semibold border-b-2 ${selectedTab === tab
                 ? "border-green-700 text-green-700"
                 : "border-transparent text-gray-600 hover:text-green-700"
-            }`}
+              }`}
           >
             {tab.charAt(0).toUpperCase() + tab.slice(1)}
           </button>
@@ -307,13 +362,12 @@ export function AIScreeningPanel({ candidates, jobRequirements, onSelectCandidat
         {scoredCandidates.map((candidate) => (
           <div
             key={candidate.id}
-            className={`p-3 rounded border-l-4 ${
-              candidate.autoSelected
+            className={`p-3 rounded border-l-4 ${candidate.autoSelected
                 ? "border-l-green-700 bg-green-50"
                 : candidate.aiScore >= 60
-                ? "border-l-yellow-700 bg-yellow-50"
-                : "border-l-red-700 bg-red-50"
-            }`}
+                  ? "border-l-yellow-700 bg-yellow-50"
+                  : "border-l-red-700 bg-red-50"
+              }`}
           >
             <div className="flex justify-between items-start">
               <div className="flex-1">
@@ -418,11 +472,10 @@ export function InterviewEvaluationForm({ candidate, onSubmit, onCancel }) {
                 <button
                   key={num}
                   onClick={() => setScores({ ...scores, [key]: num })}
-                  className={`w-8 h-8 rounded border ${
-                    value === num
+                  className={`w-8 h-8 rounded border ${value === num
                       ? "bg-green-700 text-white border-green-700"
                       : "border-gray-300 hover:border-green-700"
-                  }`}
+                    }`}
                 >
                   {num}
                 </button>

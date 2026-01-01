@@ -16,6 +16,8 @@ import Toasts from "./Toasts";
 import { batchEvaluateApplications } from "./aiScreening";
 import LoginInline from "./LoginInline"; // Import validated LoginInline component
 import apiClient from "./api/client";
+import TestManagement from "./TestManagement";
+import { OfferManagementPanel, InterviewSchedulingPanel } from "./AdvancedFeaturesUI";
 
 // ---------- Storage utilities ----------
 const STORAGE_KEY = "pvara_v3";
@@ -1264,7 +1266,36 @@ function PvaraPhase2() {
   }
 
   // Change application status (shortlist, interview, reject, hired, etc.)
+  // Sequential workflow: submitted → hr-review → screening → testing → interview → offer → hired/rejected
+  const WORKFLOW_STAGES = [
+    'submitted', 'hr-review', 'screening', 'ai-reviewed', 'shortlisted',
+    'testing', 'testing-complete', 'interview', 'interview-complete', 'offer', 'hired'
+  ];
+
+  function canTransitionTo(currentStatus, targetStatus) {
+    // Rejection is always allowed
+    if (targetStatus === 'rejected') return true;
+
+    // Get indices
+    const currentIndex = WORKFLOW_STAGES.indexOf(currentStatus);
+    const targetIndex = WORKFLOW_STAGES.indexOf(targetStatus);
+
+    // If either status is not in the workflow, allow (for backwards compatibility)
+    if (currentIndex === -1 || targetIndex === -1) return true;
+
+    // Allow moving forward by at most 2 stages (to allow some flexibility)
+    // or allow moving backwards (for corrections)
+    return targetIndex <= currentIndex + 2;
+  }
+
   function changeApplicationStatus(appId, status, note) {
+    // Get current application to validate transition
+    const currentApp = (state.applications || []).find(a => a.id === appId);
+    if (currentApp && !canTransitionTo(currentApp.status, status)) {
+      addToast(`Cannot skip stages! Current: ${currentApp.status}. Complete previous stages first.`, { type: 'error' });
+      return;
+    }
+
     setState((s) => {
       const apps = (s.applications || []).map((a) => (a.id === appId ? { ...a, status, screeningErrors: status === 'rejected' ? [note || 'Rejected by reviewer'] : (a.screeningErrors || []) } : a));
       return { ...s, applications: apps };
@@ -1541,6 +1572,24 @@ function PvaraPhase2() {
               <button onClick={() => { setView("ai-screening"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "ai-screening" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8V4H8" /><rect width="16" height="12" x="4" y="8" rx="2" /><path d="M2 14h2" /><path d="M20 14h2" /><path d="M15 13v2" /><path d="M9 13v2" /></svg>
                 AI Screening
+              </button>
+            )}
+            {auth.hasRole(['hr', 'admin', 'recruiter']) && (
+              <button onClick={() => { setView("test-management"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "test-management" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></svg>
+                Test Management
+              </button>
+            )}
+            {auth.hasRole(['hr', 'admin', 'recruiter']) && (
+              <button onClick={() => { setView("interview-management"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "interview-management" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
+                Interview Management
+              </button>
+            )}
+            {auth.hasRole(['hr', 'admin', 'recruiter']) && (
+              <button onClick={() => { setView("offer-management"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "offer-management" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /><polyline points="10 9 9 9 8 9" /></svg>
+                Offer Management
               </button>
             )}
             {auth.hasRole(['hr', 'admin', 'recruiter']) && (
@@ -2355,6 +2404,130 @@ function PvaraPhase2() {
             />
           )}
           {view === "ai-screening" && <InterviewRubric rubric={state.rubric} onEvaluate={handleAIEvaluation} jobs={state.jobs} applications={state.applications} selectedJobForAI={selectedJobForAI} handleSelectJobForAI={handleSelectJobForAI} />}
+          {view === "test-management" && (
+            <TestManagement
+              applications={(state.applications || []).filter(app =>
+                ['ai-reviewed', 'screening', 'shortlisted', 'testing', 'testing-complete'].includes(app.status)
+              )}
+              jobs={state.jobs}
+              onUpdateApplication={(appId, updates) => {
+                setState(s => ({
+                  ...s,
+                  applications: (s.applications || []).map(app =>
+                    app.id === appId ? { ...app, ...updates } : app
+                  )
+                }));
+              }}
+              onMoveToInterview={(appId) => {
+                changeApplicationStatus(appId, 'interview');
+              }}
+              onRefreshApplications={() => { }}
+            />
+          )}
+          {view === "interview-management" && (
+            <div>
+              <div className="bg-white p-4 rounded shadow-sm mb-4">
+                <h2 className="text-xl md:text-2xl font-semibold text-green-800">Interview Management</h2>
+                <p className="text-sm text-gray-500">Schedule and manage candidate interviews</p>
+              </div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <InterviewSchedulingPanel />
+                <div className="bg-white p-4 rounded shadow">
+                  <h3 className="font-semibold mb-3">📋 Candidates Ready for Interview</h3>
+                  <div className="space-y-2">
+                    {(state.applications || [])
+                      .filter(app => ['testing-complete', 'interview'].includes(app.status))
+                      .map(app => (
+                        <div key={app.id} className="p-3 border rounded hover:shadow transition">
+                          <div className="flex justify-between items-center">
+                            <div>
+                              <div className="font-medium">{app.applicant?.name || 'Unknown'}</div>
+                              <div className="text-xs text-gray-500">{app.applicant?.email}</div>
+                            </div>
+                            <div className="flex gap-2">
+                              <span className={`px-2 py-1 text-xs rounded ${app.status === 'interview' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}`}>
+                                {app.status.replace('-', ' ')}
+                              </span>
+                              {app.status === 'interview' && (
+                                <button
+                                  onClick={() => changeApplicationStatus(app.id, 'interview-complete')}
+                                  className="px-2 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-700"
+                                >
+                                  Complete
+                                </button>
+                              )}
+                              {app.status === 'interview-complete' && (
+                                <button
+                                  onClick={() => changeApplicationStatus(app.id, 'offer')}
+                                  className="px-2 py-1 text-xs bg-purple-600 text-white rounded hover:bg-purple-700"
+                                >
+                                  Move to Offer
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    {(state.applications || []).filter(app => ['testing-complete', 'interview'].includes(app.status)).length === 0 && (
+                      <div className="text-center py-8 text-gray-500">No candidates ready for interview</div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          {view === "offer-management" && (
+            <div>
+              <div className="bg-white p-4 rounded shadow-sm mb-4">
+                <h2 className="text-xl md:text-2xl font-semibold text-green-800">Offer Management</h2>
+                <p className="text-sm text-gray-500">Generate and track job offers</p>
+              </div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <OfferManagementPanel applications={state.applications} />
+                <div className="bg-white p-4 rounded shadow">
+                  <h3 className="font-semibold mb-3">🎯 Candidates Ready for Offer</h3>
+                  <div className="space-y-2">
+                    {(state.applications || [])
+                      .filter(app => ['interview-complete', 'offer'].includes(app.status))
+                      .map(app => (
+                        <div key={app.id} className="p-3 border rounded hover:shadow transition">
+                          <div className="flex justify-between items-center">
+                            <div>
+                              <div className="font-medium">{app.applicant?.name || 'Unknown'}</div>
+                              <div className="text-xs text-gray-500">{app.applicant?.email}</div>
+                            </div>
+                            <div className="flex gap-2">
+                              <span className={`px-2 py-1 text-xs rounded ${app.status === 'offer' ? 'bg-purple-100 text-purple-700' : 'bg-green-100 text-green-700'}`}>
+                                {app.status.replace('-', ' ')}
+                              </span>
+                              {app.status === 'offer' && (
+                                <>
+                                  <button
+                                    onClick={() => changeApplicationStatus(app.id, 'hired')}
+                                    className="px-2 py-1 text-xs bg-emerald-600 text-white rounded hover:bg-emerald-700"
+                                  >
+                                    Hire
+                                  </button>
+                                  <button
+                                    onClick={() => changeApplicationStatus(app.id, 'rejected', 'Offer declined')}
+                                    className="px-2 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700"
+                                  >
+                                    Reject
+                                  </button>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    {(state.applications || []).filter(app => ['interview-complete', 'offer'].includes(app.status)).length === 0 && (
+                      <div className="text-center py-8 text-gray-500">No candidates ready for offer</div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
           {view === "analytics" && <AnalyticsDashboard state={state} onGenerateTestData={handleGenerateTestData} />}
           {view === "shortlists" && <ShortlistPanel shortlist={state.shortlists} onUpdate={createShortlist} />}
           {view === "audit" && <AuditLog auditRecords={state.audit} />}
