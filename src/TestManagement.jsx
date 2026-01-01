@@ -204,10 +204,27 @@ function TestManagement({
         if (!candidate) continue;
 
         const job = jobs.find(j => (j._id || j.id) === getJobId(candidate));
-        if (!job || !job.requiredTests || job.requiredTests.length === 0) {
-          console.warn(`No required tests for job ${job?.title || candidate.jobId}`);
+
+        // Determine which test to send - use job's requiredTests or fallback to available tests
+        let testToSend = null;
+        if (job?.requiredTests && job.requiredTests.length > 0) {
+          testToSend = {
+            testId: job.requiredTests[0].testId,
+            testName: job.requiredTests[0].testName
+          };
+        } else if (availableTests.length > 0) {
+          // Fallback: use first available test from TestGorilla
+          testToSend = {
+            testId: availableTests[0].id,
+            testName: availableTests[0].name || 'General Assessment'
+          };
+          console.log(`ℹ️ No required tests for job "${job?.title || 'Unknown'}". Using default: ${testToSend.testName}`);
+        }
+
+        if (!testToSend) {
+          console.warn(`No tests available to send for ${candidate.applicant?.name || 'candidate'}`);
           failCount++;
-          addToast(`❌ Job or required tests not found for ${candidate.applicant?.name || 'candidate'}`, { type: 'error' });
+          addToast(`❌ No tests available. Please configure tests first.`, { type: 'error' });
           continue;
         }
 
@@ -235,8 +252,8 @@ function TestManagement({
 
           const requestData = {
             cnic: cnic,
-            assessmentId: job.requiredTests[0].testId,
-            assessmentName: job.requiredTests[0].testName,
+            assessmentId: testToSend.testId,
+            assessmentName: testToSend.testName,
             deadlineDays: testDeadlineDays
           };
           console.log('📨 Request data:', requestData);
@@ -252,9 +269,9 @@ function TestManagement({
                 status: 'invited',
                 invitedAt: new Date().toISOString(),
                 expiresAt: response.data.expiresAt || new Date(Date.now() + testDeadlineDays * 24 * 60 * 60 * 1000).toISOString(),
-                requiredTests: job.requiredTests,
+                requiredTests: job?.requiredTests || [{ testId: testToSend.testId, testName: testToSend.testName }],
                 completedTests: [],
-                assessmentName: job.requiredTests[0].testName,
+                assessmentName: testToSend.testName,
                 provider: 'testgorilla'
               }
             });
