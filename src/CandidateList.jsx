@@ -373,6 +373,12 @@ const CandidateList = ({ candidates, onStatusChange, onAIEvaluate, onBulkAction,
           </div>
           <div className="flex gap-2">
             <button
+              onClick={() => handleBulkAction('testing')}
+              className="px-3 py-1.5 bg-purple-600 text-white rounded text-sm hover:bg-purple-700"
+            >
+              Move to Testing
+            </button>
+            <button
               onClick={() => handleBulkAction('interview')}
               className="px-3 py-1.5 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"
             >
@@ -525,7 +531,8 @@ const CandidateList = ({ candidates, onStatusChange, onAIEvaluate, onBulkAction,
                       const getNextActions = (status) => {
                         switch (status) {
                           case 'submitted': return ['screening', 'rejected'];
-                          case 'screening': return ['phone-interview', 'rejected'];
+                          case 'screening': return ['testing', 'phone-interview', 'rejected'];
+                          case 'testing': return ['interview', 'rejected'];
                           case 'phone-interview': return ['interview', 'rejected'];
                           case 'interview': return ['offer', 'rejected'];
                           case 'offer': return ['hired', 'rejected'];
@@ -535,16 +542,17 @@ const CandidateList = ({ candidates, onStatusChange, onAIEvaluate, onBulkAction,
                         }
                       };
                       const nextActions = getNextActions(currentStatus);
-                      
+
                       const buttonConfig = {
                         'screening': { label: 'Screen', color: 'bg-yellow-600 hover:bg-yellow-700' },
+                        'testing': { label: 'Send to Testing', color: 'bg-purple-600 hover:bg-purple-700' },
                         'phone-interview': { label: 'Phone Interview', color: 'bg-blue-600 hover:bg-blue-700' },
                         'interview': { label: 'Interview', color: 'bg-blue-600 hover:bg-blue-700' },
                         'offer': { label: 'Offer', color: 'bg-emerald-600 hover:bg-emerald-700' },
                         'hired': { label: 'Hire', color: 'bg-green-600 hover:bg-green-700' },
                         'rejected': { label: 'Reject', color: 'bg-red-600 hover:bg-red-700' },
                       };
-                      
+
                       return nextActions.map(action => {
                         const config = buttonConfig[action];
                         return (
