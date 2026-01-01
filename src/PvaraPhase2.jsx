@@ -17,7 +17,7 @@ import { batchEvaluateApplications } from "./aiScreening";
 import LoginInline from "./LoginInline"; // Import validated LoginInline component
 import apiClient from "./api/client";
 import TestManagement from "./TestManagement";
-import { OfferManagementPanel, InterviewSchedulingPanel } from "./AdvancedFeaturesUI";
+import { OfferManagementPanel, InterviewSchedulingPanel, InterviewFeedbackModal, ExtendOfferModal } from "./AdvancedFeaturesUI";
 
 // ---------- Storage utilities ----------
 const STORAGE_KEY = "pvara_v3";
@@ -988,6 +988,8 @@ function PvaraPhase2() {
   const [interviewJobFilter, setInterviewJobFilter] = useState('all');
   const [offerFilter, setOfferFilter] = useState('all');
   const [offerJobFilter, setOfferJobFilter] = useState('all');
+  const [feedbackModalApp, setFeedbackModalApp] = useState(null);
+  const [offerModalApp, setOfferModalApp] = useState(null);
   const handleSelectJobForAI = useCallback((value) => setSelectedJobForAI(value), []);
 
   // Memoized handlers to prevent input focus loss
@@ -2599,7 +2601,7 @@ function PvaraPhase2() {
                             <td className="px-6 py-4">
                               {app.status !== 'interview-complete' ? (
                                 <button
-                                  onClick={() => changeApplicationStatus(app.id || app._id, 'interview-complete')}
+                                  onClick={() => setFeedbackModalApp(app)}
                                   className="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition"
                                 >
                                   Add Feedback
@@ -2833,7 +2835,7 @@ function PvaraPhase2() {
                             <td className="px-6 py-4">
                               {app.status === 'interview-complete' && (
                                 <button
-                                  onClick={() => changeApplicationStatus(app.id || app._id, 'offer')}
+                                  onClick={() => setOfferModalApp(app)}
                                   className="px-3 py-1.5 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition flex items-center gap-1"
                                 >
                                   + Extend Offer
@@ -3042,6 +3044,52 @@ function PvaraPhase2() {
         candidate={selectedCandidate}
         onClose={() => setSelectedCandidate(null)}
         jobs={state.jobs}
+      />
+
+      {/* Interview Feedback Modal */}
+      <InterviewFeedbackModal
+        open={!!feedbackModalApp}
+        candidate={feedbackModalApp}
+        job={(state.jobs || []).find(j => (j._id || j.id) === (typeof feedbackModalApp?.jobId === 'object' ? feedbackModalApp?.jobId?._id : feedbackModalApp?.jobId))}
+        onClose={() => setFeedbackModalApp(null)}
+        onSave={(feedback) => {
+          if (feedbackModalApp) {
+            const appId = feedbackModalApp.id || feedbackModalApp._id;
+            setState(s => ({
+              ...s,
+              applications: (s.applications || []).map(app =>
+                (app.id || app._id) === appId
+                  ? { ...app, interview_feedback: feedback, status: 'interview-complete' }
+                  : app
+              )
+            }));
+            addToast('Interview feedback saved successfully', { type: 'success' });
+          }
+          setFeedbackModalApp(null);
+        }}
+      />
+
+      {/* Extend Offer Modal */}
+      <ExtendOfferModal
+        open={!!offerModalApp}
+        candidate={offerModalApp}
+        job={(state.jobs || []).find(j => (j._id || j.id) === (typeof offerModalApp?.jobId === 'object' ? offerModalApp?.jobId?._id : offerModalApp?.jobId))}
+        onClose={() => setOfferModalApp(null)}
+        onSave={(offerDetails) => {
+          if (offerModalApp) {
+            const appId = offerModalApp.id || offerModalApp._id;
+            setState(s => ({
+              ...s,
+              applications: (s.applications || []).map(app =>
+                (app.id || app._id) === appId
+                  ? { ...app, offer_details: offerDetails, status: 'offer' }
+                  : app
+              )
+            }));
+            addToast('Offer letter sent successfully', { type: 'success' });
+          }
+          setOfferModalApp(null);
+        }}
       />
     </div>
   );
