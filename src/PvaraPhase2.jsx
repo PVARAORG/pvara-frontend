@@ -984,6 +984,10 @@ function PvaraPhase2() {
   const [selectedJobForApply, setSelectedJobForApply] = useState(null);
   const [selectedJobForHR, setSelectedJobForHR] = useState(null);
   const [successModal, setSuccessModal] = useState({ open: false, title: "", message: "" });
+  const [interviewFilter, setInterviewFilter] = useState('all');
+  const [interviewJobFilter, setInterviewJobFilter] = useState('all');
+  const [offerFilter, setOfferFilter] = useState('all');
+  const [offerJobFilter, setOfferJobFilter] = useState('all');
   const handleSelectJobForAI = useCallback((value) => setSelectedJobForAI(value), []);
 
   // Memoized handlers to prevent input focus loss
@@ -2425,8 +2429,6 @@ function PvaraPhase2() {
             />
           )}
           {view === "interview-management" && (() => {
-            const [interviewFilter, setInterviewFilter] = React.useState('all');
-            const [interviewJobFilter, setInterviewJobFilter] = React.useState('all');
 
             const interviewCandidates = (state.applications || []).filter(app =>
               ['testing-complete', 'interview', 'interview-complete', 'phone-interview'].includes(app.status)
@@ -2621,8 +2623,6 @@ function PvaraPhase2() {
             );
           })()}
           {view === "offer-management" && (() => {
-            const [offerFilter, setOfferFilter] = React.useState('all');
-            const [offerJobFilter, setOfferJobFilter] = React.useState('all');
 
             const offerCandidates = (state.applications || []).filter(app =>
               ['interview-complete', 'offer', 'hired', 'offer-rejected'].includes(app.status)
@@ -2820,9 +2820,9 @@ function PvaraPhase2() {
                             </td>
                             <td className="px-6 py-4">
                               <span className={`px-2 py-1 rounded text-xs font-medium ${app.status === 'hired' ? 'bg-green-100 text-green-700' :
-                                  app.status === 'offer' ? 'bg-yellow-100 text-yellow-700' :
-                                    app.status === 'offer-rejected' ? 'bg-red-100 text-red-700' :
-                                      'bg-gray-100 text-gray-600'
+                                app.status === 'offer' ? 'bg-yellow-100 text-yellow-700' :
+                                  app.status === 'offer-rejected' ? 'bg-red-100 text-red-700' :
+                                    'bg-gray-100 text-gray-600'
                                 }`}>
                                 {app.status === 'interview-complete' ? 'No Offer' :
                                   app.status === 'hired' ? 'Accepted' :
