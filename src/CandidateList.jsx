@@ -372,12 +372,14 @@ const CandidateList = ({ candidates, onStatusChange, onAIEvaluate, onBulkAction,
             {selectedIds.length} candidate{selectedIds.length > 1 ? 's' : ''} selected
           </div>
           <div className="flex gap-2">
+            {/* TODO: Re-enable when testing integration is complete
             <button
               onClick={() => handleBulkAction('testing')}
               className="px-3 py-1.5 bg-purple-600 text-white rounded text-sm hover:bg-purple-700"
             >
               Move to Testing
             </button>
+            */}
             <button
               onClick={() => handleBulkAction('interview')}
               className="px-3 py-1.5 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"
@@ -531,7 +533,9 @@ const CandidateList = ({ candidates, onStatusChange, onAIEvaluate, onBulkAction,
                       const getNextActions = (status) => {
                         switch (status) {
                           case 'submitted': return ['screening', 'rejected'];
-                          case 'screening': return ['testing', 'phone-interview', 'rejected'];
+                          // TODO: Re-enable 'testing' when integration is complete
+                          // case 'screening': return ['testing', 'phone-interview', 'rejected'];
+                          case 'screening': return ['phone-interview', 'rejected'];
                           case 'testing': return ['interview', 'rejected'];
                           case 'phone-interview': return ['interview', 'rejected'];
                           case 'interview': return ['offer', 'rejected'];
