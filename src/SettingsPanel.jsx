@@ -63,6 +63,22 @@ export default function SettingsPanel({ settings: initialSettings, onUpdateSetti
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
 
+  // User management state
+  const [users, setUsers] = useState([]);
+  const [usersLoading, setUsersLoading] = useState(false);
+  const [showAddUserModal, setShowAddUserModal] = useState(false);
+  const [addUserForm, setAddUserForm] = useState({
+    username: '',
+    email: '',
+    password: '',
+    fullName: '',
+    role: 'viewer',
+    phone: '',
+    department: '',
+  });
+  const [addUserError, setAddUserError] = useState(null);
+  const [addingUser, setAddingUser] = useState(false);
+
   // Fetch settings from backend on mount
   useEffect(() => {
     const fetchSettings = async () => {
@@ -210,6 +226,79 @@ export default function SettingsPanel({ settings: initialSettings, onUpdateSetti
       setError('Failed to send test email');
     } finally {
       setTesting(false);
+    }
+  };
+
+  // Fetch users from backend
+  const fetchUsers = async () => {
+    setUsersLoading(true);
+    try {
+      const response = await apiClient.get('/users/');
+      if (response.data?.success && response.data?.users) {
+        setUsers(response.data.users);
+      }
+    } catch (err) {
+      console.error('Failed to fetch users:', err);
+      setError('Failed to load users');
+    } finally {
+      setUsersLoading(false);
+    }
+  };
+
+  // Fetch users when users tab is active
+  useEffect(() => {
+    if (activeTab === 'users') {
+      fetchUsers();
+    }
+  }, [activeTab]);
+
+  // Handle add user
+  const handleAddUser = async (e) => {
+    e.preventDefault();
+    setAddUserError(null);
+    setAddingUser(true);
+    try {
+      const response = await apiClient.post('/users/', addUserForm);
+      if (response.data?.success) {
+        // Reset form and close modal
+        setAddUserForm({
+          username: '',
+          email: '',
+          password: '',
+          fullName: '',
+          role: 'viewer',
+          phone: '',
+          department: '',
+        });
+        setShowAddUserModal(false);
+        // Refresh users list
+        fetchUsers();
+      }
+    } catch (err) {
+      console.error('Failed to add user:', err);
+      setAddUserError(err.response?.data?.detail?.message || err.response?.data?.message || 'Failed to create user');
+    } finally {
+      setAddingUser(false);
+    }
+  };
+
+  // Get role badge color
+  const getRoleBadgeColor = (role) => {
+    switch (role) {
+      case 'admin': return 'bg-red-100 text-red-700';
+      case 'hr': return 'bg-green-100 text-green-700';
+      case 'recruiter': return 'bg-blue-100 text-blue-700';
+      default: return 'bg-gray-100 text-gray-700';
+    }
+  };
+
+  // Get avatar color
+  const getAvatarColor = (role) => {
+    switch (role) {
+      case 'admin': return 'bg-red-600';
+      case 'hr': return 'bg-green-600';
+      case 'recruiter': return 'bg-blue-600';
+      default: return 'bg-gray-600';
     }
   };
 
@@ -951,7 +1040,10 @@ export default function SettingsPanel({ settings: initialSettings, onUpdateSetti
                 <h3 className="text-lg font-semibold text-gray-900">User Management</h3>
                 <p className="text-sm text-gray-600 mt-1">Manage HR, recruiters, and system users</p>
               </div>
-              <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
+              <button
+                onClick={() => setShowAddUserModal(true)}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+              >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                 </svg>
@@ -961,81 +1053,209 @@ export default function SettingsPanel({ settings: initialSettings, onUpdateSetti
 
             {/* User List */}
             <div className="space-y-3">
-              {/* Sample users */}
-              <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold">
-                    A
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-gray-900">Admin User</h4>
-                    <p className="text-sm text-gray-500">admin@pvara.com</p>
-                  </div>
+              {usersLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                  <span className="ml-3 text-gray-600">Loading users...</span>
                 </div>
-                <div className="flex items-center gap-3">
-                  <span className="px-3 py-1 bg-red-100 text-red-700 text-sm rounded-full font-medium">Admin</span>
-                  <span className="text-xs text-gray-500">Active</span>
+              ) : users.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  No users found. Click "Add User" to create one.
                 </div>
-              </div>
-
-              <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 bg-green-600 text-white rounded-full flex items-center justify-center font-semibold">
-                    H
+              ) : (
+                users.map(user => (
+                  <div key={user.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                    <div className="flex items-center gap-4">
+                      <div className={`w-10 h-10 ${getAvatarColor(user.role)} text-white rounded-full flex items-center justify-center font-semibold`}>
+                        {user.fullName?.charAt(0).toUpperCase() || user.username?.charAt(0).toUpperCase() || '?'}
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-gray-900">{user.fullName || user.username}</h4>
+                        <p className="text-sm text-gray-500">{user.email}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className={`px-3 py-1 ${getRoleBadgeColor(user.role)} text-sm rounded-full font-medium capitalize`}>
+                        {user.role}
+                      </span>
+                      <span className={`text-xs ${user.isActive ? 'text-green-600' : 'text-red-600'}`}>
+                        {user.isActive ? 'Active' : 'Inactive'}
+                      </span>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="font-medium text-gray-900">HR Manager</h4>
-                    <p className="text-sm text-gray-500">hr@pvara.com</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="px-3 py-1 bg-green-100 text-green-700 text-sm rounded-full font-medium">HR</span>
-                  <span className="text-xs text-gray-500">Active</span>
-                  <button className="text-gray-400 hover:text-gray-600">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
+                ))
+              )}
             </div>
 
             {/* Role Information */}
             <div className="mt-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
               <h4 className="font-semibold text-gray-900 mb-3">Role Permissions</h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
                 <div>
                   <strong className="text-red-700">Admin</strong>
                   <ul className="mt-2 space-y-1 text-gray-600">
                     <li>✓ Full system access</li>
                     <li>✓ User management</li>
                     <li>✓ Settings control</li>
-                    <li>✓ Job management</li>
-                    <li>✓ All HR permissions</li>
                   </ul>
                 </div>
                 <div>
                   <strong className="text-green-700">HR Manager</strong>
                   <ul className="mt-2 space-y-1 text-gray-600">
                     <li>✓ Review applications</li>
-                    <li>✓ AI screening</li>
-                    <li>✓ Test management</li>
-                    <li>✓ Interview management</li>
-                    <li>✓ Offer management</li>
+                    <li>✓ Manage interviews</li>
                     <li>✓ Analytics access</li>
+                  </ul>
+                </div>
+                <div>
+                  <strong className="text-blue-700">Recruiter</strong>
+                  <ul className="mt-2 space-y-1 text-gray-600">
+                    <li>✓ View applications</li>
+                    <li>✓ Schedule interviews</li>
+                    <li>✓ Add notes</li>
                   </ul>
                 </div>
               </div>
             </div>
-
-            <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <h4 className="font-semibold text-blue-900 mb-2">👥 User Management (Coming Soon)</h4>
-              <p className="text-sm text-blue-700">
-                The ability to add, edit, and remove users through the UI will be available in the next update.
-                For now, users are managed through the AuthContext configuration.
-              </p>
-            </div>
           </div>
+
+          {/* Add User Modal */}
+          {showAddUserModal && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white rounded-xl shadow-xl max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
+                <div className="p-6 border-b border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold text-gray-900">Add New User</h3>
+                    <button
+                      onClick={() => {
+                        setShowAddUserModal(false);
+                        setAddUserError(null);
+                      }}
+                      className="text-gray-400 hover:text-gray-600"
+                    >
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                <form onSubmit={handleAddUser} className="p-6 space-y-4">
+                  {addUserError && (
+                    <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+                      {addUserError}
+                    </div>
+                  )}
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Username *</label>
+                    <input
+                      type="text"
+                      required
+                      value={addUserForm.username}
+                      onChange={(e) => setAddUserForm({ ...addUserForm, username: e.target.value })}
+                      placeholder="johndoe"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                    <input
+                      type="email"
+                      required
+                      value={addUserForm.email}
+                      onChange={(e) => setAddUserForm({ ...addUserForm, email: e.target.value })}
+                      placeholder="john@example.com"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Password *</label>
+                    <input
+                      type="password"
+                      required
+                      minLength={6}
+                      value={addUserForm.password}
+                      onChange={(e) => setAddUserForm({ ...addUserForm, password: e.target.value })}
+                      placeholder="Min 6 characters"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
+                    <input
+                      type="text"
+                      required
+                      value={addUserForm.fullName}
+                      onChange={(e) => setAddUserForm({ ...addUserForm, fullName: e.target.value })}
+                      placeholder="John Doe"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Role *</label>
+                    <select
+                      required
+                      value={addUserForm.role}
+                      onChange={(e) => setAddUserForm({ ...addUserForm, role: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="viewer">Viewer</option>
+                      <option value="recruiter">Recruiter</option>
+                      <option value="hr">HR Manager</option>
+                      <option value="admin">Admin</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                    <input
+                      type="tel"
+                      value={addUserForm.phone}
+                      onChange={(e) => setAddUserForm({ ...addUserForm, phone: e.target.value })}
+                      placeholder="+92-300-1234567"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
+                    <input
+                      type="text"
+                      value={addUserForm.department}
+                      onChange={(e) => setAddUserForm({ ...addUserForm, department: e.target.value })}
+                      placeholder="Human Resources"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+
+                  <div className="flex gap-3 pt-4">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowAddUserModal(false);
+                        setAddUserError(null);
+                      }}
+                      className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={addingUser}
+                      className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition-colors"
+                    >
+                      {addingUser ? 'Creating...' : 'Create User'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
