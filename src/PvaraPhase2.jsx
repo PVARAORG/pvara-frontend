@@ -2494,29 +2494,22 @@ function PvaraPhase2() {
                         </div>
                         <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                       </div>
-                      <div className="flex items-center gap-2 flex-shrink-0 opacity-50">
-                        <div className="flex flex-col items-center">
-                          <div className="w-8 h-8 rounded-full bg-purple-400 text-white flex items-center justify-center font-bold text-xs">3</div>
-                          <div className="text-xs font-medium text-gray-600 mt-1">Test</div>
-                        </div>
-                        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-                      </div>
                       <div className="flex items-center gap-2 flex-shrink-0">
                         <div className="flex flex-col items-center">
-                          <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold shadow-lg ring-4 ring-blue-200">4</div>
+                          <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold shadow-lg ring-4 ring-blue-200">3</div>
                           <div className="text-xs font-bold text-blue-900 mt-1">Interview</div>
                           <div className="text-xs text-blue-600 font-medium">Current</div>
                         </div>
                         <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                       </div>
                       <div className="flex flex-col items-center flex-shrink-0 opacity-30">
-                        <div className="w-8 h-8 rounded-full bg-green-400 text-white flex items-center justify-center font-bold text-xs">5</div>
+                        <div className="w-8 h-8 rounded-full bg-green-400 text-white flex items-center justify-center font-bold text-xs">4</div>
                         <div className="text-xs font-medium text-gray-600 mt-1">Offer</div>
                       </div>
                     </div>
                     <p className="text-xs text-gray-700 mt-3 italic">
                       <svg className="w-4 h-4 inline-block text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                      <strong> Stage 4 of 5:</strong> Conduct interviews and provide feedback. Candidates with hire recommendation or score ≥7.0 become eligible for Offer Management.
+                      <strong> Stage 3 of 4:</strong> Conduct interviews and provide feedback. Candidates with hire recommendation or score ≥7.0 become eligible for Offer Management.
                     </p>
                   </div>
                 </div>
@@ -2694,27 +2687,20 @@ function PvaraPhase2() {
                       </div>
                       <div className="flex items-center gap-2 flex-shrink-0 opacity-50">
                         <div className="flex flex-col items-center">
-                          <div className="w-8 h-8 rounded-full bg-purple-400 text-white flex items-center justify-center font-bold text-xs">3</div>
-                          <div className="text-xs font-medium text-gray-600 mt-1">Test</div>
-                        </div>
-                        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-                      </div>
-                      <div className="flex items-center gap-2 flex-shrink-0 opacity-50">
-                        <div className="flex flex-col items-center">
-                          <div className="w-8 h-8 rounded-full bg-blue-400 text-white flex items-center justify-center font-bold text-xs">4</div>
+                          <div className="w-8 h-8 rounded-full bg-blue-400 text-white flex items-center justify-center font-bold text-xs">3</div>
                           <div className="text-xs font-medium text-gray-600 mt-1">Interview</div>
                         </div>
                         <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                       </div>
                       <div className="flex flex-col items-center flex-shrink-0">
-                        <div className="w-10 h-10 rounded-full bg-green-600 text-white flex items-center justify-center font-bold shadow-lg ring-4 ring-green-200">5</div>
+                        <div className="w-10 h-10 rounded-full bg-green-600 text-white flex items-center justify-center font-bold shadow-lg ring-4 ring-green-200">4</div>
                         <div className="text-xs font-bold text-green-900 mt-1">Offer Stage</div>
                         <div className="text-xs text-green-600 font-medium">Final</div>
                       </div>
                     </div>
                     <p className="text-xs text-gray-700 mt-3 italic">
                       <svg className="w-4 h-4 inline-block text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                      <strong> Stage 5 of 5 - Final:</strong> Extend job offers to successful candidates. Track offer acceptance, rejection, or withdrawal.
+                      <strong> Stage 4 of 4 - Final:</strong> Extend job offers to successful candidates. Track offer acceptance, rejection, or withdrawal.
                     </p>
                   </div>
                 </div>
