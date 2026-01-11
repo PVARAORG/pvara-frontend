@@ -1144,7 +1144,8 @@ function PvaraPhase2() {
         throw new Error('Backend returned error');
       }
     } catch (err) {
-      console.error('Backend create failed, saving locally:', err);
+      console.error('Backend create failed:', err.response?.data || err.message);
+      console.log('Payload that failed:', JSON.stringify(jobPayload, null, 2));
       setState((s) => ({ ...s, jobs: [newJob, ...(s.jobs || [])] }));
       addToast("Job saved locally, backend sync failed", { type: "warning" });
     }
