@@ -887,7 +887,56 @@ function HRReviewPanel({ jobs, applications, onStatusChange, onAIEvaluate, onBul
 
 function PvaraPhase2() {
   const [state, setState] = useState(() => loadState() || defaultState());
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Save to localStorage for offline/backup purposes
   useEffect(() => saveState(state), [state]);
+
+  // Fetch data from backend API on mount
+  useEffect(() => {
+    const fetchBackendData = async () => {
+      try {
+        setIsLoading(true);
+
+        // Fetch jobs from backend
+        const jobsResponse = await apiClient.get('/jobs');
+        const backendJobs = jobsResponse.data?.jobs || jobsResponse.data || [];
+
+        // Fetch applications from backend  
+        const appsResponse = await apiClient.get('/applications');
+        const backendApps = appsResponse.data?.applications || appsResponse.data || [];
+
+        // Update state with backend data
+        setState(prev => ({
+          ...prev,
+          jobs: backendJobs.length > 0 ? backendJobs : prev.jobs,
+          applications: backendApps.map(app => ({
+            // Map backend format to frontend format
+            id: app._id || app.id,
+            jobId: app.job_id || app.jobId,
+            applicant: app.applicant || {},
+            status: app.status || 'submitted',
+            aiScore: app.ai_score || app.aiScore,
+            aiEvaluation: app.ai_evaluation || app.aiEvaluation,
+            testScores: app.test_scores || app.testScores,
+            interview: app.interview,
+            offer: app.offer,
+            submittedAt: app.submitted_at || app.submittedAt || app.createdAt,
+            ...app
+          }))
+        }));
+
+        console.log(`📥 Loaded ${backendJobs.length} jobs and ${backendApps.length} applications from backend`);
+      } catch (error) {
+        console.error('Failed to fetch from backend, using cached data:', error);
+        // Keep using localStorage data if backend fails
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchBackendData();
+  }, []);
 
   const auth = useAuth();
   const user = auth?.user ?? null;
