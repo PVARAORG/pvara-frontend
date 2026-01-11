@@ -297,7 +297,7 @@ export default function SettingsPanel({ settings: initialSettings, onUpdateSetti
     console.log('Deleting user with ID:', userId);
 
     try {
-      const response = await apiClient.delete(`/users/${userId}`);
+      const response = await apiClient.delete(`/users/${userId}/`);
       console.log('Delete response:', response);
       // Refresh users list
       fetchUsers();
