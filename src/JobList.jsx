@@ -100,7 +100,14 @@ const JobList = ({ jobs, onCreate, onEdit, onDelete }) => {
       resetForm();
       return;
     }
-    onCreate({ ...localForm, id: `job-${Date.now()}`, status: 'open' });
+    // Ensure locations is never empty - default to Remote
+    const jobData = {
+      ...localForm,
+      id: `job-${Date.now()}`,
+      status: 'open',
+      locations: (localForm.locations && localForm.locations.length > 0) ? localForm.locations : ['Remote']
+    };
+    onCreate(jobData);
     resetForm();
   }
 
