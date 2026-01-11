@@ -294,14 +294,13 @@ export default function SettingsPanel({ settings: initialSettings, onUpdateSetti
       return;
     }
 
+    console.log('Deleting user with ID:', userId);
+
     try {
-      const response = await apiClient.delete(`/users/${userId}/`);
-      if (response.data?.success) {
-        // Refresh users list
-        fetchUsers();
-      } else {
-        setError('Failed to delete user');
-      }
+      const response = await apiClient.delete(`/users/${userId}`);
+      console.log('Delete response:', response);
+      // Refresh users list
+      fetchUsers();
     } catch (err) {
       console.error('Failed to delete user:', err);
       setError(err.response?.data?.detail?.message || err.response?.data?.message || 'Failed to delete user');
@@ -1109,7 +1108,7 @@ export default function SettingsPanel({ settings: initialSettings, onUpdateSetti
                       </span>
                       {user.role !== 'admin' && (
                         <button
-                          onClick={() => handleDeleteUser(user.id, user.role)}
+                          onClick={() => handleDeleteUser(user.id || user._id, user.role)}
                           className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
                           title="Delete user"
                         >
