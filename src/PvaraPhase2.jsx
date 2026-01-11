@@ -17,6 +17,7 @@ import { batchEvaluateApplications } from "./aiScreening";
 import LoginInline from "./LoginInline"; // Import validated LoginInline component
 import apiClient from "./api/client";
 import TestManagement from "./TestManagement";
+import SettingsPanel from "./SettingsPanel";
 import { OfferManagementPanel, InterviewSchedulingPanel, InterviewFeedbackModal, ExtendOfferModal } from "./AdvancedFeaturesUI";
 
 // ---------- Storage utilities ----------
@@ -1619,6 +1620,19 @@ function PvaraPhase2() {
               </button>
             )}
 
+            {/* ADVANCED Section */}
+            {auth.hasRole(['admin']) && (
+              <>
+                <div className="mt-4 pt-4 border-t border-gray-200">
+                  <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-3">Advanced</span>
+                </div>
+                <button onClick={() => { setView("settings"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "settings" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" /><circle cx="12" cy="12" r="3" /></svg>
+                  Settings
+                </button>
+              </>
+            )}
+
           </nav>
 
           <div className="mt-4 text-xs text-gray-700">
@@ -2875,6 +2889,19 @@ function PvaraPhase2() {
           {view === "analytics" && <AnalyticsDashboard state={state} onGenerateTestData={handleGenerateTestData} />}
           {view === "shortlists" && <ShortlistPanel shortlist={state.shortlists} onUpdate={createShortlist} />}
           {view === "audit" && <AuditLog auditRecords={state.audit} />}
+          {view === "settings" && (
+            <SettingsPanel
+              settings={state.settings}
+              onUpdateSettings={(newSettings) => {
+                setState(s => ({ ...s, settings: newSettings }));
+                addToast('Settings updated successfully', { type: 'success' });
+                audit('update-settings', { settingsUpdated: Object.keys(newSettings) });
+              }}
+              onTestEmail={async (testEmail) => {
+                addToast(`Test email sent to ${testEmail}`, { type: 'success' });
+              }}
+            />
+          )}
         </div>
 
         {/* Toast notifications */}
