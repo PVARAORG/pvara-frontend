@@ -1119,22 +1119,22 @@ function PvaraPhase2() {
     }
 
     // POST new job to backend
-    try {
-      const jobPayload = {
-        title: newJob.title,
-        department: newJob.department || 'General',
-        grade: newJob.grade || 'N/A',
-        description: newJob.description || 'No description provided',
-        locations: Array.isArray(newJob.locations) ? newJob.locations : ['Remote'],
-        openings: parseInt(newJob.openings) || 1,
-        employmentType: newJob.employmentType || 'Full-time',
-        salary: {
-          min: parseFloat(newJob.salary?.min) || 0,
-          max: parseFloat(newJob.salary?.max) || 0,
-        },
-        status: newJob.status || 'open'
-      };
+    const jobPayload = {
+      title: newJob.title,
+      department: newJob.department || 'General',
+      grade: newJob.grade || 'N/A',
+      description: newJob.description || 'No description provided',
+      locations: Array.isArray(newJob.locations) ? newJob.locations : ['Remote'],
+      openings: parseInt(newJob.openings) || 1,
+      employmentType: newJob.employmentType || 'Full-time',
+      salary: {
+        min: parseFloat(newJob.salary?.min) || 0,
+        max: parseFloat(newJob.salary?.max) || 0,
+      },
+      status: newJob.status || 'open'
+    };
 
+    try {
       const response = await apiClient.post('/jobs/', jobPayload);
       if (response.data?.success) {
         const backendJob = response.data.job;
