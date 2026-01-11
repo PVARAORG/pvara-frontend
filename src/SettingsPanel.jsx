@@ -295,10 +295,12 @@ export default function SettingsPanel({ settings: initialSettings, onUpdateSetti
     }
 
     try {
-      const response = await apiClient.delete(`/users/${userId}`);
+      const response = await apiClient.delete(`/users/${userId}/`);
       if (response.data?.success) {
         // Refresh users list
         fetchUsers();
+      } else {
+        setError('Failed to delete user');
       }
     } catch (err) {
       console.error('Failed to delete user:', err);
