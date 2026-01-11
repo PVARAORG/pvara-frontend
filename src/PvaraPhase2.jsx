@@ -1073,37 +1073,78 @@ function PvaraPhase2() {
   }, []);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const createJob = useCallback((jobData) => {
+  const createJob = useCallback(async (jobData) => {
     // Handle both event (from form) and job object (from JobList component)
     if (jobData && typeof jobData.preventDefault === 'function') {
       jobData.preventDefault();
     }
 
     // If jobData is a job object (from JobList), use it directly
+    let newJob;
     if (jobData && jobData.title && !jobData.preventDefault) {
-      const j = { ...jobData, createdAt: jobData.createdAt || new Date().toISOString() };
-      setState((s) => ({ ...s, jobs: [j, ...(s.jobs || [])] }));
-      audit("create-job", { jobId: j.id, title: j.title });
-      setSuccessModal({ open: true, title: "Job Created Successfully!", message: `"${j.title}" has been added to the job listings.` });
-      return;
-    }
-
-    // Original form-based logic
-    if (editingJobId) {
+      newJob = { ...jobData, createdAt: jobData.createdAt || new Date().toISOString() };
+    } else if (editingJobId) {
+      // Update existing job
       const updated = { ...normalizeJobFormForSave(jobForm), id: editingJobId };
-      setState((s) => ({ ...s, jobs: s.jobs.map((j) => (j.id === editingJobId ? updated : j)) }));
+
+      // Try to update in backend
+      try {
+        const response = await apiClient.put(`/jobs/${editingJobId}`, updated);
+        if (response.data?.success) {
+          const backendJob = response.data.job;
+          setState((s) => ({ ...s, jobs: s.jobs.map((j) => (j.id === editingJobId ? backendJob : j)) }));
+          console.log('✅ Job updated in database');
+        }
+      } catch (err) {
+        console.error('Backend update failed, updating locally:', err);
+        setState((s) => ({ ...s, jobs: s.jobs.map((j) => (j.id === editingJobId ? updated : j)) }));
+      }
+
       audit("update-job", { jobId: editingJobId, title: updated.title });
       setSuccessModal({ open: true, title: "Job Updated Successfully!", message: `"${updated.title}" has been updated.` });
       setEditingJobId(null);
       setJobForm(emptyJobForm);
       return;
+    } else {
+      // Create new job from form
+      newJob = { ...normalizeJobFormForSave(jobForm), id: `job-${Date.now()}`, createdAt: new Date().toISOString(), status: 'open' };
     }
 
-    const j = { ...normalizeJobFormForSave(jobForm), id: `job-${Date.now()}`, createdAt: new Date().toISOString(), status: 'open' };
-    setState((s) => ({ ...s, jobs: [j, ...(s.jobs || [])] }));
-    audit("create-job", { jobId: j.id, title: j.title });
+    // POST new job to backend
+    try {
+      const jobPayload = {
+        title: newJob.title,
+        department: newJob.department || 'General',
+        grade: newJob.grade || 'N/A',
+        description: newJob.description || '',
+        locations: newJob.locations || ['Remote'],
+        openings: parseInt(newJob.openings) || 1,
+        employmentType: newJob.employmentType || 'Full-time',
+        salary: {
+          min: parseInt(newJob.salary?.min) || 0,
+          max: parseInt(newJob.salary?.max) || 0,
+          currency: newJob.salary?.currency || 'PKR'
+        },
+        status: newJob.status || 'open'
+      };
+
+      const response = await apiClient.post('/jobs/', jobPayload);
+      if (response.data?.success) {
+        const backendJob = response.data.job;
+        setState((s) => ({ ...s, jobs: [backendJob, ...(s.jobs || [])] }));
+        console.log('✅ Job created in database:', backendJob.id);
+      } else {
+        throw new Error('Backend returned error');
+      }
+    } catch (err) {
+      console.error('Backend create failed, saving locally:', err);
+      setState((s) => ({ ...s, jobs: [newJob, ...(s.jobs || [])] }));
+      addToast("Job saved locally, backend sync failed", { type: "warning" });
+    }
+
+    audit("create-job", { jobId: newJob.id, title: newJob.title });
     setJobForm(emptyJobForm);
-    setSuccessModal({ open: true, title: "Job Created Successfully!", message: `"${j.title}" has been added to the job listings.` });
+    setSuccessModal({ open: true, title: "Job Created Successfully!", message: `"${newJob.title}" has been added to the job listings.` });
   }, [editingJobId, jobForm, addToast, state]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const audit = useCallback((action, details) => {
@@ -1136,7 +1177,17 @@ function PvaraPhase2() {
     }
   }, [addToast, state]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const deleteJob = useCallback((jobId) => {
+  const deleteJob = useCallback(async (jobId) => {
+    try {
+      const response = await apiClient.delete(`/jobs/${jobId}`);
+      if (response.data?.success) {
+        console.log('✅ Job deleted from database:', jobId);
+      }
+    } catch (err) {
+      console.error('Backend delete failed:', err);
+      addToast("Job deleted locally, backend sync may have failed", { type: "warning" });
+    }
+
     setState((s) => ({ ...s, jobs: (s.jobs || []).filter((j) => j.id !== jobId) }));
     audit("delete-job", { jobId });
     addToast("Job deleted", { type: "info" });
