@@ -40,7 +40,6 @@ export function AnalyticsDashboard({ state, onGenerateTestData }) {
           {[
             { name: 'HR Review', icon: '👥', color: 'bg-blue-500', count: (state.applications || []).filter(a => ['submitted', 'hr-review'].includes(a.status)).length },
             { name: 'AI Screening', icon: '🤖', color: 'bg-purple-500', count: (state.applications || []).filter(a => ['screening', 'ai-reviewed', 'shortlisted'].includes(a.status)).length },
-            { name: 'Test Management', icon: '📝', color: 'bg-yellow-500', count: (state.applications || []).filter(a => ['testing', 'testing-complete'].includes(a.status)).length },
             { name: 'Interview', icon: '🎤', color: 'bg-orange-500', count: (state.applications || []).filter(a => ['interview', 'interview-complete'].includes(a.status)).length },
             { name: 'Offer', icon: '📄', color: 'bg-green-500', count: (state.applications || []).filter(a => ['offer'].includes(a.status)).length },
           ].map((stage, index, arr) => (
@@ -91,8 +90,8 @@ export function AnalyticsDashboard({ state, onGenerateTestData }) {
             key={tab}
             onClick={() => setSelectedTab(tab)}
             className={`px-4 py-2 font-semibold border-b-2 ${selectedTab === tab
-                ? "border-green-700 text-green-700"
-                : "border-transparent text-gray-600 hover:text-green-700"
+              ? "border-green-700 text-green-700"
+              : "border-transparent text-gray-600 hover:text-green-700"
               }`}
           >
             {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -363,10 +362,10 @@ export function AIScreeningPanel({ candidates, jobRequirements, onSelectCandidat
           <div
             key={candidate.id}
             className={`p-3 rounded border-l-4 ${candidate.autoSelected
-                ? "border-l-green-700 bg-green-50"
-                : candidate.aiScore >= 60
-                  ? "border-l-yellow-700 bg-yellow-50"
-                  : "border-l-red-700 bg-red-50"
+              ? "border-l-green-700 bg-green-50"
+              : candidate.aiScore >= 60
+                ? "border-l-yellow-700 bg-yellow-50"
+                : "border-l-red-700 bg-red-50"
               }`}
           >
             <div className="flex justify-between items-start">
@@ -473,8 +472,8 @@ export function InterviewEvaluationForm({ candidate, onSubmit, onCancel }) {
                   key={num}
                   onClick={() => setScores({ ...scores, [key]: num })}
                   className={`w-8 h-8 rounded border ${value === num
-                      ? "bg-green-700 text-white border-green-700"
-                      : "border-gray-300 hover:border-green-700"
+                    ? "bg-green-700 text-white border-green-700"
+                    : "border-gray-300 hover:border-green-700"
                     }`}
                 >
                   {num}
