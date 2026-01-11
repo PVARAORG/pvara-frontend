@@ -903,23 +903,25 @@ function PvaraPhase2() {
   // Fetch data from backend API on mount
   useEffect(() => {
     const fetchBackendData = async () => {
-      try {
-        setIsLoading(true);
+      setIsLoading(true);
 
-        // Fetch jobs from backend
+      // Fetch jobs (public - no auth required)
+      try {
         const jobsResponse = await apiClient.get('/jobs');
         const backendJobs = jobsResponse.data?.jobs || jobsResponse.data || [];
+        setState(prev => ({ ...prev, jobs: backendJobs }));
+        console.log(`📥 Loaded ${backendJobs.length} jobs from backend`);
+      } catch (error) {
+        console.error('Failed to fetch jobs:', error);
+      }
 
-        // Fetch applications from backend  
+      // Fetch applications (requires auth - may fail if not logged in)
+      try {
         const appsResponse = await apiClient.get('/applications');
         const backendApps = appsResponse.data?.applications || appsResponse.data || [];
-
-        // Update state with backend data - ALWAYS use backend data
         setState(prev => ({
           ...prev,
-          jobs: backendJobs, // Always use backend jobs (can be empty if no jobs exist)
           applications: backendApps.map(app => ({
-            // Map backend format to frontend format
             id: app._id || app.id,
             jobId: app.job_id || app.jobId,
             applicant: app.applicant || {},
@@ -933,14 +935,12 @@ function PvaraPhase2() {
             ...app
           }))
         }));
-
-        console.log(`📥 Loaded ${backendJobs.length} jobs and ${backendApps.length} applications from backend`);
+        console.log(`📥 Loaded ${backendApps.length} applications from backend`);
       } catch (error) {
-        console.error('Failed to fetch from backend, using cached data:', error);
-        // Keep using localStorage data if backend fails
-      } finally {
-        setIsLoading(false);
+        console.log('📋 Applications not loaded (login required):', error.response?.status || error.message);
       }
+
+      setIsLoading(false);
     };
 
     fetchBackendData();
