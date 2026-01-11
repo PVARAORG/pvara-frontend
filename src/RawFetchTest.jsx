@@ -6,7 +6,7 @@ export default function RawFetchTest() {
   useEffect(() => {
     const test = async () => {
       try {
-        const url = process.env.REACT_APP_API_URL || 'https://pvara-backend.fortanixor.com';
+        const url = process.env.REACT_APP_API_URL || 'https://portal-be.paicc.tech';
         const fullUrl = url + '/api/jobs';
 
         console.log('🔍 RAW FETCH TEST');

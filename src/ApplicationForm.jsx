@@ -114,7 +114,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
       const formData = new FormData();
       formData.append('cv', file);
 
-      const apiUrl = process.env.REACT_APP_API_URL || 'https://pvara-backend.fortanixor.com';
+      const apiUrl = process.env.REACT_APP_API_URL || 'https://portal-be.paicc.tech';
       // Use extract endpoint without CNIC - file will be temporary
       const response = await fetch(`${apiUrl}/api/upload/cv/extract`, {
         method: 'POST',
@@ -167,7 +167,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
       console.log('DEBUG uploadCVWithCNIC - selectedJob:', selectedJob?.title);
       const jobTitle = selectedJob?.title || '';
 
-      const apiUrl = process.env.REACT_APP_API_URL || 'https://pvara-backend.fortanixor.com';
+      const apiUrl = process.env.REACT_APP_API_URL || 'https://portal-be.paicc.tech';
       console.log('DEBUG uploadCVWithCNIC - posting with cnic:', cleanCnic, 'job_title:', jobTitle);
       const response = await fetch(`${apiUrl}/api/upload/cv?cnic=${cleanCnic}&job_title=${encodeURIComponent(jobTitle)}`, {
         method: 'POST',

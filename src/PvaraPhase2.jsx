@@ -89,7 +89,7 @@ function CandidateProfileModal({ open, candidate, onClose, jobs }) {
   const [cvExists, setCvExists] = React.useState(null); // null = loading, true/false = result
   const [cvUrl, setCvUrl] = React.useState(null);
 
-  const apiUrl = process.env.REACT_APP_API_URL || "https://pvara-backend.fortanixor.com";
+  const apiUrl = process.env.REACT_APP_API_URL || "https://portal-be.paicc.tech";
 
   // Check if CV exists when modal opens
   React.useEffect(() => {
@@ -1240,7 +1240,7 @@ function PvaraPhase2() {
       },
     };
 
-    const apiUrl = process.env.REACT_APP_API_URL || "https://pvara-backend.fortanixor.com";
+    const apiUrl = process.env.REACT_APP_API_URL || "https://portal-be.paicc.tech";
     fetch(`${apiUrl}/api/email/send-template`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -1332,7 +1332,7 @@ function PvaraPhase2() {
           },
         };
 
-        const apiUrl = process.env.REACT_APP_API_URL || "https://pvara-backend.fortanixor.com";
+        const apiUrl = process.env.REACT_APP_API_URL || "https://portal-be.paicc.tech";
         fetch(`${apiUrl}/api/email/send-template`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
