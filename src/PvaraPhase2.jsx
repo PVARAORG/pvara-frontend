@@ -1231,15 +1231,98 @@ function PvaraPhase2() {
       }
     }
 
-    const app = {
-      id: `app-${Date.now()}`,
+    // Prepare application data for backend
+    const applicationPayload = {
       jobId: job.id,
-      applicant: { ...data },
-      files: filesNames,
-      status: manual ? "manual-review" : "submitted",
-      createdAt: new Date().toISOString(),
-      screeningErrors: manual ? ["failed mandatory checks"] : [],
+      applicant: {
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        cnic: cnic,
+        degree: data.degree || 'Not specified',
+        experienceYears: parseInt(data.experienceYears) || 0,
+        cv: data.cvUrl || data.cv || '/uploads/default.pdf',
+        coverLetter: data.coverLetter || null,
+      }
     };
+
+    // POST to backend API to save to MongoDB
+    const apiUrl = process.env.REACT_APP_API_URL || "https://portal-be.paicc.tech";
+    fetch(`${apiUrl}/api/applications/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(applicationPayload),
+    })
+      .then((res) => res.json())
+      .then((result) => {
+        if (result.success) {
+          console.log(`✅ Application saved to database: ${result.application?.id || 'OK'}`);
+
+          // Create local app object with backend ID
+          const backendApp = result.application || {};
+          const app = {
+            id: backendApp.id || backendApp._id || `app-${Date.now()}`,
+            jobId: job.id,
+            applicant: { ...data },
+            files: filesNames,
+            status: backendApp.status || (manual ? "manual-review" : "submitted"),
+            createdAt: backendApp.createdAt || new Date().toISOString(),
+            screeningErrors: manual ? ["failed mandatory checks"] : [],
+          };
+
+          // Update local state with the saved application
+          updateLocalState(app, data, cnic, candidate);
+
+          setSuccessModal({ open: true, title: "Application Submitted!", message: `Your application for "${job.title}" has been submitted successfully.` });
+
+          // Redirect to My Applications page after 1 second
+          setTimeout(() => {
+            setView("my-apps");
+          }, 1500);
+
+          // Send confirmation email
+          sendConfirmationEmail(data, job);
+        } else {
+          console.error('Failed to save to database:', result);
+          addToast("Application saved locally but backend sync failed", { type: "warning" });
+          // Still save locally as fallback
+          const app = {
+            id: `app-${Date.now()}`,
+            jobId: job.id,
+            applicant: { ...data },
+            files: filesNames,
+            status: manual ? "manual-review" : "submitted",
+            createdAt: new Date().toISOString(),
+            screeningErrors: manual ? ["failed mandatory checks"] : [],
+          };
+          updateLocalState(app, data, cnic, candidate);
+          setSuccessModal({ open: true, title: "Application Submitted!", message: `Your application for "${job.title}" has been submitted.` });
+        }
+      })
+      .catch((err) => {
+        console.error('Backend sync error:', err);
+        addToast("Saved locally, backend unavailable", { type: "warning" });
+        // Fallback: save locally only
+        const app = {
+          id: `app-${Date.now()}`,
+          jobId: job.id,
+          applicant: { ...data },
+          files: filesNames,
+          status: manual ? "manual-review" : "submitted",
+          createdAt: new Date().toISOString(),
+          screeningErrors: manual ? ["failed mandatory checks"] : [],
+        };
+        updateLocalState(app, data, cnic, candidate);
+        setSuccessModal({ open: true, title: "Application Submitted!", message: `Your application for "${job.title}" has been saved locally.` });
+      });
+
+    // Reset form
+    setAppForm({ jobId: state.jobs[0]?.id || "", name: "", email: "", cnic: "", phone: "", degree: "", experienceYears: "", address: "", linkedin: "" });
+    if (fileRef.current) fileRef.current.value = null;
+  }
+
+  function updateLocalState(app, data, cnic, existingCandidate) {
+    let candidate = existingCandidate;
 
     // Create or update candidate profile
     if (!candidate) {
@@ -1262,12 +1345,9 @@ function PvaraPhase2() {
           if (c.cnic === cnic) {
             return {
               ...c,
-              // Update name and phone if changed
               name: data.name,
               phone: data.phone,
-              // Add new email if different
               emails: c.emails.includes(data.email) ? c.emails : [...c.emails, data.email],
-              // Link application
               applications: [...c.applications, app.id],
               updatedAt: new Date().toISOString(),
             };
@@ -1277,17 +1357,10 @@ function PvaraPhase2() {
       }));
     }
     setState((s) => ({ ...s, applications: [app, ...(s.applications || [])] }));
-    audit("submit-app", { appId: app.id, jobId: job.id, status: app.status });
-    setAppForm({ jobId: state.jobs[0]?.id || "", name: "", email: "", cnic: "", phone: "", degree: "", experienceYears: "", address: "", linkedin: "" });
-    if (fileRef.current) fileRef.current.value = null;
-    setSuccessModal({ open: true, title: "Application Submitted!", message: `Your application for "${job.title}" has been submitted successfully.` });
+    audit("submit-app", { appId: app.id, jobId: app.jobId, status: app.status });
+  }
 
-    // Redirect to My Applications page after 1 second
-    setTimeout(() => {
-      setView("my-apps");
-    }, 1500);
-
-    // Send confirmation email
+  function sendConfirmationEmail(data, job) {
     const emailData = {
       to: data.email,
       templateType: "APPLICATION_RECEIVED",
@@ -1307,8 +1380,6 @@ function PvaraPhase2() {
       .then((result) => {
         if (result.success) {
           console.log(`📧 Confirmation email sent to ${data.email}`);
-        } else {
-          console.log("📧 Email service unavailable (backend not running)");
         }
       })
       .catch((err) => {
