@@ -1124,14 +1124,13 @@ function PvaraPhase2() {
         title: newJob.title,
         department: newJob.department || 'General',
         grade: newJob.grade || 'N/A',
-        description: newJob.description || '',
-        locations: newJob.locations || ['Remote'],
+        description: newJob.description || 'No description provided',
+        locations: Array.isArray(newJob.locations) ? newJob.locations : ['Remote'],
         openings: parseInt(newJob.openings) || 1,
         employmentType: newJob.employmentType || 'Full-time',
         salary: {
-          min: parseInt(newJob.salary?.min) || 0,
-          max: parseInt(newJob.salary?.max) || 0,
-          currency: newJob.salary?.currency || 'PKR'
+          min: parseFloat(newJob.salary?.min) || 0,
+          max: parseFloat(newJob.salary?.max) || 0,
         },
         status: newJob.status || 'open'
       };
