@@ -387,8 +387,8 @@ export function validateUsername(username) {
         return { isValid: false, error: 'Username is required' };
     }
 
-    if (trimmed.length < 3) {
-        return { isValid: false, error: 'Username must be at least 3 characters' };
+    if (trimmed.length < 2) {
+        return { isValid: false, error: 'Username must be at least 2 characters' };
     }
 
     if (trimmed.length > 50) {
