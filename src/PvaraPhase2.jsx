@@ -1124,7 +1124,7 @@ function PvaraPhase2() {
       department: newJob.department || 'General',
       grade: newJob.grade || 'N/A',
       description: newJob.description || 'No description provided',
-      locations: Array.isArray(newJob.locations) ? newJob.locations : ['Remote'],
+      locations: (Array.isArray(newJob.locations) && newJob.locations.length > 0) ? newJob.locations : ['Remote'],
       openings: parseInt(newJob.openings) || 1,
       employmentType: newJob.employmentType || 'Full-time',
       salary: {
