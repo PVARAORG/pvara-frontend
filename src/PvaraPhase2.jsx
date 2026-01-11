@@ -886,7 +886,15 @@ function HRReviewPanel({ jobs, applications, onStatusChange, onAIEvaluate, onBul
 }
 
 function PvaraPhase2() {
-  const [state, setState] = useState(() => loadState() || defaultState());
+  // Start with empty jobs/applications - will be populated from backend only
+  const [state, setState] = useState(() => {
+    const cached = loadState();
+    return {
+      ...(cached || defaultState()),
+      jobs: [], // Always start empty - backend is source of truth
+      applications: [], // Always start empty - backend is source of truth  
+    };
+  });
   const [isLoading, setIsLoading] = useState(true);
 
   // Save to localStorage for offline/backup purposes
