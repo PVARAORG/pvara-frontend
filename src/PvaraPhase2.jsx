@@ -906,10 +906,10 @@ function PvaraPhase2() {
         const appsResponse = await apiClient.get('/applications');
         const backendApps = appsResponse.data?.applications || appsResponse.data || [];
 
-        // Update state with backend data
+        // Update state with backend data - ALWAYS use backend data
         setState(prev => ({
           ...prev,
-          jobs: backendJobs.length > 0 ? backendJobs : prev.jobs,
+          jobs: backendJobs, // Always use backend jobs (can be empty if no jobs exist)
           applications: backendApps.map(app => ({
             // Map backend format to frontend format
             id: app._id || app.id,
