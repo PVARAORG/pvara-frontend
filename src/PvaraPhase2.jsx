@@ -100,43 +100,51 @@ function CandidateProfileModal({ open, candidate, onClose, jobs }) {
     }
 
     const cnic = candidate.applicant.cnic;
-    // Sanitize CNIC (remove dashes to match saved filename format)
     const cleanCnic = cnic.replace(/-/g, '');
 
-    // Get job title and sanitize it to match backend naming convention
     const job = (jobs || []).find(j => j.id === candidate.jobId);
     if (!job) {
       setCvExists(false);
       setCvUrl(null);
       return;
     }
-    const jobTitle = job.title;
-    // Sanitize: remove special chars, replace spaces with underscores, lowercase
-    const cleanJobTitle = jobTitle
+    const cleanJobTitle = job.title
       .replace(/[^a-zA-Z0-9\s]/g, '')
       .trim()
       .replace(/\s+/g, '_')
       .toLowerCase();
 
-    // Try both .pdf and .docx extensions
     const extensions = ['.pdf', '.docx', '.doc'];
 
     const checkCvExists = async () => {
       setCvExists(null);
 
       for (const ext of extensions) {
-        // Format: cnic_jobtitle.ext
-        const url = `${apiUrl}/uploads/${cleanCnic}_${cleanJobTitle}${ext}`;
+        const filename = `${cleanCnic}_${cleanJobTitle}${ext}`;
+
+        // Try cv-url endpoint first (works with S3)
         try {
-          const response = await fetch(url, { method: 'HEAD' });
+          const response = await fetch(`${apiUrl}/api/upload/cv-url/${filename}`);
+          if (response.ok) {
+            const data = await response.json();
+            if (data.success && data.url) {
+              setCvExists(true);
+              setCvUrl(data.url.startsWith('http') ? data.url : `${apiUrl}${data.url}`);
+              return;
+            }
+          }
+        } catch (e) { }
+
+        // Fallback: try direct /uploads/ path
+        try {
+          const directUrl = `${apiUrl}/uploads/${filename}`;
+          const response = await fetch(directUrl, { method: 'HEAD' });
           if (response.ok) {
             setCvExists(true);
-            setCvUrl(url);
+            setCvUrl(directUrl);
             return;
           }
-        } catch (e) {
-          // Continue to next extension
-        }
+        } catch (e) { }
       }
       setCvExists(false);
       setCvUrl(null);
