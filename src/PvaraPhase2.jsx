@@ -1240,10 +1240,23 @@ function PvaraPhase2() {
       }
     } catch (err) {
       console.error('Backend delete failed:', err);
-      const errorMessage = err.response?.data?.detail?.message || err.response?.data?.message || "Failed to delete job. It may have applications.";
+      console.error('Error response data:', err.response?.data);
+      // FastAPI HTTPException returns detail as string or object with message
+      const detail = err.response?.data?.detail;
+      let errorMessage = "Failed to delete job.";
+      if (typeof detail === 'string') {
+        errorMessage = detail;
+      } else if (detail?.message) {
+        errorMessage = detail.message;
+      } else if (err.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      } else if (err.message && err.message !== 'Delete failed') {
+        errorMessage = err.message;
+      }
       addToast(errorMessage, { type: "error" });
     }
   }, [addToast, audit]); // eslint-disable-line react-hooks/exhaustive-deps
+
 
   function submitApplication(formData) {
     // Handle both event (from internal form) and form data (from ApplicationForm component)
