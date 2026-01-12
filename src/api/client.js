@@ -11,9 +11,16 @@ if (!API_URL && typeof window !== 'undefined') {
   API_URL = DEFAULT_REMOTE_API;
 }
 
+// Enforce HTTPS in production to prevent Mixed Content errors
+if (typeof window !== 'undefined' && window.location.protocol === 'https:' && API_URL.startsWith('http://')) {
+  API_URL = API_URL.replace('http://', 'https://');
+  console.warn('[api] Upgraded API URL to HTTPS to prevent mixed content:', API_URL);
+}
+
 if (nodeEnv === 'development' && typeof window !== 'undefined') {
   console.info('[api] Using backend base URL:', API_URL);
 }
+
 
 // Create axios instance
 const apiClient = axios.create({
@@ -37,7 +44,7 @@ apiClient.interceptors.request.use(
         config.url = config.url + '/';
       }
     }
-    
+
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
