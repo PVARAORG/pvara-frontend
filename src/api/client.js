@@ -34,16 +34,8 @@ const apiClient = axios.create({
 // Request interceptor to add trailing slash and auth token
 apiClient.interceptors.request.use(
   (config) => {
-    // Add trailing slash if not present (FastAPI requires it)
-    if (config.url && !config.url.endsWith('/') && !config.url.includes('?')) {
-      // Only add if there's no query params and no trailing slash
-      const hasPathParams = config.url.match(/\/[^/]+$/);
-      if (!hasPathParams || hasPathParams[0].includes('.')) {
-        // Don't add trailing slash if it looks like a file or has path params
-      } else {
-        config.url = config.url + '/';
-      }
-    }
+    // Trailing slash logic removed to prevent 307 redirects
+    // The backend routes do not expect trailing slashes for DELETE/PUT requests
 
     const token = localStorage.getItem('token');
     if (token) {
