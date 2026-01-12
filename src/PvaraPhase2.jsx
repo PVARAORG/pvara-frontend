@@ -1090,9 +1090,11 @@ function PvaraPhase2() {
     // If jobData is a job object (from JobList), use it directly
     let newJob;
     if (jobData && jobData.title && !jobData.preventDefault) {
+      console.log('📝 Creating job from JobList data:', jobData.title);
       newJob = { ...jobData, createdAt: jobData.createdAt || new Date().toISOString() };
     } else if (editingJobId) {
       // Update existing job
+      console.log('📝 Updating existing job:', editingJobId);
       const updated = { ...normalizeJobFormForSave(jobForm), id: editingJobId };
 
       // Try to update in backend
@@ -1115,6 +1117,7 @@ function PvaraPhase2() {
       return;
     } else {
       // Create new job from form
+      console.log('📝 Creating job from inline form');
       newJob = { ...normalizeJobFormForSave(jobForm), id: `job-${Date.now()}`, createdAt: new Date().toISOString(), status: 'open' };
     }
 
