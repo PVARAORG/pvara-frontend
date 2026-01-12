@@ -904,46 +904,55 @@ function PvaraPhase2() {
   useEffect(() => {
     const fetchBackendData = async () => {
       setIsLoading(true);
-
-      // Fetch jobs (public - no auth required)
-      try {
-        const jobsResponse = await apiClient.get('/jobs');
-        const backendJobs = jobsResponse.data?.jobs || jobsResponse.data || [];
-        setState(prev => ({ ...prev, jobs: backendJobs }));
-        console.log(`📥 Loaded ${backendJobs.length} jobs from backend`);
-      } catch (error) {
-        console.error('Failed to fetch jobs:', error);
-      }
-
-      // Fetch applications (requires auth - may fail if not logged in)
-      try {
-        const appsResponse = await apiClient.get('/applications');
-        const backendApps = appsResponse.data?.applications || appsResponse.data || [];
-        setState(prev => ({
-          ...prev,
-          applications: backendApps.map(app => ({
-            id: app._id || app.id,
-            jobId: app.job_id || app.jobId,
-            applicant: app.applicant || {},
-            status: app.status || 'submitted',
-            aiScore: app.ai_score || app.aiScore,
-            aiEvaluation: app.ai_evaluation || app.aiEvaluation,
-            testScores: app.test_scores || app.testScores,
-            interview: app.interview,
-            offer: app.offer,
-            submittedAt: app.submitted_at || app.submittedAt || app.createdAt,
-            ...app
-          }))
-        }));
-        console.log(`📥 Loaded ${backendApps.length} applications from backend`);
-      } catch (error) {
-        console.log('📋 Applications not loaded (login required):', error.response?.status || error.message);
-      }
-
+      await refreshJobs();
+      await refreshApplications();
       setIsLoading(false);
     };
 
     fetchBackendData();
+  }, []);
+
+  // Helper function to refresh jobs from backend
+  const refreshJobs = useCallback(async () => {
+    try {
+      const jobsResponse = await apiClient.get('/jobs');
+      const backendJobs = jobsResponse.data?.jobs || jobsResponse.data || [];
+      setState(prev => ({ ...prev, jobs: backendJobs }));
+      console.log(`📥 Loaded ${backendJobs.length} jobs from backend`);
+      return backendJobs;
+    } catch (error) {
+      console.error('Failed to fetch jobs:', error);
+      return [];
+    }
+  }, []);
+
+  // Helper function to refresh applications from backend
+  const refreshApplications = useCallback(async () => {
+    try {
+      const appsResponse = await apiClient.get('/applications');
+      const backendApps = appsResponse.data?.applications || appsResponse.data || [];
+      setState(prev => ({
+        ...prev,
+        applications: backendApps.map(app => ({
+          id: app._id || app.id,
+          jobId: app.job_id || app.jobId,
+          applicant: app.applicant || {},
+          status: app.status || 'submitted',
+          aiScore: app.ai_score || app.aiScore,
+          aiEvaluation: app.ai_evaluation || app.aiEvaluation,
+          testScores: app.test_scores || app.testScores,
+          interview: app.interview,
+          offer: app.offer,
+          submittedAt: app.submitted_at || app.submittedAt || app.createdAt,
+          ...app
+        }))
+      }));
+      console.log(`📥 Loaded ${backendApps.length} applications from backend`);
+      return backendApps;
+    } catch (error) {
+      console.log('📋 Applications not loaded (login required):', error.response?.status || error.message);
+      return [];
+    }
   }, []);
 
   const auth = useAuth();
@@ -1178,31 +1187,63 @@ function PvaraPhase2() {
     };
   }
 
-  const updateJob = useCallback((jobData) => {
-    if (jobData && jobData.id) {
-      setState((s) => ({ ...s, jobs: s.jobs.map((j) => (j.id === jobData.id ? jobData : j)) }));
-      audit("update-job", { jobId: jobData.id, title: jobData.title });
-      setSuccessModal({ open: true, title: "Job Updated!", message: `Job has been updated successfully.` });
-      setEditingJobId(null);
-      setJobForm(emptyJobForm);
+  const updateJob = useCallback(async (jobData) => {
+    if (!jobData || !jobData.id) return;
+
+    // Prepare payload for backend
+    const jobPayload = {
+      title: jobData.title,
+      department: jobData.department || 'General',
+      grade: jobData.grade || 'N/A',
+      description: jobData.description || '',
+      locations: (Array.isArray(jobData.locations) && jobData.locations.length > 0) ? jobData.locations : ['Remote'],
+      openings: parseInt(jobData.openings) || 1,
+      employmentType: jobData.employmentType || 'Full-time',
+      salary: {
+        min: parseFloat(jobData.salary?.min) || 0,
+        max: parseFloat(jobData.salary?.max) || 0,
+      },
+      status: jobData.status || 'open'
+    };
+
+    try {
+      const response = await apiClient.put(`/jobs/${jobData.id}`, jobPayload);
+      if (response.data?.success) {
+        const backendJob = response.data.job;
+        setState((s) => ({ ...s, jobs: s.jobs.map((j) => (j.id === jobData.id ? backendJob : j)) }));
+        console.log('✅ Job updated in database:', jobData.id);
+        audit("update-job", { jobId: jobData.id, title: jobData.title });
+        setSuccessModal({ open: true, title: "Job Updated!", message: `Job has been updated successfully.` });
+      } else {
+        throw new Error(response.data?.message || 'Update failed');
+      }
+    } catch (err) {
+      console.error('Backend update failed:', err.response?.data || err.message);
+      addToast(err.response?.data?.detail?.message || "Failed to update job. Please try again.", { type: "error" });
     }
-  }, [addToast, state]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    setEditingJobId(null);
+    setJobForm(emptyJobForm);
+  }, [addToast, audit]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const deleteJob = useCallback(async (jobId) => {
     try {
       const response = await apiClient.delete(`/jobs/${jobId}`);
       if (response.data?.success) {
+        // Only update local state on confirmed backend success
+        setState((s) => ({ ...s, jobs: (s.jobs || []).filter((j) => j.id !== jobId) }));
+        audit("delete-job", { jobId });
+        addToast("Job deleted successfully", { type: "success" });
         console.log('✅ Job deleted from database:', jobId);
+      } else {
+        throw new Error(response.data?.message || 'Delete failed');
       }
     } catch (err) {
       console.error('Backend delete failed:', err);
-      addToast("Job deleted locally, backend sync may have failed", { type: "warning" });
+      const errorMessage = err.response?.data?.detail?.message || err.response?.data?.message || "Failed to delete job. It may have applications.";
+      addToast(errorMessage, { type: "error" });
     }
-
-    setState((s) => ({ ...s, jobs: (s.jobs || []).filter((j) => j.id !== jobId) }));
-    audit("delete-job", { jobId });
-    addToast("Job deleted", { type: "info" });
-  }, [addToast, state]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [addToast, audit]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function submitApplication(formData) {
     // Handle both event (from internal form) and form data (from ApplicationForm component)
