@@ -31,23 +31,19 @@ const apiClient = axios.create({
   }
 });
 
+// Collection endpoints that need trailing slash
+const COLLECTION_ENDPOINTS = ['jobs', 'users', 'applications', 'auth', 'audit', 'settings', 'email', 'upload', 'interviews', 'offers', 'testing', 'login', 'register', 'me', 'health'];
+
 // Request interceptor to add trailing slash and auth token
 apiClient.interceptors.request.use(
   (config) => {
-    // Add trailing slash for collection endpoints (e.g., /jobs/) but NOT for resource endpoints (e.g., /jobs/{id})
+    // Add trailing slash only for collection endpoints, not resource endpoints with IDs
     if (config.url && !config.url.endsWith('/') && !config.url.includes('?')) {
-      // Check if URL ends with a path parameter (resource ID)
-      // Resource paths like /jobs/abc123 should NOT get trailing slash
-      // Collection paths like /jobs should get trailing slash
       const pathParts = config.url.split('/').filter(Boolean);
       const lastPart = pathParts[pathParts.length - 1];
       
-      // If the last part looks like a resource name (no special chars, common endpoint names), add slash
-      // If it looks like an ID (has numbers/special patterns), don't add slash
-      const isCollectionEndpoint = /^[a-z-]+$/.test(lastPart) && 
-        ['jobs', 'users', 'applications', 'auth', 'audit', 'settings', 'email', 'upload', 'interviews', 'offers', 'testing'].includes(lastPart);
-      
-      if (isCollectionEndpoint) {
+      // Add trailing slash if last part is a known collection endpoint
+      if (COLLECTION_ENDPOINTS.includes(lastPart)) {
         config.url = config.url + '/';
       }
     }
