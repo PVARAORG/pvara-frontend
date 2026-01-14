@@ -407,3 +407,92 @@ export function validateUsername(username) {
 
     return { isValid: true, error: null };
 }
+
+/**
+ * Validates file upload for security
+ * Checks for valid extensions, double extensions, and dangerous patterns
+ * @param {File} file - File object to validate
+ * @param {object} options - Validation options
+ * @param {string[]} options.allowedExtensions - Array of allowed extensions (e.g., ['.pdf', '.doc', '.docx'])
+ * @param {number} options.maxSizeBytes - Maximum file size in bytes
+ * @param {string} options.fieldName - Name of field for error messages
+ * @returns {{isValid: boolean, error: string|null}}
+ */
+export function validateFileUpload(file, options = {}) {
+    const {
+        allowedExtensions = ['.pdf', '.doc', '.docx'],
+        maxSizeBytes = 5 * 1024 * 1024, // 5MB default
+        fieldName = 'File'
+    } = options;
+
+    if (!file) {
+        return { isValid: false, error: `${fieldName} is required` };
+    }
+
+    // Get filename
+    const filename = file.name || '';
+    const lowerFilename = filename.toLowerCase();
+
+    // Check file size
+    if (file.size > maxSizeBytes) {
+        const maxSizeMB = Math.round(maxSizeBytes / (1024 * 1024));
+        return {
+            isValid: false,
+            error: `${fieldName} must be smaller than ${maxSizeMB}MB`
+        };
+    }
+
+    // Dangerous extension patterns to reject
+    const dangerousPatterns = [
+        '.php', '.phtml', '.php3', '.php4', '.php5', '.phps', '.phar',
+        '.exe', '.sh', '.bat', '.cmd', '.ps1', '.vbs', '.js', '.jar',
+        '.asp', '.aspx', '.jsp', '.cgi', '.pl', '.py', '.rb', '.htaccess'
+    ];
+
+    // Check for dangerous patterns anywhere in filename (catches double extensions like .php.docx)
+    for (const pattern of dangerousPatterns) {
+        if (lowerFilename.includes(pattern)) {
+            return {
+                isValid: false,
+                error: `${fieldName} contains an invalid or dangerous file pattern`
+            };
+        }
+    }
+
+    // Get file extension (last part after final dot)
+    const parts = lowerFilename.split('.');
+    if (parts.length < 2) {
+        return {
+            isValid: false,
+            error: `${fieldName} must have a valid extension`
+        };
+    }
+
+    const extension = '.' + parts[parts.length - 1];
+
+    // Check if extension is allowed
+    const normalizedAllowed = allowedExtensions.map(ext => ext.toLowerCase());
+    if (!normalizedAllowed.includes(extension)) {
+        return {
+            isValid: false,
+            error: `${fieldName} must be one of: ${allowedExtensions.join(', ')}`
+        };
+    }
+
+    // Check for double extensions (e.g., file.pdf.exe, file.docx.php)
+    // If there are more than 2 parts and any middle part looks like an extension
+    if (parts.length > 2) {
+        const possibleExtensions = ['.pdf', '.doc', '.docx', '.txt', '.rtf', ...dangerousPatterns];
+        for (let i = 1; i < parts.length - 1; i++) {
+            const middlePart = '.' + parts[i];
+            if (possibleExtensions.includes(middlePart)) {
+                return {
+                    isValid: false,
+                    error: `${fieldName} appears to have multiple extensions which is not allowed`
+                };
+            }
+        }
+    }
+
+    return { isValid: true, error: null };
+}

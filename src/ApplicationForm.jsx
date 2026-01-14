@@ -8,7 +8,8 @@ import {
   validateAlphabetic,
   validatePostalCode,
   validateYear,
-  validateRequired
+  validateRequired,
+  validateFileUpload
 } from "./utils/validationUtils";
 
 const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
@@ -634,11 +635,16 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
                   const files = e.dataTransfer.files;
                   if (files.length > 0) {
                     const file = files[0];
-                    const validTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-                    if (validTypes.includes(file.type)) {
+                    // Validate file (checks extension, double extensions, dangerous patterns)
+                    const fileValidation = validateFileUpload(file, {
+                      allowedExtensions: ['.pdf', '.doc', '.docx'],
+                      maxSizeBytes: 5 * 1024 * 1024,
+                      fieldName: 'CV'
+                    });
+                    if (fileValidation.isValid) {
                       extractAndUploadCV(file);
                     } else {
-                      setErrors(prev => ({ ...prev, cvFile: 'Invalid file type. Please upload PDF, DOC, or DOCX files only.' }));
+                      setErrors(prev => ({ ...prev, cvFile: fileValidation.error }));
                     }
                   }
                 }}
@@ -652,11 +658,16 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
                   onChange={(e) => {
                     const file = e.target.files[0];
                     if (file) {
-                      const validTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-                      if (validTypes.includes(file.type)) {
+                      // Validate file (checks extension, double extensions, dangerous patterns)
+                      const fileValidation = validateFileUpload(file, {
+                        allowedExtensions: ['.pdf', '.doc', '.docx'],
+                        maxSizeBytes: 5 * 1024 * 1024,
+                        fieldName: 'CV'
+                      });
+                      if (fileValidation.isValid) {
                         extractAndUploadCV(file);
                       } else {
-                        setErrors(prev => ({ ...prev, cvFile: 'Invalid file type. Please upload PDF, DOC, or DOCX files only.' }));
+                        setErrors(prev => ({ ...prev, cvFile: fileValidation.error }));
                       }
                     }
                   }}
@@ -772,7 +783,17 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
                   onChange={(e) => {
                     const file = e.target.files[0];
                     if (file) {
-                      handleChange('coverLetterFile', file);
+                      // Validate file (checks extension, double extensions, dangerous patterns)
+                      const fileValidation = validateFileUpload(file, {
+                        allowedExtensions: ['.pdf', '.doc', '.docx'],
+                        maxSizeBytes: 5 * 1024 * 1024,
+                        fieldName: 'Cover letter'
+                      });
+                      if (fileValidation.isValid) {
+                        handleChange('coverLetterFile', file);
+                      } else {
+                        setErrors(prev => ({ ...prev, coverLetterFile: fileValidation.error }));
+                      }
                     }
                   }}
                 />
