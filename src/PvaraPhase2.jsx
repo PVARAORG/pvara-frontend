@@ -780,12 +780,12 @@ function HRReviewPanel({ jobs, applications, onStatusChange, onAIEvaluate, onBul
   // Use the first job if none selected
   const currentJobId = selectedJobId || jobs[0]?.id || null;
 
-  // Auto-select first job on mount if none selected
+  // Auto-select first job when jobs are available and none selected
   React.useEffect(() => {
-    if (!selectedJobId && jobs[0]?.id) {
+    if (!selectedJobId && jobs.length > 0 && jobs[0]?.id) {
       onSelectJob(jobs[0].id);
     }
-  }, []);
+  }, [selectedJobId, jobs, onSelectJob]);
 
   const selectedJob = jobs.find(j => j.id === currentJobId);
   const filteredApplications = applications.filter(app => app.jobId === currentJobId);
