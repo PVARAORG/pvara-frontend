@@ -805,7 +805,7 @@ function HRReviewPanel({ jobs, applications, onStatusChange, onAIEvaluate, onBul
   });
 
   return (
-    <div className="flex gap-6 h-[calc(100vh-8rem)]">
+    <div className="flex gap-6 h-[calc(100vh-8rem)] mt-4">
       {/* Left Panel - Job List */}
       <div className="w-80 flex-shrink-0 bg-white rounded-lg shadow-lg p-4 overflow-y-auto">
         <h2 className="text-xl font-bold mb-4 text-gray-800">Open Positions</h2>
