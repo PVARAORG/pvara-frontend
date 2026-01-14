@@ -4,20 +4,13 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 const AuthCtx = createContext();
 const API_URL = process.env.REACT_APP_API_URL || 'https://portal-be.paicc.tech';
 
-const demoUsers = [
-  { username: "admin", password: "admin", role: "admin", name: "Admin User" },
-  { username: "hr", password: "hr", role: "hr", name: "HR User" },
-  { username: "recruit", password: "rec", role: "recruiter", name: "Recruiter" },
-  { username: "viewer", password: "view", role: "viewer", name: "Viewer" },
-];
-
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
     try {
       const stored = localStorage.getItem("pvara_user");
       const token = localStorage.getItem("token");
       if (stored && token) return JSON.parse(stored);
-      return null; // No auto-login - require proper authentication
+      return null;
     } catch {
       return null;
     }
@@ -29,12 +22,10 @@ export function AuthProvider({ children }) {
 
   async function login({ username, password }) {
     try {
-      // Try backend API first
       const response = await fetch(`${API_URL}/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'ngrok-skip-browser-warning': 'true'
         },
         body: JSON.stringify({ username, password })
       });
@@ -53,21 +44,12 @@ export function AuthProvider({ children }) {
         setUser(userPayload);
         return { ok: true, user: userPayload };
       }
+      
+      return { ok: false, message: data.message || "Invalid credentials" };
     } catch (error) {
-      console.log('Backend auth failed, trying demo credentials...');
+      console.error('Login failed:', error);
+      return { ok: false, message: "Unable to connect to server" };
     }
-
-    // Fallback to demo users for development
-    const found = demoUsers.find(u => u.username === username && u.password === password);
-    if (found) {
-      const payload = { username: found.username, role: found.role, name: found.name };
-      setUser(payload);
-      // Create a demo token
-      localStorage.setItem('token', 'demo-token-' + Date.now());
-      return { ok: true, user: payload };
-    }
-
-    return { ok: false, message: "Invalid credentials" };
   }
 
   function logout() {
