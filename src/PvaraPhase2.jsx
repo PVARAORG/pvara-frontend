@@ -2352,9 +2352,14 @@ function PvaraPhase2() {
   // Public Job Board View
   function JobBoardView() {
     const [currentPage, setCurrentPage] = React.useState(1);
+    const [localSearch, setLocalSearch] = React.useState(jobSearch);
     const jobsPerPage = 6;
 
-    const openJobs = (state.jobs || []).filter((j) => j.status === "open");
+    const openJobs = React.useMemo(() =>
+      (state.jobs || []).filter((j) => j.status === "open"),
+      [state.jobs]
+    );
+
     const normalizedSearch = jobSearch.trim().toLowerCase();
 
     const visibleJobs = React.useMemo(() => {
@@ -2372,6 +2377,11 @@ function PvaraPhase2() {
       });
     }, [openJobs, normalizedSearch]);
 
+    // Sync local search with parent state
+    React.useEffect(() => {
+      setLocalSearch(jobSearch);
+    }, [jobSearch]);
+
     // Reset to page 1 when search changes
     React.useEffect(() => {
       setCurrentPage(1);
@@ -2386,6 +2396,7 @@ function PvaraPhase2() {
       if (e?.preventDefault) e.preventDefault();
     }, []);
 
+    // Job Detail View
     if (selectedJobId) {
       const job = openJobs.find((j) => j.id === selectedJobId);
       if (!job) {
@@ -2397,73 +2408,120 @@ function PvaraPhase2() {
         <div className="max-w-5xl mx-auto">
           <button
             onClick={() => setSelectedJobId(null)}
-            className="mb-6 flex items-center gap-2 glass-button px-4 py-2 rounded-lg text-gray-800 hover:text-green-700 font-medium hover:shadow-md transition-all"
+            className="mb-6 flex items-center gap-2 bg-white/80 backdrop-blur-sm px-5 py-2.5 rounded-xl text-gray-700 hover:text-green-700 font-medium shadow-sm hover:shadow-md transition-all border border-gray-200"
           >
-            ← Back to All Jobs
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to All Positions
           </button>
 
-          <div className="glass-strong rounded-xl shadow-2xl overflow-hidden">
-            {/* Job Header */}
-            <div className="bg-gradient-to-r from-green-600 to-green-500 text-white p-8">
-              <h1 className="text-3xl font-bold mb-2">{job.title}</h1>
-              <div className="flex flex-wrap gap-4 text-green-100">
-                <span className="flex items-center gap-2">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clipRule="evenodd" /></svg>
-                  {job.department}
-                </span>
-                <span className="flex items-center gap-2">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" /></svg>
-                  {job.locations.join(', ')}
-                </span>
-                <span className="flex items-center gap-2">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" /></svg>
-                  {job.employmentType}
-                </span>
-                <span className="flex items-center gap-2">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z" /><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clipRule="evenodd" /></svg>
-                  ₨{job.salary.min.toLocaleString()} - ₨{job.salary.max.toLocaleString()}
-                </span>
+          <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+            {/* Job Header - Enhanced with gradient */}
+            <div className="relative bg-gradient-to-br from-green-600 via-green-700 to-emerald-800 text-white p-8 md:p-10">
+              <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMzLjMxNCAwIDYgMi42ODYgNiA2cy0yLjY4NiA2LTYgNi02LTIuNjg2LTYtNiAyLjY4Ni02IDYtNiIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMSkiIHN0cm9rZS13aWR0aD0iMiIvPjwvZz48L3N2Zz4=')] opacity-30"></div>
+              <div className="relative">
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-sm font-medium">
+                    {job.employmentType}
+                  </span>
+                  <span className="px-3 py-1 bg-emerald-500/30 backdrop-blur-sm rounded-full text-sm font-medium">
+                    Open Position
+                  </span>
+                </div>
+                <h1 className="text-3xl md:text-4xl font-bold mb-4">{job.title}</h1>
+                <div className="flex flex-wrap gap-4 text-green-100">
+                  <span className="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-lg">
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clipRule="evenodd" /></svg>
+                    {job.department}
+                  </span>
+                  <span className="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-lg">
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" /></svg>
+                    {job.locations.join(', ')}
+                  </span>
+                  <span className="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-lg">
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z" /><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clipRule="evenodd" /></svg>
+                    ₨{job.salary.min.toLocaleString()} - ₨{job.salary.max.toLocaleString()}
+                  </span>
+                </div>
               </div>
             </div>
 
-            {/* Job Details */}
-            <div className="p-8 space-y-6">
+            {/* Job Details - Enhanced */}
+            <div className="p-8 md:p-10 space-y-8">
               <div>
-                <h2 className="text-xl font-bold text-gray-800 mb-3">About the Role</h2>
-                <p className="text-gray-700 leading-relaxed">{job.description}</p>
+                <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                  <span className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                    <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </span>
+                  About the Role
+                </h2>
+                <p className="text-gray-600 leading-relaxed text-lg">{job.description}</p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="p-4 glass-card rounded-lg">
-                  <h3 className="font-semibold text-green-700 mb-2">📍 Location</h3>
-                  <p className="text-gray-700">{job.locations.join(', ')}</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="p-5 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border border-green-100">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
+                      <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" /></svg>
+                    </div>
+                    <h3 className="font-semibold text-gray-800">Location</h3>
+                  </div>
+                  <p className="text-gray-600 ml-13">{job.locations.join(', ')}</p>
                 </div>
-                <div className="p-4 glass-card rounded-lg">
-                  <h3 className="font-semibold text-blue-700 mb-2">👥 Openings</h3>
-                  <p className="text-gray-700">{job.openings} position{job.openings > 1 ? 's' : ''} available</p>
+                <div className="p-5 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                      <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" /></svg>
+                    </div>
+                    <h3 className="font-semibold text-gray-800">Openings</h3>
+                  </div>
+                  <p className="text-gray-600 ml-13">{job.openings} position{job.openings > 1 ? 's' : ''} available</p>
                 </div>
-                <div className="p-4 glass-card rounded-lg">
-                  <h3 className="font-semibold text-purple-700 mb-2">💼 Employment Type</h3>
-                  <p className="text-gray-700">{job.employmentType}</p>
+                <div className="p-5 bg-gradient-to-br from-purple-50 to-violet-50 rounded-xl border border-purple-100">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center">
+                      <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clipRule="evenodd" /></svg>
+                    </div>
+                    <h3 className="font-semibold text-gray-800">Employment Type</h3>
+                  </div>
+                  <p className="text-gray-600 ml-13">{job.employmentType}</p>
                 </div>
-                <div className="p-4 glass-card rounded-lg">
-                  <h3 className="font-semibold text-orange-700 mb-2">🎓 Requirements</h3>
-                  <p className="text-gray-700">
+                <div className="p-5 bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl border border-amber-100">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-10 h-10 bg-amber-500 rounded-lg flex items-center justify-center">
+                      <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0z" /></svg>
+                    </div>
+                    <h3 className="font-semibold text-gray-800">Requirements</h3>
+                  </div>
+                  <p className="text-gray-600 ml-13">
                     {job.fields?.degreeRequired?.value && `${job.fields.degreeRequired.value} degree`}
-                    {job.fields?.minExperience?.value && `, ${job.fields.minExperience.value}+ years exp`}
+                    {job.fields?.minExperience?.value && `, ${job.fields.minExperience.value}+ years experience`}
+                    {!job.fields?.degreeRequired?.value && !job.fields?.minExperience?.value && 'See job description'}
                   </p>
                 </div>
               </div>
 
-              <div className="pt-6 border-t">
+              <div className="pt-6 border-t border-gray-100 flex flex-col sm:flex-row gap-4">
                 <button
                   onClick={() => {
                     setView('apply');
                     setAppForm(prev => ({ ...prev, jobId: job.id }));
                   }}
-                  className="w-full md:w-auto px-8 py-4 bg-green-600 text-white rounded-lg hover:bg-green-700 font-bold text-lg transition shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+                  className="flex-1 sm:flex-none px-8 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 font-bold text-lg transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
                 >
-                  Apply for this Position →
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Apply for this Position
+                </button>
+                <button
+                  onClick={() => setSelectedJobId(null)}
+                  className="px-6 py-4 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 font-medium transition-all flex items-center justify-center gap-2"
+                >
+                  View Other Positions
                 </button>
               </div>
             </div>
@@ -2472,121 +2530,235 @@ function PvaraPhase2() {
       );
     }
 
+    // Main Job Listing View - Enhanced with PVARA branding
     return (
-      <div className="max-w-6xl mx-auto">
-        <div className="mb-8 text-center">
-          <h1 className="font-display text-6xl font-bold text-gray-800 mb-3">Join Our Team</h1>
-          <p className="text-xl text-gray-700 mb-6">Explore exciting opportunities and grow your career with PVARA</p>
+      <div className="max-w-7xl mx-auto">
+        {/* Hero Section - Professional PVARA Branding */}
+        <div className="relative mb-12 rounded-2xl overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-green-600 via-green-700 to-emerald-800"></div>
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMzLjMxNCAwIDYgMi42ODYgNiA2cy0yLjY4NiA2LTYgNi02LTIuNjg2LTYtNiAyLjY4Ni02IDYtNiIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMSkiIHN0cm9rZS13aWR0aD0iMiIvPjwvZz48L3N2Zz4=')] opacity-40"></div>
+          <div className="relative px-8 py-16 md:py-20 text-center text-white">
+            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full mb-6">
+              <span className="w-2 h-2 bg-green-300 rounded-full animate-pulse"></span>
+              <span className="text-sm font-medium">Now Hiring</span>
+            </div>
+            <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
+              Build Your Future with PVARA
+            </h1>
+            <p className="text-lg md:text-xl text-green-100 max-w-3xl mx-auto mb-8">
+              Join Pakistan's Virtual Assets Regulatory Authority and be part of the team shaping the future of digital finance regulation
+            </p>
 
-          {/* Search Bar */}
-          <div className="max-w-2xl mx-auto mb-4">
-            <form onSubmit={handleJobSearchSubmit} className="glass-card rounded-xl shadow-lg p-1 flex items-center">
-              <svg className="w-5 h-5 text-gray-500 ml-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <circle cx="11" cy="11" r="8" />
-                <path d="m21 21-4.35-4.35" />
-              </svg>
-              <input
-                type="text"
-                placeholder="Search jobs by title, department, or location..."
-                className="flex-1 px-4 py-3 bg-transparent border-none outline-none text-gray-800 placeholder-gray-500"
-                value={jobSearch}
-                onChange={(e) => handleJobSearchChange(e.target.value)}
-                aria-label="Search jobs"
-              />
-              <button type="submit" className="glass-button px-6 py-2 rounded-lg font-medium text-gray-800 hover:text-green-700 transition mr-1">
-                Search
-              </button>
-            </form>
-          </div>
-
-          <div className="flex items-center justify-center gap-4">
-            <div className="glass-button inline-block px-4 py-2 rounded-full text-sm font-medium text-gray-800">
-              {visibleJobs.length} open position{visibleJobs.length !== 1 ? 's' : ''} available
+            {/* Enhanced Search Bar */}
+            <div className="max-w-2xl mx-auto">
+              <form onSubmit={handleJobSearchSubmit} className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-2 flex items-center">
+                <div className="flex items-center flex-1 px-4">
+                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                  <input
+                    type="text"
+                    placeholder="Search by job title, department, or location..."
+                    className="flex-1 px-4 py-3 bg-transparent border-none outline-none text-gray-800 placeholder-gray-400 text-lg"
+                    value={localSearch}
+                    onChange={(e) => {
+                      setLocalSearch(e.target.value);
+                      handleJobSearchChange(e.target.value);
+                    }}
+                    aria-label="Search jobs"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-xl font-semibold transition-all shadow-lg hover:shadow-xl"
+                >
+                  Search Jobs
+                </button>
+              </form>
             </div>
           </div>
         </div>
 
+        {/* Stats Bar */}
+        <div className="grid grid-cols-2 gap-4 mb-10 max-w-md mx-auto">
+          <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 text-center">
+            <div className="text-3xl font-bold text-green-600 mb-1">{visibleJobs.length}</div>
+            <div className="text-sm text-gray-500 font-medium">Open Positions</div>
+          </div>
+          <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 text-center">
+            <div className="text-3xl font-bold text-blue-600 mb-1">{new Set(openJobs.map(j => j.department)).size}</div>
+            <div className="text-sm text-gray-500 font-medium">Departments</div>
+          </div>
+        </div>
+
+        {/* Why Join PVARA Section */}
+        <div className="mb-12">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">Why Join PVARA?</h2>
+            <p className="text-gray-500">Be part of Pakistan's digital transformation journey</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-lg transition-all group">
+              <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+              <h3 className="font-bold text-lg text-gray-800 mb-2">Innovation at Core</h3>
+              <p className="text-gray-500 text-sm">Work on cutting-edge blockchain and virtual asset regulations that will shape the future of finance in Pakistan.</p>
+            </div>
+            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-lg transition-all group">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+              </div>
+              <h3 className="font-bold text-lg text-gray-800 mb-2">Collaborative Culture</h3>
+              <p className="text-gray-500 text-sm">Join a diverse team of experts committed to consumer protection and financial stability.</p>
+            </div>
+            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-lg transition-all group">
+              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                </svg>
+              </div>
+              <h3 className="font-bold text-lg text-gray-800 mb-2">Growth Opportunities</h3>
+              <p className="text-gray-500 text-sm">Advance your career with professional development, training programs, and competitive benefits.</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Section Header */}
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-800">Current Openings</h2>
+            <p className="text-gray-500">{visibleJobs.length} position{visibleJobs.length !== 1 ? 's' : ''} available</p>
+          </div>
+          {normalizedSearch && (
+            <button
+              onClick={() => { setLocalSearch(''); handleJobSearchChange(''); }}
+              className="text-sm text-green-600 hover:text-green-700 font-medium flex items-center gap-1"
+            >
+              Clear search
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          )}
+        </div>
+
         {visibleJobs.length === 0 ? (
-          <div className="glass-card rounded-lg shadow-md p-12 text-center">
-            <svg className="w-16 h-16 mx-auto text-gray-400 mb-4" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-            </svg>
-            <h3 className="text-xl font-semibold text-gray-700 mb-2">No Open Positions</h3>
-            <p className="text-gray-500">{normalizedSearch ? `No roles match "${jobSearch}"` : "Check back soon for new opportunities!"}</p>
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center">
+            <div className="w-20 h-20 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-5">
+              <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+            <h3 className="text-xl font-bold text-gray-800 mb-2">No Open Positions Found</h3>
+            <p className="text-gray-500 mb-6">{normalizedSearch ? `No roles match "${localSearch}"` : "Check back soon for new opportunities!"}</p>
+            {normalizedSearch && (
+              <button
+                onClick={() => { setLocalSearch(''); handleJobSearchChange(''); }}
+                className="px-6 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition"
+              >
+                View All Positions
+              </button>
+            )}
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {paginatedJobs.map(job => (
                 <div
                   key={job.id}
-                  className="glass-card rounded-xl shadow-lg hover:shadow-2xl transition-all overflow-hidden border-2 border-white/30 hover:border-green-400 cursor-pointer"
+                  className="bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-xl hover:border-green-200 transition-all duration-300 overflow-hidden cursor-pointer group"
                   onClick={() => setSelectedJobId(job.id)}
                 >
+                  {/* Colored Top Bar */}
+                  <div className="h-1.5 bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500"></div>
+
                   <div className="p-6">
-                    <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                    <div className="flex items-start justify-between gap-4 mb-4">
                       <div className="flex-1">
-                        <h2 className="text-2xl font-bold text-gray-800 mb-2 hover:text-green-700 transition">
-                          {job.title}
-                        </h2>
-                        <div className="flex flex-wrap gap-3 mb-3">
-                          <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
-                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clipRule="evenodd" /></svg>
-                            {job.department}
-                          </span>
-                          <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
-                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" /></svg>
-                            {job.locations.join(', ')}
-                          </span>
-                          <span className="inline-flex items-center gap-1 px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium">
-                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" /></svg>
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="px-2.5 py-1 bg-green-100 text-green-700 rounded-md text-xs font-semibold uppercase tracking-wide">
                             {job.employmentType}
                           </span>
+                          <span className="px-2.5 py-1 bg-gray-100 text-gray-600 rounded-md text-xs font-medium">
+                            {job.openings} opening{job.openings > 1 ? 's' : ''}
+                          </span>
                         </div>
-                        <p className="text-gray-600 line-clamp-2 mb-3">{job.description}</p>
-                        <div className="flex items-center gap-4 text-sm text-gray-500">
-                          <span>💰 ₨{job.salary.min.toLocaleString()} - ₨{job.salary.max.toLocaleString()}</span>
-                          <span>👥 {job.openings} opening{job.openings > 1 ? 's' : ''}</span>
-                        </div>
+                        <h2 className="text-xl font-bold text-gray-800 group-hover:text-green-700 transition-colors mb-1">
+                          {job.title}
+                        </h2>
+                        <p className="text-sm text-gray-500 font-medium">{job.department}</p>
                       </div>
-                      <div className="flex flex-col gap-2">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedJobId(job.id);
-                          }}
-                          className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition whitespace-nowrap"
-                        >
-                          View Details →
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedJobForApply(job.id);
-                            setView('apply');
-                          }}
-                          className="px-6 py-2 border-2 border-green-600 text-green-600 rounded-lg hover:bg-green-50 font-medium transition whitespace-nowrap"
-                        >
-                          Quick Apply
-                        </button>
+                      <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
                       </div>
+                    </div>
+
+                    <p className="text-gray-600 text-sm line-clamp-2 mb-4">{job.description}</p>
+
+                    <div className="flex flex-wrap items-center gap-3 mb-5 pb-5 border-b border-gray-100">
+                      <div className="flex items-center gap-1.5 text-sm text-gray-500">
+                        <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" /></svg>
+                        {job.locations.join(', ')}
+                      </div>
+                      <div className="flex items-center gap-1.5 text-sm text-gray-500">
+                        <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z" /><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clipRule="evenodd" /></svg>
+                        ₨{job.salary.min.toLocaleString()} - ₨{job.salary.max.toLocaleString()}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedJobId(job.id);
+                        }}
+                        className="flex-1 px-4 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 font-medium transition-all shadow-sm hover:shadow-md text-sm flex items-center justify-center gap-2"
+                      >
+                        View Details
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedJobForApply(job.id);
+                          setView('apply');
+                        }}
+                        className="flex-1 px-4 py-2.5 border-2 border-green-600 text-green-600 rounded-xl hover:bg-green-50 font-medium transition-all text-sm flex items-center justify-center gap-2"
+                      >
+                        Quick Apply
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                        </svg>
+                      </button>
                     </div>
                   </div>
                 </div>
               ))}
             </div>
 
-            {/* Pagination Controls */}
+            {/* Enhanced Pagination Controls */}
             {totalPages > 1 && (
-              <div className="mt-8 flex justify-center items-center gap-2">
+              <div className="mt-10 flex justify-center items-center gap-3">
                 <button
                   onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
-                  className="glass-button px-4 py-2 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-md transition"
+                  className="px-5 py-2.5 bg-white border border-gray-200 rounded-xl font-medium text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 hover:border-gray-300 transition-all flex items-center gap-2"
                 >
-                  ← Previous
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                  Previous
                 </button>
-                <div className="flex gap-2">
+                <div className="flex gap-1">
                   {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
                     let page;
                     if (totalPages <= 5) {
@@ -2602,9 +2774,9 @@ function PvaraPhase2() {
                       <button
                         key={page}
                         onClick={() => setCurrentPage(page)}
-                        className={`px-4 py-2 rounded-lg font-medium transition ${currentPage === page
-                          ? 'bg-green-700 text-white shadow-lg'
-                          : 'glass-button hover:shadow-md'
+                        className={`w-10 h-10 rounded-xl font-medium transition-all ${currentPage === page
+                          ? 'bg-green-600 text-white shadow-lg'
+                          : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300'
                           }`}
                       >
                         {page}
@@ -2615,9 +2787,12 @@ function PvaraPhase2() {
                 <button
                   onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages}
-                  className="glass-button px-4 py-2 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-md transition"
+                  className="px-5 py-2.5 bg-white border border-gray-200 rounded-xl font-medium text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 hover:border-gray-300 transition-all flex items-center gap-2"
                 >
-                  Next →
+                  Next
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
                 </button>
               </div>
             )}
