@@ -1750,7 +1750,7 @@ function PvaraPhase2() {
         {/* Mobile Menu Button */}
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="lg:hidden fixed top-3 left-3 z-50 bg-white text-gray-800 p-2.5 rounded-lg shadow-md hover:shadow-lg transition-all border border-gray-200"
+          className="lg:hidden fixed top-4 left-4 z-50 bg-white text-gray-800 p-2 rounded-xl shadow-lg hover:shadow-xl transition-all border border-gray-100"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
             {mobileMenuOpen ? (
