@@ -1770,8 +1770,8 @@ function PvaraPhase2() {
         )}
 
         {/* Sidebar */}
-        <div className={`fixed lg:static w-72 glass-sidebar text-gray-800 min-h-screen p-6 flex flex-col z-40 transition-transform duration-300 shadow-2xl ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
-          <div className="flex items-center gap-3 mb-8">
+        <div className={`fixed lg:static w-72 glass-sidebar text-gray-800 h-screen lg:h-auto lg:min-h-screen flex flex-col z-40 transition-transform duration-300 shadow-2xl overflow-y-auto pt-14 px-4 pb-6 lg:pt-6 lg:px-6 lg:pb-6 ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+          <div className="flex items-center gap-3 mb-6">
             <img src={logo} alt="PVARA" className="h-10" />
             <div>
               <div className="font-display font-bold text-2xl text-green-700">PVARA</div>
@@ -3309,16 +3309,16 @@ function PvaraPhase2() {
         <Toasts toasts={state.toasts} />
 
         {/* Footer */}
-        <footer className="mt-16 glass-card rounded-xl p-8 shadow-lg">
+        <footer className="mt-8 md:mt-16 glass-card rounded-xl p-4 md:p-8 shadow-lg">
           <div className="max-w-6xl mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
               {/* Brand Section */}
-              <div className="col-span-1 md:col-span-2">
-                <div className="flex items-center gap-2 mb-4">
-                  <img src={logo} alt="Careers" className="h-8" />
-                  <span className="font-display text-2xl font-bold text-green-700">Careers</span>
+              <div className="col-span-2">
+                <div className="flex items-center gap-2 mb-3 md:mb-4">
+                  <img src={logo} alt="Careers" className="h-6 md:h-8" />
+                  <span className="font-display text-xl md:text-2xl font-bold text-green-700">Careers</span>
                 </div>
-                <p className="text-sm text-gray-600 mb-4">
+                <p className="text-xs md:text-sm text-gray-600 mb-3 md:mb-4 leading-relaxed">
                   Enterprise Recruitment Portal powered by AI. Streamline your hiring process with intelligent candidate screening and analytics.
                 </p>
                 <div className="flex gap-4">
@@ -3336,8 +3336,8 @@ function PvaraPhase2() {
 
               {/* Quick Links */}
               <div>
-                <h3 className="font-semibold text-gray-800 mb-4">Quick Links</h3>
-                <ul className="space-y-2 text-sm">
+                <h3 className="font-semibold text-gray-800 mb-2 md:mb-4 text-sm md:text-base">Quick Links</h3>
+                <ul className="space-y-1.5 md:space-y-2 text-xs md:text-sm">
                   <li><button type="button" onClick={() => setView("jobs")} className="text-gray-600 hover:text-green-700 transition">Browse Jobs</button></li>
                   <li><button type="button" onClick={() => setView("dashboard")} className="text-gray-600 hover:text-green-700 transition">About Us</button></li>
                   <li><button type="button" onClick={() => setView("jobs")} className="text-gray-600 hover:text-green-700 transition">Careers</button></li>
@@ -3347,8 +3347,8 @@ function PvaraPhase2() {
 
               {/* Support */}
               <div>
-                <h3 className="font-semibold text-gray-800 mb-4">Support</h3>
-                <ul className="space-y-2 text-sm">
+                <h3 className="font-semibold text-gray-800 mb-2 md:mb-4 text-sm md:text-base">Support</h3>
+                <ul className="space-y-1.5 md:space-y-2 text-xs md:text-sm">
                   <li><button type="button" onClick={() => setView("dashboard")} className="text-gray-600 hover:text-green-700 transition">Help Center</button></li>
                   <li><button type="button" onClick={() => addToast("Privacy Policy page coming soon", { type: "info" })} className="text-gray-600 hover:text-green-700 transition">Privacy Policy</button></li>
                   <li><button type="button" onClick={() => addToast("Terms of Service page coming soon", { type: "info" })} className="text-gray-600 hover:text-green-700 transition">Terms of Service</button></li>
@@ -3357,8 +3357,8 @@ function PvaraPhase2() {
               </div>
             </div>
 
-            <div className="border-t border-gray-300/50 mt-8 pt-6 text-center">
-              <p className="text-sm text-gray-600">
+            <div className="border-t border-gray-300/50 mt-4 md:mt-8 pt-4 md:pt-6 text-center">
+              <p className="text-xs md:text-sm text-gray-600">
                 © {new Date().getFullYear()} PVARA. All rights reserved. | Powered by AI Technology
               </p>
             </div>

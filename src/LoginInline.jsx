@@ -63,11 +63,12 @@ export default function LoginInline({ onLogin }) {
   const isValid = !errors.username && !errors.password && username && password;
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
+      <div className="text-xs uppercase font-semibold text-gray-500 mb-2">Staff Login</div>
       <div>
         <input
-          placeholder="username"
-          className={`border p-1 rounded w-full text-xs ${touched.username && errors.username ? 'border-red-500' :
+          placeholder="Username"
+          className={`border p-2 rounded w-full text-sm ${touched.username && errors.username ? 'border-red-500' :
             touched.username && !errors.username ? 'border-green-500' : ''
             }`}
           value={username}
@@ -81,9 +82,9 @@ export default function LoginInline({ onLogin }) {
 
       <div>
         <input
-          placeholder="password"
+          placeholder="Password"
           type="password"
-          className={`border p-1 rounded w-full text-xs ${touched.password && errors.password ? 'border-red-500' :
+          className={`border p-2 rounded w-full text-sm ${touched.password && errors.password ? 'border-red-500' :
             touched.password && !errors.password ? 'border-green-500' : ''
             }`}
           value={password}
@@ -95,16 +96,14 @@ export default function LoginInline({ onLogin }) {
         )}
       </div>
 
-      <div className="flex gap-2">
-        <button
-          onClick={handleSubmit}
-          disabled={!isValid}
-          className={`bg-white text-green-700 px-2 py-1 rounded text-xs ${!isValid ? 'opacity-50 cursor-not-allowed' : 'hover:bg-green-50'
-            }`}
-        >
-          Login
-        </button>
-      </div>
+      <button
+        onClick={handleSubmit}
+        disabled={!isValid}
+        className={`w-full bg-green-600 text-white px-4 py-2 rounded text-sm font-medium ${!isValid ? 'opacity-50 cursor-not-allowed' : 'hover:bg-green-700'
+          }`}
+      >
+        Login
+      </button>
     </div>
   );
 }
