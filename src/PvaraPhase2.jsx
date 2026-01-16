@@ -1750,7 +1750,7 @@ function PvaraPhase2() {
         {/* Mobile Menu Button */}
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="lg:hidden fixed top-4 left-4 z-50 glass-button text-gray-800 p-3 rounded-xl shadow-lg hover:shadow-xl transition-all"
+          className="lg:hidden fixed top-3 left-3 z-50 bg-white text-gray-800 p-2.5 rounded-lg shadow-md hover:shadow-lg transition-all border border-gray-200"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
             {mobileMenuOpen ? (
@@ -2536,7 +2536,7 @@ function PvaraPhase2() {
         <div className="relative mb-6 md:mb-12 rounded-xl md:rounded-2xl overflow-hidden mx-[-1rem] md:mx-0">
           <div className="absolute inset-0 bg-gradient-to-br from-green-600 via-green-700 to-emerald-800"></div>
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMzLjMxNCAwIDYgMi42ODYgNiA2cy0yLjY4NiA2LTYgNi02LTIuNjg2LTYtNiAyLjY4Ni02IDYtNiIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMSkiIHN0cm9rZS13aWR0aD0iMiIvPjwvZz48L3N2Zz4=')] opacity-40"></div>
-          <div className="relative px-4 py-8 md:px-8 md:py-16 lg:py-20 text-center text-white">
+          <div className="relative px-4 py-8 md:px-8 md:py-16 lg:py-20 text-center text-white pt-14 md:pt-16">
             <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-3 py-1.5 md:px-4 md:py-2 rounded-full mb-4 md:mb-6">
               <span className="w-2 h-2 bg-green-300 rounded-full animate-pulse"></span>
               <span className="text-xs md:text-sm font-medium">Now Hiring</span>

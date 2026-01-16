@@ -517,30 +517,30 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
   }
 
   return (
-    <div className="max-w-5xl mx-auto">
+    <div className="max-w-5xl mx-auto px-2 sm:px-4">
       {/* Progress Steps */}
-      <div className="mb-8 bg-white rounded-lg shadow-sm p-6">
+      <div className="mb-4 md:mb-8 bg-white rounded-lg shadow-sm p-3 md:p-6">
         <div className="flex items-center justify-between gap-2">
           {steps.map((step, index) => (
             <React.Fragment key={index}>
               <div className="flex flex-col items-center flex-1 min-w-0">
-                <div className={`flex items-center justify-center w-12 h-12 rounded-full mb-2 flex-shrink-0 ${index <= currentStep ? "bg-green-600 text-white" : "bg-gray-200 text-gray-500"
+                <div className={`flex items-center justify-center w-8 h-8 md:w-12 md:h-12 rounded-full mb-1 md:mb-2 flex-shrink-0 ${index <= currentStep ? "bg-green-600 text-white" : "bg-gray-200 text-gray-500"
                   }`}>
                   {index < currentStep ? (
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                   ) : step.icon}
                 </div>
-                <div className={`text-xs font-semibold text-center leading-tight mb-1 ${index <= currentStep ? "text-green-700" : "text-gray-500"}`}>
+                <div className={`text-[10px] md:text-xs font-semibold text-center leading-tight mb-0.5 md:mb-1 ${index <= currentStep ? "text-green-700" : "text-gray-500"}`}>
                   {step.name}
                 </div>
-                <div className={`text-xs font-medium ${index === currentStep ? "text-green-600" : index < currentStep ? "text-green-500" : "text-gray-400"}`}>
+                <div className={`hidden md:block text-xs font-medium ${index === currentStep ? "text-green-600" : index < currentStep ? "text-green-500" : "text-gray-400"}`}>
                   {index === currentStep ? "In Progress" : index < currentStep ? "Completed" : "Not Started"}
                 </div>
               </div>
               {index < steps.length - 1 && (
-                <div className={`h-0.5 flex-shrink-0 w-8 md:w-16 lg:w-24 mt-[-30px] ${index < currentStep ? "bg-green-600" : "bg-gray-300"}`} />
+                <div className={`h-0.5 flex-shrink-0 w-4 sm:w-8 md:w-16 lg:w-24 mt-[-20px] md:mt-[-30px] ${index < currentStep ? "bg-green-600" : "bg-gray-300"}`} />
               )}
             </React.Fragment>
           ))}
@@ -552,7 +552,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
         {currentStep === 0 && (
           <div className="space-y-6">
             {/* Job Selection */}
-            <div className="bg-white rounded-lg shadow-md p-8">
+            <div className="bg-white rounded-lg shadow-md p-4 md:p-8">
               <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
                 <svg className="w-7 h-7 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -606,7 +606,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
             </div>
 
             {/* CV Upload Section - PROMINENT */}
-            <div className="bg-white rounded-lg shadow-md p-8 border-2 border-green-200">
+            <div className="bg-white rounded-lg shadow-md p-4 md:p-8 border-2 border-green-200">
               <h2 className="text-2xl font-bold text-gray-800 mb-2 flex items-center gap-3">
                 <svg className="w-7 h-7 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -757,7 +757,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
             </div>
 
             {/* Cover Letter Upload (Optional) */}
-            <div className="bg-white rounded-lg shadow-md p-8">
+            <div className="bg-white rounded-lg shadow-md p-4 md:p-8">
               <h2 className="text-xl font-bold text-gray-800 mb-2 flex items-center gap-3">
                 <svg className="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
