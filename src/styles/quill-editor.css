@@ -1,0 +1,28 @@
+/* Rich Text Editor Styles */
+.ql-toolbar.ql-snow {
+  border: 1px solid rgba(0,0,0,0.2);
+  border-radius: 4px 4px 0 0;
+  background: #f8f9fa;
+}
+
+.ql-container.ql-snow {
+  border: 1px solid rgba(0,0,0,0.2);
+  border-radius: 0 0 4px 4px;
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 11pt;
+  background: white;
+  resize: vertical;
+  overflow: auto;
+}
+
+.ql-editor {
+  min-height: 180px;
+  max-height: 600px;
+  color: #000;
+  overflow-y: auto;
+}
+
+.ql-editor.ql-blank::before {
+  color: #999;
+  font-style: italic;
+}
