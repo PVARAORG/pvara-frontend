@@ -2533,32 +2533,32 @@ function PvaraPhase2() {
     return (
       <div className="max-w-7xl mx-auto">
         {/* Hero Section - Professional PVARA Branding */}
-        <div className="relative mb-12 rounded-2xl overflow-hidden">
+        <div className="relative mb-6 md:mb-12 rounded-xl md:rounded-2xl overflow-hidden mx-[-1rem] md:mx-0">
           <div className="absolute inset-0 bg-gradient-to-br from-green-600 via-green-700 to-emerald-800"></div>
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMzLjMxNCAwIDYgMi42ODYgNiA2cy0yLjY4NiA2LTYgNi02LTIuNjg2LTYtNiAyLjY4Ni02IDYtNiIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMSkiIHN0cm9rZS13aWR0aD0iMiIvPjwvZz48L3N2Zz4=')] opacity-40"></div>
-          <div className="relative px-8 py-16 md:py-20 text-center text-white">
-            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full mb-6">
+          <div className="relative px-4 py-8 md:px-8 md:py-16 lg:py-20 text-center text-white">
+            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-3 py-1.5 md:px-4 md:py-2 rounded-full mb-4 md:mb-6">
               <span className="w-2 h-2 bg-green-300 rounded-full animate-pulse"></span>
-              <span className="text-sm font-medium">Now Hiring</span>
+              <span className="text-xs md:text-sm font-medium">Now Hiring</span>
             </div>
-            <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
+            <h1 className="font-display text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold mb-3 md:mb-4 leading-tight">
               Build Your Future with PVARA
             </h1>
-            <p className="text-lg md:text-xl text-green-100 max-w-3xl mx-auto mb-8">
+            <p className="text-sm md:text-lg lg:text-xl text-green-100 max-w-3xl mx-auto mb-6 md:mb-8 px-2">
               Join Pakistan's Virtual Assets Regulatory Authority and be part of the team shaping the future of digital finance regulation
             </p>
 
-            {/* Enhanced Search Bar */}
-            <div className="max-w-2xl mx-auto">
-              <form onSubmit={handleJobSearchSubmit} className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-2 flex items-center">
-                <div className="flex items-center flex-1 px-4">
-                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            {/* Enhanced Search Bar - Mobile Optimized */}
+            <div className="max-w-2xl mx-auto px-2 md:px-0">
+              <form onSubmit={handleJobSearchSubmit} className="bg-white/95 backdrop-blur-sm rounded-xl md:rounded-2xl shadow-2xl p-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-0">
+                <div className="flex items-center flex-1 px-3 md:px-4">
+                  <svg className="w-5 h-5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
                   <input
                     type="text"
-                    placeholder="Search by job title, department, or location..."
-                    className="flex-1 px-4 py-3 bg-transparent border-none outline-none text-gray-800 placeholder-gray-400 text-lg"
+                    placeholder="Search jobs..."
+                    className="flex-1 px-3 md:px-4 py-2.5 md:py-3 bg-transparent border-none outline-none text-gray-800 placeholder-gray-400 text-base md:text-lg w-full min-w-0"
                     value={localSearch}
                     onChange={(e) => setLocalSearch(e.target.value)}
                     aria-label="Search jobs"
@@ -2566,9 +2566,9 @@ function PvaraPhase2() {
                 </div>
                 <button
                   type="submit"
-                  className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-xl font-semibold transition-all shadow-lg hover:shadow-xl"
+                  className="bg-green-600 hover:bg-green-700 text-white px-6 md:px-8 py-2.5 md:py-3 rounded-lg md:rounded-xl font-semibold transition-all shadow-lg hover:shadow-xl text-sm md:text-base w-full sm:w-auto"
                 >
-                  Search Jobs
+                  Search
                 </button>
               </form>
             </div>
@@ -2576,19 +2576,19 @@ function PvaraPhase2() {
         </div>
 
         {/* Stats Bar */}
-        <div className="grid grid-cols-2 gap-4 mb-10 max-w-md mx-auto">
-          <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 text-center">
-            <div className="text-3xl font-bold text-green-600 mb-1">{visibleJobs.length}</div>
-            <div className="text-sm text-gray-500 font-medium">Open Positions</div>
+        <div className="grid grid-cols-2 gap-3 md:gap-4 mb-6 md:mb-10 max-w-md mx-auto px-1">
+          <div className="bg-white rounded-lg md:rounded-xl p-3 md:p-5 shadow-sm border border-gray-100 text-center">
+            <div className="text-2xl md:text-3xl font-bold text-green-600 mb-0.5 md:mb-1">{visibleJobs.length}</div>
+            <div className="text-xs md:text-sm text-gray-500 font-medium">Open Positions</div>
           </div>
-          <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 text-center">
-            <div className="text-3xl font-bold text-blue-600 mb-1">{new Set(openJobs.map(j => j.department)).size}</div>
-            <div className="text-sm text-gray-500 font-medium">Departments</div>
+          <div className="bg-white rounded-lg md:rounded-xl p-3 md:p-5 shadow-sm border border-gray-100 text-center">
+            <div className="text-2xl md:text-3xl font-bold text-blue-600 mb-0.5 md:mb-1">{new Set(openJobs.map(j => j.department)).size}</div>
+            <div className="text-xs md:text-sm text-gray-500 font-medium">Departments</div>
           </div>
         </div>
 
-        {/* Why Join PVARA Section */}
-        <div className="mb-12">
+        {/* Why Join PVARA Section - Hidden on mobile for cleaner UX */}
+        <div className="hidden md:block mb-12">
           <div className="text-center mb-8">
             <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">Why Join PVARA?</h2>
             <p className="text-gray-500">Be part of Pakistan's digital transformation journey</p>
@@ -2625,18 +2625,18 @@ function PvaraPhase2() {
         </div>
 
         {/* Section Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-4 md:mb-6 px-1">
           <div>
-            <h2 className="text-2xl font-bold text-gray-800">Current Openings</h2>
-            <p className="text-gray-500">{visibleJobs.length} position{visibleJobs.length !== 1 ? 's' : ''} available</p>
+            <h2 className="text-lg md:text-2xl font-bold text-gray-800">Current Openings</h2>
+            <p className="text-xs md:text-base text-gray-500">{visibleJobs.length} position{visibleJobs.length !== 1 ? 's' : ''} available</p>
           </div>
           {normalizedSearch && (
             <button
               onClick={() => { setLocalSearch(''); handleJobSearchChange(''); }}
-              className="text-sm text-green-600 hover:text-green-700 font-medium flex items-center gap-1"
+              className="text-xs md:text-sm text-green-600 hover:text-green-700 font-medium flex items-center gap-1"
             >
-              Clear search
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              Clear
+              <svg className="w-3 h-3 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
@@ -2663,62 +2663,62 @@ function PvaraPhase2() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-6">
               {paginatedJobs.map(job => (
                 <div
                   key={job.id}
-                  className="bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-xl hover:border-green-200 transition-all duration-300 overflow-hidden cursor-pointer group"
+                  className="bg-white rounded-xl md:rounded-2xl shadow-sm border border-gray-100 hover:shadow-xl hover:border-green-200 transition-all duration-300 overflow-hidden cursor-pointer group"
                   onClick={() => setSelectedJobId(job.id)}
                 >
                   {/* Colored Top Bar */}
-                  <div className="h-1.5 bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500"></div>
+                  <div className="h-1 md:h-1.5 bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500"></div>
 
-                  <div className="p-6">
-                    <div className="flex items-start justify-between gap-4 mb-4">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="px-2.5 py-1 bg-green-100 text-green-700 rounded-md text-xs font-semibold uppercase tracking-wide">
+                  <div className="p-4 md:p-6">
+                    <div className="flex items-start justify-between gap-3 md:gap-4 mb-3 md:mb-4">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center gap-1.5 md:gap-2 mb-2">
+                          <span className="px-2 py-0.5 md:px-2.5 md:py-1 bg-green-100 text-green-700 rounded text-[10px] md:text-xs font-semibold uppercase tracking-wide">
                             {job.employmentType}
                           </span>
-                          <span className="px-2.5 py-1 bg-gray-100 text-gray-600 rounded-md text-xs font-medium">
+                          <span className="px-2 py-0.5 md:px-2.5 md:py-1 bg-gray-100 text-gray-600 rounded text-[10px] md:text-xs font-medium">
                             {job.openings} opening{job.openings > 1 ? 's' : ''}
                           </span>
                         </div>
-                        <h2 className="text-xl font-bold text-gray-800 group-hover:text-green-700 transition-colors mb-1">
+                        <h2 className="text-base md:text-xl font-bold text-gray-800 group-hover:text-green-700 transition-colors mb-0.5 md:mb-1 truncate">
                           {job.title}
                         </h2>
-                        <p className="text-sm text-gray-500 font-medium">{job.department}</p>
+                        <p className="text-xs md:text-sm text-gray-500 font-medium truncate">{job.department}</p>
                       </div>
-                      <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
-                        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg md:rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                        <svg className="w-5 h-5 md:w-6 md:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                         </svg>
                       </div>
                     </div>
 
-                    <p className="text-gray-600 text-sm line-clamp-2 mb-4">{job.description}</p>
+                    <p className="text-gray-600 text-xs md:text-sm line-clamp-2 mb-3 md:mb-4">{job.description}</p>
 
-                    <div className="flex flex-wrap items-center gap-3 mb-5 pb-5 border-b border-gray-100">
-                      <div className="flex items-center gap-1.5 text-sm text-gray-500">
-                        <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" /></svg>
-                        {job.locations.join(', ')}
+                    <div className="flex flex-wrap items-center gap-2 md:gap-3 mb-3 md:mb-5 pb-3 md:pb-5 border-b border-gray-100">
+                      <div className="flex items-center gap-1 md:gap-1.5 text-xs md:text-sm text-gray-500">
+                        <svg className="w-3.5 h-3.5 md:w-4 md:h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" /></svg>
+                        <span className="truncate max-w-[100px] md:max-w-none">{job.locations.join(', ')}</span>
                       </div>
-                      <div className="flex items-center gap-1.5 text-sm text-gray-500">
-                        <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z" /><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clipRule="evenodd" /></svg>
+                      <div className="flex items-center gap-1 md:gap-1.5 text-xs md:text-sm text-gray-500">
+                        <svg className="w-3.5 h-3.5 md:w-4 md:h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z" /><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clipRule="evenodd" /></svg>
                         ₨{job.salary.min.toLocaleString()} - ₨{job.salary.max.toLocaleString()}
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 md:gap-3">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           setSelectedJobId(job.id);
                         }}
-                        className="flex-1 px-4 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 font-medium transition-all shadow-sm hover:shadow-md text-sm flex items-center justify-center gap-2"
+                        className="flex-1 px-3 md:px-4 py-2 md:py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg md:rounded-xl hover:from-green-700 hover:to-emerald-700 font-medium transition-all shadow-sm hover:shadow-md text-xs md:text-sm flex items-center justify-center gap-1.5 md:gap-2"
                       >
-                        View Details
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        View
+                        <svg className="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                         </svg>
                       </button>
@@ -2728,10 +2728,10 @@ function PvaraPhase2() {
                           setSelectedJobForApply(job.id);
                           setView('apply');
                         }}
-                        className="flex-1 px-4 py-2.5 border-2 border-green-600 text-green-600 rounded-xl hover:bg-green-50 font-medium transition-all text-sm flex items-center justify-center gap-2"
+                        className="flex-1 px-3 md:px-4 py-2 md:py-2.5 border-2 border-green-600 text-green-600 rounded-lg md:rounded-xl hover:bg-green-50 font-medium transition-all text-xs md:text-sm flex items-center justify-center gap-1.5 md:gap-2"
                       >
-                        Quick Apply
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        Apply
+                        <svg className="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                         </svg>
                       </button>
@@ -2741,36 +2741,36 @@ function PvaraPhase2() {
               ))}
             </div>
 
-            {/* Enhanced Pagination Controls */}
+            {/* Enhanced Pagination Controls - Mobile Optimized */}
             {totalPages > 1 && (
-              <div className="mt-10 flex justify-center items-center gap-3">
+              <div className="mt-6 md:mt-10 flex justify-center items-center gap-2 md:gap-3">
                 <button
                   onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
-                  className="px-5 py-2.5 bg-white border border-gray-200 rounded-xl font-medium text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 hover:border-gray-300 transition-all flex items-center gap-2"
+                  className="px-3 md:px-5 py-2 md:py-2.5 bg-white border border-gray-200 rounded-lg md:rounded-xl font-medium text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 hover:border-gray-300 transition-all flex items-center gap-1 md:gap-2 text-sm md:text-base"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                   </svg>
-                  Previous
+                  <span className="hidden sm:inline">Previous</span>
                 </button>
                 <div className="flex gap-1">
-                  {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                  {Array.from({ length: Math.min(totalPages, 3) }, (_, i) => {
                     let page;
-                    if (totalPages <= 5) {
+                    if (totalPages <= 3) {
                       page = i + 1;
-                    } else if (currentPage <= 3) {
+                    } else if (currentPage <= 2) {
                       page = i + 1;
-                    } else if (currentPage >= totalPages - 2) {
-                      page = totalPages - 4 + i;
+                    } else if (currentPage >= totalPages - 1) {
+                      page = totalPages - 2 + i;
                     } else {
-                      page = currentPage - 2 + i;
+                      page = currentPage - 1 + i;
                     }
                     return (
                       <button
                         key={page}
                         onClick={() => setCurrentPage(page)}
-                        className={`w-10 h-10 rounded-xl font-medium transition-all ${currentPage === page
+                        className={`w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl font-medium transition-all text-sm md:text-base ${currentPage === page
                           ? 'bg-green-600 text-white shadow-lg'
                           : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300'
                           }`}
@@ -2783,9 +2783,9 @@ function PvaraPhase2() {
                 <button
                   onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages}
-                  className="px-5 py-2.5 bg-white border border-gray-200 rounded-xl font-medium text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 hover:border-gray-300 transition-all flex items-center gap-2"
+                  className="px-3 md:px-5 py-2 md:py-2.5 bg-white border border-gray-200 rounded-lg md:rounded-xl font-medium text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 hover:border-gray-300 transition-all flex items-center gap-1 md:gap-2 text-sm md:text-base"
                 >
-                  Next
+                  <span className="hidden sm:inline">Next</span>
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
