@@ -3358,7 +3358,7 @@ function PvaraPhase2() {
             </div>
 
             <div className="border-t border-gray-300/50 mt-4 md:mt-8 pt-4 md:pt-6 text-center">
-              <p className="text-xs md:text-sm text-gray-600">
+              <p className="text-[10px] md:text-sm text-gray-600 whitespace-nowrap">
                 © {new Date().getFullYear()} PVARA. All rights reserved. | Powered by AI Technology
               </p>
             </div>
