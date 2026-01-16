@@ -1143,7 +1143,8 @@ function PvaraPhase2() {
         min: parseFloat(newJob.salary?.min) || 0,
         max: parseFloat(newJob.salary?.max) || 0,
       },
-      status: newJob.status || 'open'
+      status: newJob.status || 'open',
+      screeningCriteria: newJob.screeningCriteria || null
     };
 
     try {
@@ -1203,7 +1204,8 @@ function PvaraPhase2() {
         min: parseFloat(jobData.salary?.min) || 0,
         max: parseFloat(jobData.salary?.max) || 0,
       },
-      status: jobData.status || 'open'
+      status: jobData.status || 'open',
+      screeningCriteria: jobData.screeningCriteria || null
     };
 
     try {
@@ -1225,6 +1227,48 @@ function PvaraPhase2() {
     setEditingJobId(null);
     setJobForm(emptyJobForm);
   }, [addToast, audit]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Update only the screening criteria for a job (for AI configuration)
+  const updateScreeningCriteria = useCallback(async (jobId, screeningCriteria) => {
+    if (!jobId) return;
+
+    try {
+      // Find the existing job to preserve other fields
+      const existingJob = state.jobs.find(j => j.id === jobId);
+      if (!existingJob) {
+        addToast("Job not found", { type: "error" });
+        return;
+      }
+
+      // Update job with new screening criteria
+      const jobPayload = {
+        title: existingJob.title,
+        department: existingJob.department || 'General',
+        grade: existingJob.grade || 'N/A',
+        description: existingJob.description || '',
+        locations: existingJob.locations || ['Remote'],
+        openings: existingJob.openings || 1,
+        employmentType: existingJob.employmentType || 'Full-time',
+        salary: existingJob.salary || { min: 0, max: 0 },
+        status: existingJob.status || 'open',
+        screeningCriteria: screeningCriteria
+      };
+
+      const response = await apiClient.put(`/jobs/${jobId}`, jobPayload);
+      if (response.data?.success) {
+        const backendJob = response.data.job;
+        setState((s) => ({ ...s, jobs: s.jobs.map((j) => (j.id === jobId ? backendJob : j)) }));
+        console.log('✅ AI Screening criteria updated for job:', jobId);
+        audit("update-screening-criteria", { jobId, screeningCriteria });
+        addToast("AI Screening criteria saved successfully", { type: "success" });
+      } else {
+        throw new Error(response.data?.message || 'Update failed');
+      }
+    } catch (err) {
+      console.error('Failed to update screening criteria:', err.response?.data || err.message);
+      addToast(err.response?.data?.detail?.message || "Failed to save AI screening criteria.", { type: "error" });
+    }
+  }, [state.jobs, addToast, audit]);
 
   const deleteJob = useCallback(async (jobId) => {
     try {
@@ -2825,7 +2869,7 @@ function PvaraPhase2() {
               jobs={state.jobs}
             />
           )}
-          {view === "admin" && <JobList jobs={state.jobs} onCreate={createJob} onEdit={updateJob} onDelete={deleteJob} />}
+          {view === "admin" && <JobList jobs={state.jobs} onCreate={createJob} onEdit={updateJob} onDelete={deleteJob} onUpdateScreeningCriteria={updateScreeningCriteria} />}
           {view === "hr" && (
             <HRReviewPanel
               jobs={state.jobs}

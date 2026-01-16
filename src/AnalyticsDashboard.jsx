@@ -73,14 +73,14 @@ export function AnalyticsDashboard({ state, onGenerateTestData }) {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 border-b">
+      <div className="flex gap-1 border-b border-gray-200 overflow-x-auto pb-px">
         {["overview", "funnel", "jobs", "recommendations"].map((tab) => (
           <button
             key={tab}
             onClick={() => setSelectedTab(tab)}
-            className={`px-4 py-2 font-semibold border-b-2 ${selectedTab === tab
-              ? "border-green-700 text-green-700"
-              : "border-transparent text-gray-600 hover:text-green-700"
+            className={`px-4 py-2.5 font-medium text-sm border-b-2 whitespace-nowrap transition-colors ${selectedTab === tab
+              ? "border-green-600 text-green-700 bg-green-50/50"
+              : "border-transparent text-gray-500 hover:text-green-600 hover:bg-gray-50"
               }`}
           >
             {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -118,8 +118,8 @@ export function AnalyticsDashboard({ state, onGenerateTestData }) {
           </div>
 
           {/* Conversion Rates */}
-          <div className="bg-white p-4 rounded shadow">
-            <h4 className="font-semibold mb-3">Conversion Rates</h4>
+          <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+            <h4 className="font-semibold mb-4 text-gray-800">Conversion Rates</h4>
             <div className="space-y-2">
               <ProgressBar
                 label="App → Interview"
@@ -137,8 +137,8 @@ export function AnalyticsDashboard({ state, onGenerateTestData }) {
           </div>
 
           {/* Time to Hire */}
-          <div className="bg-white p-4 rounded shadow">
-            <h4 className="font-semibold mb-3">Time to Hire</h4>
+          <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+            <h4 className="font-semibold mb-4 text-gray-800">Time to Hire</h4>
             <div className="grid grid-cols-3 gap-4 text-center">
               <div>
                 <div className="text-2xl font-bold text-green-700">
@@ -166,15 +166,17 @@ export function AnalyticsDashboard({ state, onGenerateTestData }) {
       {/* Funnel Tab */}
       {selectedTab === "funnel" && (
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Hiring Funnel</h3>
+          <h3 className="text-lg font-semibold text-gray-800">Hiring Funnel</h3>
           {analytics.hiringFunnel.applications > 0 ? (
             <FunnelChart funnel={analytics.hiringFunnel} />
           ) : (
-            <div className="bg-white p-8 rounded shadow text-center">
-              <svg className="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-              </svg>
-              <h4 className="text-lg font-semibold text-gray-700 mb-2">No Application Data</h4>
+            <div className="bg-white p-10 rounded-xl shadow-sm border border-gray-100 text-center">
+              <div className="w-16 h-16 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+              </div>
+              <h4 className="text-lg font-bold text-gray-800 mb-2">No Application Data</h4>
               <p className="text-gray-500 text-sm">The hiring funnel will appear here once candidates start applying to your open positions.</p>
             </div>
           )}
@@ -184,23 +186,23 @@ export function AnalyticsDashboard({ state, onGenerateTestData }) {
       {/* Jobs Tab */}
       {selectedTab === "jobs" && (
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Job Performance</h3>
-          <div className="space-y-2">
+          <h3 className="text-lg font-semibold text-gray-800">Job Performance</h3>
+          <div className="space-y-3">
             {analytics.jobPerformance.map((job) => (
-              <div key={job.jobId} className="bg-white p-3 rounded border">
-                <div className="font-semibold">{job.title}</div>
-                <div className="grid grid-cols-3 gap-4 mt-2 text-sm">
-                  <div>
-                    <span className="text-gray-600">Applications:</span>{" "}
-                    <span className="font-bold">{job.totalApplications}</span>
+              <div key={job.jobId} className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                <div className="font-semibold text-gray-800">{job.title}</div>
+                <div className="grid grid-cols-3 gap-4 mt-3 text-sm">
+                  <div className="text-center p-2 bg-gray-50 rounded-lg">
+                    <div className="font-bold text-gray-800">{job.totalApplications}</div>
+                    <div className="text-xs text-gray-500">Applications</div>
                   </div>
-                  <div>
-                    <span className="text-gray-600">Offers:</span>{" "}
-                    <span className="font-bold text-green-700">{job.offers}</span>
+                  <div className="text-center p-2 bg-green-50 rounded-lg">
+                    <div className="font-bold text-green-600">{job.offers}</div>
+                    <div className="text-xs text-gray-500">Offers</div>
                   </div>
-                  <div>
-                    <span className="text-gray-600">Avg Score:</span>{" "}
-                    <span className="font-bold text-blue-700">{job.averageScore}/100</span>
+                  <div className="text-center p-2 bg-blue-50 rounded-lg">
+                    <div className="font-bold text-blue-600">{job.averageScore}/100</div>
+                    <div className="text-xs text-gray-500">Avg Score</div>
                   </div>
                 </div>
               </div>
@@ -212,23 +214,31 @@ export function AnalyticsDashboard({ state, onGenerateTestData }) {
       {/* Recommendations Tab */}
       {selectedTab === "recommendations" && (
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Insights & Recommendations</h3>
+          <h3 className="text-lg font-semibold text-gray-800">Insights & Recommendations</h3>
           {report.recommendations.length > 0 ? (
-            <div className="space-y-2">
+            <div className="space-y-3">
               {report.recommendations.map((rec, i) => (
-                <div key={i} className="bg-blue-50 p-3 rounded border border-blue-200 text-sm">
-                  {rec}
+                <div key={i} className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-xl border border-blue-200 text-sm flex items-start gap-3">
+                  <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" /></svg>
+                  </div>
+                  <span className="text-gray-700">{rec}</span>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="text-gray-500">No recommendations at this time.</div>
+            <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100 text-center">
+              <div className="w-12 h-12 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-3">
+                <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>
+              </div>
+              <p className="text-gray-500">No recommendations at this time.</p>
+            </div>
           )}
 
           {/* Export Report */}
           <button
             onClick={() => exportReport(report)}
-            className="px-4 py-2 bg-green-700 text-white rounded hover:bg-green-800 flex items-center gap-2"
+            className="px-5 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 font-medium shadow-sm hover:shadow-md transition-all flex items-center gap-2"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -243,10 +253,10 @@ export function AnalyticsDashboard({ state, onGenerateTestData }) {
 
 function MetricCard({ label, value, icon }) {
   return (
-    <div className="bg-white p-4 rounded shadow text-center">
-      <div className="flex justify-center text-green-700 mb-2">{icon}</div>
-      <div className="text-2xl font-bold text-green-700">{value}</div>
-      <div className="text-xs text-gray-600 mt-1">{label}</div>
+    <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100 text-center hover:shadow-md transition-shadow">
+      <div className="flex justify-center text-green-600 mb-2">{icon}</div>
+      <div className="text-2xl font-bold text-gray-800">{value}</div>
+      <div className="text-xs text-gray-500 mt-1 font-medium">{label}</div>
     </div>
   );
 }
@@ -255,13 +265,13 @@ function ProgressBar({ label, value }) {
   const cappedValue = Math.min(Math.max(value, 0), 100);
   return (
     <div>
-      <div className="flex justify-between text-sm mb-1">
-        <span>{label}</span>
-        <span className="font-semibold">{value}%</span>
+      <div className="flex justify-between text-sm mb-1.5">
+        <span className="text-gray-600">{label}</span>
+        <span className="font-semibold text-gray-800">{value}%</span>
       </div>
-      <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+      <div className="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
         <div
-          className="bg-green-700 h-2 rounded-full transition-all"
+          className="bg-gradient-to-r from-green-500 to-emerald-500 h-2.5 rounded-full transition-all"
           style={{ width: `${cappedValue}%` }}
         ></div>
       </div>

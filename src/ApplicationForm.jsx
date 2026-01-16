@@ -216,13 +216,28 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
     if (currentData.country) updates.country = currentData.country;
     if (currentData.linkedinUrl) updates.portfolioLink = currentData.linkedinUrl;
 
-    // Skills
-    if (currentData.skills && currentData.skills.length > 0) {
-      updates.skills = currentData.skills;
+    // Skills - combine all skills
+    const allSkills = [
+      ...(currentData.skills || []),
+      ...(currentData.technicalSkills || []),
+      ...(currentData.softSkills || [])
+    ];
+    if (allSkills.length > 0) {
+      // Remove duplicates
+      updates.skills = [...new Set(allSkills)];
     }
 
-    // Education
-    if (currentData.highestDegree || currentData.fieldOfStudy || currentData.university) {
+    // Education - use full education array if available
+    if (currentData.education && currentData.education.length > 0) {
+      updates.education = currentData.education.map(edu => ({
+        school: edu.institution || edu.university || "",
+        fieldOfStudy: edu.fieldOfStudy || "",
+        degree: edu.degree || "",
+        graduated: edu.endDate ? "yes" : "no",
+        stillAttending: !edu.endDate || edu.endDate.toLowerCase().includes("present")
+      }));
+    } else if (currentData.highestDegree || currentData.fieldOfStudy || currentData.university) {
+      // Fallback to single education entry
       updates.education = [{
         school: currentData.university || "",
         fieldOfStudy: currentData.fieldOfStudy || "",
@@ -232,8 +247,41 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
       }];
     }
 
-    // Employment
-    if (currentData.currentJobTitle) {
+    // Employment - use full workExperience array if available
+    if (currentData.workExperience && currentData.workExperience.length > 0) {
+      updates.employment = currentData.workExperience.map(exp => {
+        // Parse dates - handle formats like "Jan 2020", "2020", "January 2020"
+        let startMonth = "", startYear = "", endMonth = "", endYear = "";
+
+        if (exp.startDate) {
+          const startParts = exp.startDate.match(/([A-Za-z]+)?\s*(\d{4})/);
+          if (startParts) {
+            startMonth = startParts[1] || "";
+            startYear = startParts[2] || "";
+          }
+        }
+
+        if (exp.endDate && !exp.isCurrent && exp.endDate.toLowerCase() !== "present") {
+          const endParts = exp.endDate.match(/([A-Za-z]+)?\s*(\d{4})/);
+          if (endParts) {
+            endMonth = endParts[1] || "";
+            endYear = endParts[2] || "";
+          }
+        }
+
+        return {
+          employer: exp.company || "",
+          jobTitle: exp.jobTitle || "",
+          currentEmployer: exp.isCurrent || (exp.endDate && exp.endDate.toLowerCase() === "present"),
+          startMonth: startMonth,
+          startYear: startYear,
+          endMonth: endMonth,
+          endYear: endYear,
+          description: exp.description || (exp.achievements ? exp.achievements.join(". ") : "")
+        };
+      });
+    } else if (currentData.currentJobTitle) {
+      // Fallback to single employment entry
       updates.employment = [{
         employer: "",
         jobTitle: currentData.currentJobTitle,
