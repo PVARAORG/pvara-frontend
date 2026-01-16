@@ -555,7 +555,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
 
   // Helper function to get input className with validation states
   function getInputClassName(field) {
-    const baseClasses = "w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-green-200 transition";
+    const baseClasses = "w-full px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 rounded-lg focus:ring-2 focus:ring-green-200 transition";
     if (touched[field] && errors[field]) {
       return `${baseClasses} border-red-500 focus:border-red-500`;
     } else if (touched[field] && !errors[field] && form[field]) {
@@ -883,9 +883,9 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
         {currentStep === 1 && (
           <div className="space-y-6">
             {/* Contact Information */}
-            <div className="bg-white rounded-lg shadow-md p-8">
-              <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
-                <svg className="w-7 h-7 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-white rounded-lg shadow-md p-4 md:p-8">
+              <h2 className="text-lg md:text-2xl font-bold text-gray-800 mb-4 md:mb-6 flex items-center gap-2 md:gap-3">
+                <svg className="w-5 h-5 md:w-7 md:h-7 text-green-700 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
                 Contact Information
@@ -919,7 +919,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Preferred Name</label>
-                  <input value={form.preferredName} onChange={e => handleChange('preferredName', e.target.value)} className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition" />
+                  <input value={form.preferredName} onChange={e => handleChange('preferredName', e.target.value)} className="w-full px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition" />
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Email Address *</label>
@@ -950,7 +950,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Alternate Phone</label>
-                  <input value={form.alternatePhone} onChange={e => handleChange('alternatePhone', e.target.value)} className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition" />
+                  <input value={form.alternatePhone} onChange={e => handleChange('alternatePhone', e.target.value)} className="w-full px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition" />
                 </div>
                 <div className="md:col-span-2">
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -986,15 +986,15 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
                 <div className="grid grid-cols-1 gap-4">
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">Country/Region *</label>
-                    <input value={form.country} onChange={e => handleChange('country', e.target.value)} className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition" required />
+                    <input value={form.country} onChange={e => handleChange('country', e.target.value)} className="w-full px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition" required />
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">Street Address 1</label>
-                    <input value={form.streetAddress1} onChange={e => handleChange('streetAddress1', e.target.value)} className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition" />
+                    <input value={form.streetAddress1} onChange={e => handleChange('streetAddress1', e.target.value)} className="w-full px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition" />
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">Street Address 2</label>
-                    <input value={form.streetAddress2} onChange={e => handleChange('streetAddress2', e.target.value)} className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition" />
+                    <input value={form.streetAddress2} onChange={e => handleChange('streetAddress2', e.target.value)} className="w-full px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition" />
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
@@ -1042,9 +1042,9 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
             </div>
 
             {/* Education Summary */}
-            <div className="bg-white rounded-lg shadow-md p-8">
-              <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
-                <svg className="w-7 h-7 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-white rounded-lg shadow-md p-4 md:p-8">
+              <h2 className="text-lg md:text-2xl font-bold text-gray-800 mb-4 md:mb-6 flex items-center gap-2 md:gap-3">
+                <svg className="w-5 h-5 md:w-7 md:h-7 text-green-700 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" />
@@ -1061,18 +1061,18 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
                       </button>
                     )}
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">School/Institution *</label>
-                      <input value={edu.school} onChange={e => handleArrayChange('education', index, 'school', e.target.value)} className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition" required />
+                      <input value={edu.school} onChange={e => handleArrayChange('education', index, 'school', e.target.value)} className="w-full px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition" required />
                     </div>
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">Field of Study *</label>
-                      <input value={edu.fieldOfStudy} onChange={e => handleArrayChange('education', index, 'fieldOfStudy', e.target.value)} className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition" required />
+                      <input value={edu.fieldOfStudy} onChange={e => handleArrayChange('education', index, 'fieldOfStudy', e.target.value)} className="w-full px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition" required />
                     </div>
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">Degree *</label>
-                      <select value={edu.degree} onChange={e => handleArrayChange('education', index, 'degree', e.target.value)} className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition" required>
+                      <select value={edu.degree} onChange={e => handleArrayChange('education', index, 'degree', e.target.value)} className="w-full px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition" required>
                         <option value="">Select Degree</option>
                         <option value="High School">High School</option>
                         <option value="Associate's">Associate's Degree</option>
@@ -1096,9 +1096,9 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
             </div>
 
             {/* Employment Summary */}
-            <div className="bg-white rounded-lg shadow-md p-8">
-              <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
-                <svg className="w-7 h-7 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-white rounded-lg shadow-md p-4 md:p-8">
+              <h2 className="text-lg md:text-2xl font-bold text-gray-800 mb-4 md:mb-6 flex items-center gap-2 md:gap-3">
+                <svg className="w-5 h-5 md:w-7 md:h-7 text-green-700 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
                 Employment Summary
@@ -1113,14 +1113,14 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
                       </button>
                     )}
                   </div>
-                  <div className="grid grid-cols-1 gap-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 gap-3 md:gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">Employer *</label>
                         <input
                           value={emp.employer}
                           onChange={e => handleArrayChange('employment', index, 'employer', e.target.value)}
-                          className={`w-full px-4 py-3 border-2 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition ${errors.employer && index === 0 ? 'border-red-500' : 'border-gray-300'}`}
+                          className={`w-full px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition ${errors.employer && index === 0 ? 'border-red-500' : 'border-gray-300'}`}
                           required
                         />
                         {errors.employer && index === 0 && (
@@ -1132,7 +1132,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
                         <input
                           value={emp.jobTitle}
                           onChange={e => handleArrayChange('employment', index, 'jobTitle', e.target.value)}
-                          className={`w-full px-4 py-3 border-2 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition ${errors.jobTitle && index === 0 ? 'border-red-500' : 'border-gray-300'}`}
+                          className={`w-full px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition ${errors.jobTitle && index === 0 ? 'border-red-500' : 'border-gray-300'}`}
                           required
                         />
                         {errors.jobTitle && index === 0 && (
@@ -1144,37 +1144,37 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
                       <input type="checkbox" checked={emp.currentEmployer} onChange={e => handleArrayChange('employment', index, 'currentEmployer', e.target.checked)} className="w-5 h-5 text-green-600 rounded focus:ring-green-500" />
                       <span className="text-sm font-medium text-gray-700">Current Employer</span>
                     </label>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">Start Month</label>
-                        <select value={emp.startMonth} onChange={e => handleArrayChange('employment', index, 'startMonth', e.target.value)} className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition">
+                        <select value={emp.startMonth} onChange={e => handleArrayChange('employment', index, 'startMonth', e.target.value)} className="w-full px-2 py-2 md:px-4 md:py-3 text-xs md:text-base border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition">
                           <option value="">Month</option>
                           {["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"].map(m => <option key={m} value={m}>{m}</option>)}
                         </select>
                       </div>
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">Start Year</label>
-                        <input type="number" value={emp.startYear} onChange={e => handleArrayChange('employment', index, 'startYear', e.target.value)} placeholder="YYYY" className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition" />
+                        <input type="number" value={emp.startYear} onChange={e => handleArrayChange('employment', index, 'startYear', e.target.value)} placeholder="YYYY" className="w-full px-2 py-2 md:px-4 md:py-3 text-xs md:text-base border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition" />
                       </div>
                       {!emp.currentEmployer && (
                         <>
                           <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-2">End Month</label>
-                            <select value={emp.endMonth} onChange={e => handleArrayChange('employment', index, 'endMonth', e.target.value)} className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition">
+                            <select value={emp.endMonth} onChange={e => handleArrayChange('employment', index, 'endMonth', e.target.value)} className="w-full px-2 py-2 md:px-4 md:py-3 text-xs md:text-base border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition">
                               <option value="">Month</option>
                               {["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"].map(m => <option key={m} value={m}>{m}</option>)}
                             </select>
                           </div>
                           <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-2">End Year</label>
-                            <input type="number" value={emp.endYear} onChange={e => handleArrayChange('employment', index, 'endYear', e.target.value)} placeholder="YYYY" className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition" />
+                            <input type="number" value={emp.endYear} onChange={e => handleArrayChange('employment', index, 'endYear', e.target.value)} placeholder="YYYY" className="w-full px-2 py-2 md:px-4 md:py-3 text-xs md:text-base border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition" />
                           </div>
                         </>
                       )}
                     </div>
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">Job Description</label>
-                      <textarea value={emp.description} onChange={e => handleArrayChange('employment', index, 'description', e.target.value)} rows="3" className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition" />
+                      <textarea value={emp.description} onChange={e => handleArrayChange('employment', index, 'description', e.target.value)} rows="3" className="w-full px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition" />
                     </div>
                   </div>
                 </div>
@@ -1185,9 +1185,9 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
             </div>
 
             {/* Skills */}
-            <div className="bg-white rounded-lg shadow-md p-8">
-              <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
-                <svg className="w-7 h-7 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-white rounded-lg shadow-md p-4 md:p-8">
+              <h2 className="text-lg md:text-2xl font-bold text-gray-800 mb-4 md:mb-6 flex items-center gap-2 md:gap-3">
+                <svg className="w-5 h-5 md:w-7 md:h-7 text-green-700 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                 </svg>
                 Skills
@@ -1203,9 +1203,9 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
                   }}
                   onKeyPress={e => e.key === 'Enter' && (e.preventDefault(), addSkill())}
                   placeholder="Add a skill..."
-                  className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition"
+                  className="flex-1 px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition"
                 />
-                <button type="button" onClick={addSkill} className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition">
+                <button type="button" onClick={addSkill} className="px-4 py-2 md:px-6 md:py-3 text-sm md:text-base bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition">
                   Add
                 </button>
               </div>
@@ -1225,19 +1225,19 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
             </div>
 
             {/* Languages */}
-            <div className="bg-white rounded-lg shadow-md p-8">
-              <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
-                <svg className="w-7 h-7 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-white rounded-lg shadow-md p-4 md:p-8">
+              <h2 className="text-lg md:text-2xl font-bold text-gray-800 mb-4 md:mb-6 flex items-center gap-2 md:gap-3">
+                <svg className="w-5 h-5 md:w-7 md:h-7 text-green-700 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
                 </svg>
                 Languages Spoken
               </h2>
               {form.languages.map((lang, index) => (
-                <div key={index} className="mb-4 p-4 bg-gray-50 rounded-lg border-2 border-gray-200 flex items-center gap-4">
-                  <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div key={index} className="mb-3 md:mb-4 p-3 md:p-4 bg-gray-50 rounded-lg border-2 border-gray-200 flex flex-col sm:flex-row sm:items-center gap-3 md:gap-4">
+                  <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">Language</label>
-                      <select value={lang.language} onChange={e => handleArrayChange('languages', index, 'language', e.target.value)} className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition">
+                      <select value={lang.language} onChange={e => handleArrayChange('languages', index, 'language', e.target.value)} className="w-full px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition">
                         <option value="">Select Language</option>
                         {LANGUAGE_OPTIONS.map(langOpt => (
                           <option key={langOpt} value={langOpt}>{langOpt}</option>
@@ -1246,7 +1246,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
                     </div>
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">Proficiency</label>
-                      <select value={lang.proficiency} onChange={e => handleArrayChange('languages', index, 'proficiency', e.target.value)} className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition">
+                      <select value={lang.proficiency} onChange={e => handleArrayChange('languages', index, 'proficiency', e.target.value)} className="w-full px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition">
                         <option value="Basic">Basic</option>
                         <option value="Conversational">Conversational</option>
                         <option value="Fluent">Fluent</option>
@@ -1270,9 +1270,9 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
 
         {/* Step 2: Self-Disclosure */}
         {currentStep === 2 && (
-          <div className="bg-white rounded-lg shadow-md p-8">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
-              <svg className="w-7 h-7 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="bg-white rounded-lg shadow-md p-4 md:p-8">
+            <h2 className="text-lg md:text-2xl font-bold text-gray-800 mb-4 md:mb-6 flex items-center gap-2 md:gap-3">
+              <svg className="w-5 h-5 md:w-7 md:h-7 text-green-700 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
               Self-Disclosure (Optional)
@@ -1318,38 +1318,38 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
 
         {/* Step 3: Review & Submit */}
         {currentStep === 3 && (
-          <div className="bg-white rounded-lg shadow-md p-8">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
-              <svg className="w-7 h-7 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="bg-white rounded-lg shadow-md p-4 md:p-8">
+            <h2 className="text-lg md:text-2xl font-bold text-gray-800 mb-4 md:mb-6 flex items-center gap-2 md:gap-3">
+              <svg className="w-5 h-5 md:w-7 md:h-7 text-green-700 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               Review Your Application
             </h2>
-            <div className="space-y-6">
-              <div className="p-6 bg-green-50 border-2 border-green-200 rounded-lg">
-                <h3 className="font-bold text-lg text-green-900 mb-4">Position</h3>
-                <p className="text-green-700">{jobs.find(j => j.id === form.jobId)?.title}</p>
+            <div className="space-y-4 md:space-y-6">
+              <div className="p-4 md:p-6 bg-green-50 border-2 border-green-200 rounded-lg">
+                <h3 className="font-bold text-base md:text-lg text-green-900 mb-2 md:mb-4">Position</h3>
+                <p className="text-green-700 text-sm md:text-base">{jobs.find(j => j.id === form.jobId)?.title}</p>
               </div>
-              <div className="p-6 bg-blue-50 border-2 border-blue-200 rounded-lg">
-                <h3 className="font-bold text-lg text-blue-900 mb-4">Contact</h3>
-                <p className="text-blue-700">{form.firstName} {form.lastName}</p>
-                <p className="text-blue-600 text-sm">{form.email} • {form.phone}</p>
+              <div className="p-4 md:p-6 bg-blue-50 border-2 border-blue-200 rounded-lg">
+                <h3 className="font-bold text-base md:text-lg text-blue-900 mb-2 md:mb-4">Contact</h3>
+                <p className="text-blue-700 text-sm md:text-base">{form.firstName} {form.lastName}</p>
+                <p className="text-blue-600 text-xs md:text-sm">{form.email} • {form.phone}</p>
               </div>
-              <div className="p-6 bg-purple-50 border-2 border-purple-200 rounded-lg">
-                <h3 className="font-bold text-lg text-purple-900 mb-4">Education</h3>
+              <div className="p-4 md:p-6 bg-purple-50 border-2 border-purple-200 rounded-lg">
+                <h3 className="font-bold text-base md:text-lg text-purple-900 mb-2 md:mb-4">Education</h3>
                 {form.education.map((edu, i) => (
-                  <p key={i} className="text-purple-700 text-sm mb-1">• {edu.degree} in {edu.fieldOfStudy} from {edu.school}</p>
+                  <p key={i} className="text-purple-700 text-xs md:text-sm mb-1">• {edu.degree} in {edu.fieldOfStudy} from {edu.school}</p>
                 ))}
               </div>
-              <div className="p-6 bg-orange-50 border-2 border-orange-200 rounded-lg">
-                <h3 className="font-bold text-lg text-orange-900 mb-4">Experience</h3>
+              <div className="p-4 md:p-6 bg-orange-50 border-2 border-orange-200 rounded-lg">
+                <h3 className="font-bold text-base md:text-lg text-orange-900 mb-2 md:mb-4">Experience</h3>
                 {form.employment.map((emp, i) => (
-                  <p key={i} className="text-orange-700 text-sm mb-1">• {emp.jobTitle} at {emp.employer}</p>
+                  <p key={i} className="text-orange-700 text-xs md:text-sm mb-1">• {emp.jobTitle} at {emp.employer}</p>
                 ))}
               </div>
               {form.skills.length > 0 && (
-                <div className="p-6 bg-pink-50 border-2 border-pink-200 rounded-lg">
-                  <h3 className="font-bold text-lg text-pink-900 mb-4">Skills</h3>
+                <div className="p-4 md:p-6 bg-pink-50 border-2 border-pink-200 rounded-lg">
+                  <h3 className="font-bold text-base md:text-lg text-pink-900 mb-2 md:mb-4">Skills</h3>
                   <div className="flex flex-wrap gap-2">
                     {form.skills.map((skill, i) => (
                       <span key={i} className="px-3 py-1 bg-pink-200 text-pink-800 rounded-full text-xs">{skill}</span>
@@ -1362,23 +1362,23 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
         )}
 
         {/* Navigation Buttons */}
-        <div className="flex justify-between items-center pt-6">
+        <div className="flex justify-between items-center pt-4 md:pt-6 gap-2">
           <button
             type="button"
             onClick={prevStep}
             disabled={currentStep === 0}
-            className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-3 py-2 md:px-6 md:py-3 text-sm md:text-base border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
             ← Previous
           </button>
-          <div className="text-sm text-gray-500">
+          <div className="text-xs md:text-sm text-gray-500 flex-shrink-0">
             Step {currentStep + 1} of {steps.length}
           </div>
           {currentStep < steps.length - 1 ? (
             <button
               type="button"
               onClick={nextStep}
-              className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition"
+              className="px-3 py-2 md:px-6 md:py-3 text-sm md:text-base bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition"
             >
               Next →
             </button>
@@ -1386,12 +1386,12 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
             <button
               type="button"
               onClick={handleSubmitClick}
-              className="px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-bold text-lg transition shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+              className="px-4 py-2 md:px-8 md:py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-bold text-sm md:text-lg transition shadow-lg hover:shadow-xl flex items-center justify-center gap-1 md:gap-2"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              Submit Application
+              Submit
             </button>
           )}
         </div>
