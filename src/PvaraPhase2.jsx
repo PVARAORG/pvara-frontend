@@ -2354,15 +2354,16 @@ function PvaraPhase2() {
     const [currentPage, setCurrentPage] = React.useState(1);
     const [localSearch, setLocalSearch] = React.useState(jobSearch);
     const jobsPerPage = 6;
+    const searchInputRef = React.useRef(null);
 
     const openJobs = React.useMemo(() =>
       (state.jobs || []).filter((j) => j.status === "open"),
       [state.jobs]
     );
 
-    const normalizedSearch = jobSearch.trim().toLowerCase();
-
+    // Use localSearch for filtering to prevent cursor jumping
     const visibleJobs = React.useMemo(() => {
+      const normalizedSearch = localSearch.trim().toLowerCase();
       if (!normalizedSearch) return openJobs;
       return openJobs.filter((j) => {
         const haystack = [
@@ -2375,12 +2376,10 @@ function PvaraPhase2() {
           .toLowerCase();
         return haystack.includes(normalizedSearch);
       });
-    }, [openJobs, normalizedSearch]);
+    }, [openJobs, localSearch]);
 
-    // Sync local search with parent state
-    React.useEffect(() => {
-      setLocalSearch(jobSearch);
-    }, [jobSearch]);
+    // Keep normalizedSearch available for display purposes
+    const normalizedSearch = localSearch.trim().toLowerCase();
 
     // Reset to page 1 when search changes
     React.useEffect(() => {
@@ -2561,10 +2560,7 @@ function PvaraPhase2() {
                     placeholder="Search by job title, department, or location..."
                     className="flex-1 px-4 py-3 bg-transparent border-none outline-none text-gray-800 placeholder-gray-400 text-lg"
                     value={localSearch}
-                    onChange={(e) => {
-                      setLocalSearch(e.target.value);
-                      handleJobSearchChange(e.target.value);
-                    }}
+                    onChange={(e) => setLocalSearch(e.target.value)}
                     aria-label="Search jobs"
                   />
                 </div>
