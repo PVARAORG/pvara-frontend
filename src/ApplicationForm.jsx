@@ -1362,7 +1362,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
         )}
 
         {/* Navigation Buttons */}
-        <div className="flex justify-between items-center pt-4 md:pt-6 gap-2">
+        <div className="flex justify-between items-center pt-4 md:pt-6">
           <button
             type="button"
             onClick={prevStep}
@@ -1371,16 +1371,17 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
           >
             ← Previous
           </button>
-          <div className="text-xs md:text-sm text-gray-500 flex-shrink-0">
+          <div className="hidden md:block text-sm text-gray-500">
             Step {currentStep + 1} of {steps.length}
           </div>
           {currentStep < steps.length - 1 ? (
             <button
               type="button"
               onClick={nextStep}
-              className="px-3 py-2 md:px-6 md:py-3 text-sm md:text-base bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition"
+              disabled={isExtracting}
+              className={`px-3 py-2 md:px-6 md:py-3 text-sm md:text-base bg-green-600 text-white rounded-lg font-medium transition ${isExtracting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-green-700'}`}
             >
-              Next →
+              {isExtracting ? 'Analyzing...' : 'Next →'}
             </button>
           ) : (
             <button
