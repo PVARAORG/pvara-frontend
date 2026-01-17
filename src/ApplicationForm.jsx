@@ -894,6 +894,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
                     onChange={e => handleChange('phone', e.target.value)}
                     onBlur={() => handleBlur('phone')}
                     className={getInputClassName('phone')}
+                    placeholder="+92"
                     required
                   />
                   {touched.phone && errors.phone && (
