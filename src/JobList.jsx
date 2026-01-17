@@ -1,4 +1,5 @@
 import React from "react";
+import AIScreeningConfig from "./AIScreeningConfig";
 
 // Discipline options matching backend
 const DISCIPLINE_OPTIONS = [
@@ -18,10 +19,14 @@ const STATUS_OPTIONS = [
   { value: "closed", label: "Closed", color: "bg-gray-100 text-gray-600" }
 ];
 
-const JobList = ({ jobs, onCreate, onEdit, onDelete }) => {
+const JobList = ({ jobs, onCreate, onEdit, onDelete, onUpdateScreeningCriteria }) => {
   // Modal state
   const [showModal, setShowModal] = React.useState(false);
   const [editingJobId, setEditingJobId] = React.useState(null);
+
+  // AI Screening Config modal state
+  const [showAIConfigModal, setShowAIConfigModal] = React.useState(false);
+  const [selectedJobForAI, setSelectedJobForAI] = React.useState(null);
 
   // Job form state
   const [localForm, setLocalForm] = React.useState({
@@ -75,6 +80,17 @@ const JobList = ({ jobs, onCreate, onEdit, onDelete }) => {
 
   function handleAgeBracketChange(field, value) {
     setLocalForm((prev) => ({ ...prev, ageBracket: { ...prev.ageBracket, [field]: value } }));
+  }
+
+  function openAIConfigModal(job) {
+    setSelectedJobForAI(job);
+    setShowAIConfigModal(true);
+  }
+
+  async function handleSaveScreeningCriteria(jobId, criteria) {
+    if (onUpdateScreeningCriteria) {
+      await onUpdateScreeningCriteria(jobId, criteria);
+    }
   }
 
   function resetForm() {
@@ -322,6 +338,14 @@ const JobList = ({ jobs, onCreate, onEdit, onDelete }) => {
                             {job.discipline}
                           </span>
                         )}
+                        {job.screeningCriteria && (job.screeningCriteria.requiredSkills?.length > 0 || job.screeningCriteria.requiredDegree !== "none") && (
+                          <span className="px-2.5 py-1 text-xs font-medium rounded-full bg-green-100 text-green-700 flex items-center gap-1">
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                            AI Configured
+                          </span>
+                        )}
                       </div>
                       {job.description && (
                         <p className="text-sm text-gray-600 line-clamp-2 mb-3">{job.description}</p>
@@ -369,6 +393,19 @@ const JobList = ({ jobs, onCreate, onEdit, onDelete }) => {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                     </svg>
                     Edit
+                  </button>
+                  <button
+                    onClick={() => {
+                      setSelectedJobForAI(job);
+                      setShowAIConfigModal(true);
+                    }}
+                    className="flex items-center gap-1.5 px-4 py-2 border border-purple-200 rounded-lg text-sm font-medium text-purple-600 hover:bg-purple-50 transition"
+                    title="Configure AI Screening"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    AI Config
                   </button>
                   <button
                     onClick={() => onDelete(job.id)}
@@ -640,6 +677,25 @@ const JobList = ({ jobs, onCreate, onEdit, onDelete }) => {
             </button>
           </div>
         </div>
+      )}
+
+      {/* AI Screening Configuration Modal */}
+      {showAIConfigModal && selectedJobForAI && (
+        <AIScreeningConfig
+          job={selectedJobForAI}
+          onClose={() => {
+            setShowAIConfigModal(false);
+            setSelectedJobForAI(null);
+          }}
+          onSave={(jobId, updatedCriteria) => {
+            // Update the job with new screening criteria
+            if (onUpdateScreeningCriteria) {
+              onUpdateScreeningCriteria(jobId, updatedCriteria);
+            }
+            setShowAIConfigModal(false);
+            setSelectedJobForAI(null);
+          }}
+        />
       )}
     </div>
   );
