@@ -683,6 +683,7 @@ const JobList = ({ jobs, onCreate, onEdit, onDelete, onUpdateScreeningCriteria }
       {showAIConfigModal && selectedJobForAI && (
         <AIScreeningConfig
           job={selectedJobForAI}
+          isOpen={showAIConfigModal}
           onClose={() => {
             setShowAIConfigModal(false);
             setSelectedJobForAI(null);
