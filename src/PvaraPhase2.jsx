@@ -806,8 +806,8 @@ function HRReviewPanel({ jobs, applications, onStatusChange, onAIEvaluate, onBul
 
   return (
     <div className="flex gap-6 h-[calc(100vh-8rem)] mt-4">
-      {/* Left Panel - Job List */}
-      <div className="w-80 flex-shrink-0 bg-white rounded-lg shadow-lg p-4 overflow-y-auto">
+      {/* Left Panel - Job List (hidden on smaller screens to avoid sidebar conflict) */}
+      <div className="hidden xl:block w-80 xl:flex-shrink-0 bg-white rounded-lg shadow-lg p-4 overflow-y-auto">
         <h2 className="text-xl font-bold mb-4 text-gray-800">Open Positions</h2>
         <div className="space-y-2">
           {jobs.map(job => {
@@ -828,6 +828,25 @@ function HRReviewPanel({ jobs, applications, onStatusChange, onAIEvaluate, onBul
 
       {/* Right Panel - Applications for Selected Job */}
       <div className="flex-1 bg-white rounded-lg shadow-lg p-6 overflow-y-auto">
+        {/* Mobile/Tablet Job Selector (shows when left panel is hidden) */}
+        <div className="xl:hidden mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-1">Select Position</label>
+          <select
+            value={currentJobId || ''}
+            onChange={(e) => onSelectJob(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-green-500"
+          >
+            {jobs.map(job => {
+              const stats = jobStats.find(s => s.jobId === job.id);
+              return (
+                <option key={job.id} value={job.id}>
+                  {job.title} ({stats?.total || 0} applicants)
+                </option>
+              );
+            })}
+          </select>
+        </div>
+
         {selectedJob ? (
           <>
             {/* Job Header */}
