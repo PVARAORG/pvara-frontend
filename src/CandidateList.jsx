@@ -189,7 +189,7 @@ const CandidateList = ({ candidates, onStatusChange, onAIEvaluate, onBulkAction,
                 placeholder="Search by name, email, CNIC, degree, phone..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
               />
               <svg className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -250,7 +250,7 @@ const CandidateList = ({ candidates, onStatusChange, onAIEvaluate, onBulkAction,
           <button
             onClick={() => setStatusFilter('all')}
             className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition ${statusFilter === 'all'
-              ? 'bg-orange-700 text-white'
+              ? 'bg-green-700 text-white'
               : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
           >
@@ -295,7 +295,7 @@ const CandidateList = ({ candidates, onStatusChange, onAIEvaluate, onBulkAction,
           <button
             onClick={() => setStatusFilter('offer')}
             className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition flex items-center gap-2 ${statusFilter === 'offer'
-              ? 'bg-orange-600 text-white'
+              ? 'bg-green-600 text-white'
               : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
           >
@@ -336,8 +336,8 @@ const CandidateList = ({ candidates, onStatusChange, onAIEvaluate, onBulkAction,
                   (Top {sortedAndFilteredCandidates.topCount} of {sortedAndFilteredCandidates.totalCount} - sorted by AI score)
                 </span>
               )}
-              {searchQuery && <span className="ml-2 text-orange-600 font-medium">(filtered by search)</span>}
-              {selectedIds.length > 0 && <span className="ml-2 text-orange-600 font-medium">• {selectedIds.length} selected</span>}
+              {searchQuery && <span className="ml-2 text-green-600 font-medium">(filtered by search)</span>}
+              {selectedIds.length > 0 && <span className="ml-2 text-green-600 font-medium">• {selectedIds.length} selected</span>}
             </div>
             {sortedAndFilteredCandidates.remainingCandidates.length > 0 && (
               <button
@@ -367,8 +367,8 @@ const CandidateList = ({ candidates, onStatusChange, onAIEvaluate, onBulkAction,
 
       {/* Bulk Action Toolbar */}
       {selectedIds.length > 0 && (
-        <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-4 flex items-center justify-between">
-          <div className="font-semibold text-orange-900">
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4 flex items-center justify-between">
+          <div className="font-semibold text-green-900">
             {selectedIds.length} candidate{selectedIds.length > 1 ? 's' : ''} selected
           </div>
           <div className="flex gap-2">
@@ -426,7 +426,7 @@ const CandidateList = ({ candidates, onStatusChange, onAIEvaluate, onBulkAction,
                 setSearchQuery('');
                 setStatusFilter('all');
               }}
-              className="mt-3 text-orange-600 hover:underline"
+              className="mt-3 text-green-600 hover:underline"
             >
               Clear filters
             </button>
@@ -453,7 +453,7 @@ const CandidateList = ({ candidates, onStatusChange, onAIEvaluate, onBulkAction,
             {paginatedCandidates.map((c) => (
               <li
                 key={c.id}
-                className={`bg-white p-4 rounded shadow flex gap-3 cursor-pointer hover:bg-gray-50 transition ${selectedIds.includes(c.id) ? 'ring-2 ring-orange-500' : ''}`}
+                className={`bg-white p-4 rounded shadow flex gap-3 cursor-pointer hover:bg-gray-50 transition ${selectedIds.includes(c.id) ? 'ring-2 ring-green-500' : ''}`}
                 onClick={() => onSelectCandidate && onSelectCandidate(c)}
               >
                 {/* Checkbox */}
@@ -473,7 +473,7 @@ const CandidateList = ({ candidates, onStatusChange, onAIEvaluate, onBulkAction,
                       <div className="flex items-center gap-2">
                         <span className="font-semibold">{c.applicant?.name || c.name}</span>
                         {/* Status badge beside name */}
-                        <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${c.status === 'offer' ? 'bg-orange-100 text-orange-700' :
+                        <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${c.status === 'offer' ? 'bg-green-100 text-green-700' :
                           c.status === 'interview' || c.status === 'phone-interview' ? 'bg-blue-100 text-blue-700' :
                             c.status === 'screening' ? 'bg-yellow-100 text-yellow-700' :
                               c.status === 'rejected' ? 'bg-red-100 text-red-700' :
@@ -500,7 +500,7 @@ const CandidateList = ({ candidates, onStatusChange, onAIEvaluate, onBulkAction,
                     </div>
                     {c.aiScore && (
                       <div className="text-center ml-4">
-                        <div className={`text-2xl font-bold ${c.aiScore >= 75 ? 'text-orange-600' : c.aiScore >= 60 ? 'text-yellow-600' : 'text-red-600'
+                        <div className={`text-2xl font-bold ${c.aiScore >= 75 ? 'text-green-600' : c.aiScore >= 60 ? 'text-yellow-600' : 'text-red-600'
                           }`}>
                           {c.aiScore}
                         </div>
@@ -553,7 +553,7 @@ const CandidateList = ({ candidates, onStatusChange, onAIEvaluate, onBulkAction,
                         'phone-interview': { label: 'Phone Interview', color: 'bg-blue-600 hover:bg-blue-700' },
                         'interview': { label: 'Interview', color: 'bg-blue-600 hover:bg-blue-700' },
                         'offer': { label: 'Offer', color: 'bg-emerald-600 hover:bg-emerald-700' },
-                        'hired': { label: 'Hire', color: 'bg-orange-600 hover:bg-orange-700' },
+                        'hired': { label: 'Hire', color: 'bg-green-600 hover:bg-green-700' },
                         'rejected': { label: 'Reject', color: 'bg-red-600 hover:bg-red-700' },
                       };
 
@@ -598,7 +598,7 @@ const CandidateList = ({ candidates, onStatusChange, onAIEvaluate, onBulkAction,
                     key={page}
                     onClick={() => setCurrentPage(page)}
                     className={`px-3 py-2 rounded ${currentPage === page
-                      ? 'bg-orange-700 text-white'
+                      ? 'bg-green-700 text-white'
                       : 'border hover:bg-gray-50'
                       }`}
                   >
@@ -633,7 +633,7 @@ const CandidateList = ({ candidates, onStatusChange, onAIEvaluate, onBulkAction,
             <div className="flex gap-2 mt-4">
               <button
                 onClick={() => handleAddNote(showNotesModal)}
-                className="flex-1 bg-orange-600 text-white py-2 rounded hover:bg-orange-700"
+                className="flex-1 bg-green-600 text-white py-2 rounded hover:bg-green-700"
               >
                 Save Note
               </button>
@@ -677,7 +677,7 @@ const CandidateList = ({ candidates, onStatusChange, onAIEvaluate, onBulkAction,
                     <div className="font-bold text-lg mb-2">{candidate.applicant?.name || candidate.name}</div>
 
                     {candidate.aiScore && (
-                      <div className={`text-4xl font-bold mb-4 ${candidate.aiScore >= 75 ? 'text-orange-600' :
+                      <div className={`text-4xl font-bold mb-4 ${candidate.aiScore >= 75 ? 'text-green-600' :
                         candidate.aiScore >= 60 ? 'text-yellow-600' : 'text-red-600'
                         }`}>
                         {candidate.aiScore}
@@ -700,7 +700,7 @@ const CandidateList = ({ candidates, onStatusChange, onAIEvaluate, onBulkAction,
                       </div>
                       <div>
                         <div className="text-gray-500 text-xs">Status</div>
-                        <span className={`inline-block px-2 py-1 rounded text-xs ${candidate.status === 'offer' ? 'bg-orange-100 text-orange-700' :
+                        <span className={`inline-block px-2 py-1 rounded text-xs ${candidate.status === 'offer' ? 'bg-green-100 text-green-700' :
                           candidate.status === 'interview' ? 'bg-blue-100 text-blue-700' :
                             candidate.status === 'screening' ? 'bg-yellow-100 text-yellow-700' :
                               candidate.status === 'rejected' ? 'bg-red-100 text-red-700' :

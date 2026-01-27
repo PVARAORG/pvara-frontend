@@ -4,7 +4,7 @@ import React from "react";
 // Example: fetch('/api/audit')
 
 const AuditLog = ({ auditRecords = [] }) => {
-  // Real audit log UI migrated from PvaraPhase2.jsx (Argaam)
+  // Real audit log UI migrated from PvaraPhase2.jsx
   const rows = auditRecords.slice(0, 200);
   function exportAudit() {
     const csvRows = [["id", "action", "details", "ts", "user"]];
@@ -14,7 +14,7 @@ const AuditLog = ({ auditRecords = [] }) => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `audit-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.download = `audit-${new Date().toISOString().slice(0,10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
     // Optionally show a toast here

@@ -36,7 +36,7 @@ function TestManagement({
 
   async function fetchAvailableTests() {
     try {
-      const apiUrl = process.env.REACT_APP_API_URL || 'https://argaam-be.fortanixor.com';
+      const apiUrl = process.env.REACT_APP_API_URL || 'https://portal-be.paicc.tech';
       const response = await axios.get(`${apiUrl}/api/testing/assessments`);
       if (response.data.assessments) {
         setAvailableTests(response.data.assessments);
@@ -56,7 +56,7 @@ function TestManagement({
   const handleRefreshStatuses = async () => {
     setRefreshing(true);
     try {
-      const apiUrl = process.env.REACT_APP_API_URL || 'https://argaam-be.fortanixor.com';
+      const apiUrl = process.env.REACT_APP_API_URL || 'https://portal-be.paicc.tech';
       const pendingCandidates = applications.filter(app =>
         app.testing?.status === 'invited' || app.testing?.status === 'pending' || app.testing?.status === 'in-progress'
       );
@@ -230,7 +230,7 @@ function TestManagement({
 
         // Send test via API
         try {
-          const apiUrl = process.env.REACT_APP_API_URL || 'https://argaam-be.fortanixor.com';
+          const apiUrl = process.env.REACT_APP_API_URL || 'https://portal-be.paicc.tech';
           const cnic = candidate.applicant?.cnic;
           const name = candidate.applicant?.name || candidate.name;
 
@@ -311,7 +311,7 @@ function TestManagement({
 
   const handleSimulateCompletion = async (candidateId) => {
     try {
-      const apiUrl = process.env.REACT_APP_API_URL || 'https://argaam-be.fortanixor.com';
+      const apiUrl = process.env.REACT_APP_API_URL || 'https://portal-be.paicc.tech';
       const response = await axios.post(`${apiUrl}/api/testing/simulate-completion/${candidateId}`);
 
       if (response.data.success) {
@@ -345,7 +345,7 @@ function TestManagement({
   // Handle reject after test
   const handleRejectCandidate = async (candidateId) => {
     try {
-      const apiUrl = process.env.REACT_APP_API_URL || 'https://argaam-be.fortanixor.com';
+      const apiUrl = process.env.REACT_APP_API_URL || 'https://portal-be.paicc.tech';
       await axios.put(`${apiUrl}/api/applications/${candidateId}/status`, { status: 'rejected' });
       onUpdateApplication(candidateId, { status: 'rejected' });
       addToast('❌ Candidate rejected', { type: 'info' });
@@ -477,7 +477,7 @@ function TestManagement({
             </div>
 
             <div className="flex flex-col items-center flex-shrink-0 opacity-30">
-              <div className="w-8 h-8 rounded-full bg-orange-400 text-white flex items-center justify-center font-bold text-xs">5</div>
+              <div className="w-8 h-8 rounded-full bg-green-400 text-white flex items-center justify-center font-bold text-xs">5</div>
               <div className="text-xs font-medium text-gray-600 mt-1">Offer</div>
             </div>
           </div>
@@ -555,7 +555,7 @@ function TestManagement({
             <button
               onClick={() => setFilterStatus('all')}
               className={`px-4 py-2 rounded-lg font-medium transition ${filterStatus === 'all'
-                ? 'bg-orange-600 text-white'
+                ? 'bg-green-600 text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
             >
@@ -743,7 +743,7 @@ function TestManagement({
                           )}
                           {candidate.testing?.status === 'completed' && (
                             <>
-                              <span className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm font-medium flex items-center gap-1">
+                              <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium flex items-center gap-1">
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
@@ -751,7 +751,7 @@ function TestManagement({
                               </span>
                               {/* Show score and recommendation if available */}
                               {candidate.testing?.results && (
-                                <span className={`px-2 py-0.5 rounded text-xs font-bold ${candidate.testing.results.score >= 70 ? 'bg-orange-200 text-orange-800' :
+                                <span className={`px-2 py-0.5 rounded text-xs font-bold ${candidate.testing.results.score >= 70 ? 'bg-green-200 text-green-800' :
                                   candidate.testing.results.score >= 50 ? 'bg-yellow-200 text-yellow-800' :
                                     'bg-red-200 text-red-800'
                                   }`}>
@@ -784,7 +784,7 @@ function TestManagement({
                                   className={`px-2 py-1 rounded text-xs ${test.category === 'technical' ? 'bg-blue-100 text-blue-700' :
                                     test.category === 'cognitive' ? 'bg-purple-100 text-purple-700' :
                                       test.category === 'personality' ? 'bg-pink-100 text-pink-700' :
-                                        test.category === 'soft-skills' ? 'bg-orange-100 text-orange-700' :
+                                        test.category === 'soft-skills' ? 'bg-green-100 text-green-700' :
                                           'bg-orange-100 text-orange-700'
                                     }`}
                                 >
@@ -872,7 +872,7 @@ function TestManagement({
                               {/* Recommendation */}
                               {candidate.testing.results.recommendation && (
                                 <div className="mt-2 pt-2 border-t border-purple-200">
-                                  <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${candidate.testing.results.recommendation === 'STRONG_YES' ? 'bg-orange-100 text-orange-700' :
+                                  <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${candidate.testing.results.recommendation === 'STRONG_YES' ? 'bg-green-100 text-green-700' :
                                     candidate.testing.results.recommendation === 'YES' ? 'bg-blue-100 text-blue-700' :
                                       candidate.testing.results.recommendation === 'MAYBE' ? 'bg-yellow-100 text-yellow-700' :
                                         'bg-red-100 text-red-700'
@@ -935,7 +935,7 @@ function TestManagement({
                             {candidate.testing.results?.score >= 50 ? (
                               <button
                                 onClick={() => handleMoveToInterview(candidate._id || candidate.id)}
-                                className="px-3 py-1.5 bg-orange-600 text-white rounded text-sm hover:bg-orange-700 transition flex items-center gap-1"
+                                className="px-3 py-1.5 bg-green-600 text-white rounded text-sm hover:bg-green-700 transition flex items-center gap-1"
                               >
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -1072,7 +1072,7 @@ function TestManagement({
                   {/* Recommendation */}
                   <div className="pt-4 border-t border-gray-200">
                     <div className="text-sm text-gray-600 mb-2">Recommendation</div>
-                    <span className={`inline-block px-4 py-2 rounded-lg text-sm font-bold ${viewingResults.testing.results.recommendation === 'STRONG_YES' ? 'bg-orange-100 text-orange-700' :
+                    <span className={`inline-block px-4 py-2 rounded-lg text-sm font-bold ${viewingResults.testing.results.recommendation === 'STRONG_YES' ? 'bg-green-100 text-green-700' :
                       viewingResults.testing.results.recommendation === 'YES' ? 'bg-blue-100 text-blue-700' :
                         viewingResults.testing.results.recommendation === 'MAYBE' ? 'bg-yellow-100 text-yellow-700' :
                           'bg-red-100 text-red-700'
@@ -1094,7 +1094,7 @@ function TestManagement({
                 {viewingResults.testing?.results?.score >= 50 ? (
                   <button
                     onClick={() => handleMoveToInterview(viewingResults._id || viewingResults.id)}
-                    className="flex-1 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition font-medium flex items-center justify-center gap-2"
+                    className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium flex items-center justify-center gap-2"
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

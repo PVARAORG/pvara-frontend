@@ -4,8 +4,8 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        - REACT_APP_API_URL=https://argaam-be.fortanixor.com
+        - REACT_APP_API_URL=https://portal-be.paicc.tech
     ports:
       - "6076:80"
     restart: unless-stopped
-    container_name: argaam-frontend
+    container_name: pvara-frontend

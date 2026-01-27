@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 
 // Deployment logging
-console.info('🚀 Argaam AI Eval - Starting Application');
+console.info('🚀 PVARA AI Eval - Starting Application');
 console.info('Environment:', process.env.NODE_ENV);
 console.info('API URL:', process.env.REACT_APP_API_URL);
 console.info('Build timestamp:', new Date().toISOString());
@@ -13,13 +13,13 @@ try {
     document.getElementById('root') as HTMLElement
   );
   console.info('✅ Root element found, rendering app...');
-
+  
   root.render(
     <React.StrictMode>
       <App />
     </React.StrictMode>
   );
-
+  
   console.info('✅ App rendered successfully');
 } catch (error) {
   console.error('❌ Failed to render app:', error);

@@ -1,5 +1,5 @@
 // ========================================
-// ADVANCED FEATURES MODULE FOR Argaam
+// ADVANCED FEATURES MODULE FOR PVARA
 // ========================================
 // Includes: Email, Scheduling, Messaging, Filtering, Kanban, Feedback, Offers, Integrations, Reports, Settings
 
@@ -7,30 +7,30 @@
 export const EmailTemplates = {
   APPLICATION_RECEIVED: (candidateName, jobTitle) => ({
     subject: `Application Received - ${jobTitle}`,
-    body: `Dear ${candidateName},\n\nThank you for applying to ${jobTitle} at Argaam.\n\nWe have received your application and will review it shortly. You will be notified of the next steps.\n\nBest regards,\nArgaam Recruitment Team`,
+    body: `Dear ${candidateName},\n\nThank you for applying to ${jobTitle} at PVARA.\n\nWe have received your application and will review it shortly. You will be notified of the next steps.\n\nBest regards,\nPVARA Recruitment Team`,
   }),
   APPLICATION_SHORTLISTED: (candidateName, jobTitle) => ({
     subject: `Congratulations! You've been shortlisted for ${jobTitle}`,
-    body: `Dear ${candidateName},\n\nGreat news! You have been shortlisted for the ${jobTitle} position.\n\nOur team will contact you soon to schedule an interview.\n\nBest regards,\nArgaam Recruitment Team`,
+    body: `Dear ${candidateName},\n\nGreat news! You have been shortlisted for the ${jobTitle} position.\n\nOur team will contact you soon to schedule an interview.\n\nBest regards,\nPVARA Recruitment Team`,
   }),
   INTERVIEW_SCHEDULED: (candidateName, jobTitle, date, time, interviewType) => ({
     subject: `Interview Scheduled - ${jobTitle}`,
-    body: `Dear ${candidateName},\n\nYour ${interviewType} interview for ${jobTitle} is scheduled on ${date} at ${time}.\n\nPlease confirm your availability.\n\nBest regards,\nArgaam Recruitment Team`,
+    body: `Dear ${candidateName},\n\nYour ${interviewType} interview for ${jobTitle} is scheduled on ${date} at ${time}.\n\nPlease confirm your availability.\n\nBest regards,\nPVARA Recruitment Team`,
   }),
   OFFER_EXTENDED: (candidateName, jobTitle, salary) => ({
     subject: `Job Offer - ${jobTitle}`,
-    body: `Dear ${candidateName},\n\nWe are excited to offer you the position of ${jobTitle} with a salary of ${salary}.\n\nPlease review the attached offer letter and let us know your decision.\n\nBest regards,\nArgaam Recruitment Team`,
+    body: `Dear ${candidateName},\n\nWe are excited to offer you the position of ${jobTitle} with a salary of ${salary}.\n\nPlease review the attached offer letter and let us know your decision.\n\nBest regards,\nPVARA Recruitment Team`,
   }),
   REJECTION: (candidateName, jobTitle) => ({
     subject: `Application Status - ${jobTitle}`,
-    body: `Dear ${candidateName},\n\nThank you for your interest in the ${jobTitle} position. After careful consideration, we have decided to move forward with other candidates.\n\nBest of luck in your future endeavors!\n\nBest regards,\nArgaam Recruitment Team`,
+    body: `Dear ${candidateName},\n\nThank you for your interest in the ${jobTitle} position. After careful consideration, we have decided to move forward with other candidates.\n\nBest of luck in your future endeavors!\n\nBest regards,\nPVARA Recruitment Team`,
   }),
 
 };
 
 export function sendEmail(to, template) {
   // Simulated email sending - in production, use SendGrid, AWS SES, etc.
-  const emailLog = JSON.parse(localStorage.getItem("Argaam_EMAILS") || "[]");
+  const emailLog = JSON.parse(localStorage.getItem("PVARA_EMAILS") || "[]");
   const email = {
     id: `email-${Date.now()}`,
     to,
@@ -40,7 +40,7 @@ export function sendEmail(to, template) {
     status: "sent",
   };
   emailLog.push(email);
-  localStorage.setItem("Argaam_EMAILS", JSON.stringify(emailLog));
+  localStorage.setItem("PVARA_EMAILS", JSON.stringify(emailLog));
   console.log(`📧 Email sent to ${to}: ${template.subject}`);
   return email;
 
@@ -94,7 +94,7 @@ export function addMessage(fromId, toId, content, messageType = "feedback") {
 }
 
 export function getConversation(candidateId, hrId) {
-  const messages = JSON.parse(localStorage.getItem("Argaam_MESSAGES") || "[]");
+  const messages = JSON.parse(localStorage.getItem("PVARA_MESSAGES") || "[]");
   return messages.filter((m) => (m.fromId === candidateId && m.toId === hrId) || (m.fromId === hrId && m.toId === candidateId));
 }
 
@@ -113,9 +113,9 @@ export function applyAdvancedFilter(applications, filters) {
 }
 
 export function saveSavedFilter(name, filterCriteria) {
-  const savedFilters = JSON.parse(localStorage.getItem("Argaam_SAVED_FILTERS") || "{}");
+  const savedFilters = JSON.parse(localStorage.getItem("PVARA_SAVED_FILTERS") || "{}");
   savedFilters[name] = filterCriteria;
-  localStorage.setItem("Argaam_SAVED_FILTERS", JSON.stringify(savedFilters));
+  localStorage.setItem("PVARA_SAVED_FILTERS", JSON.stringify(savedFilters));
   return savedFilters;
 }
 
@@ -174,7 +174,7 @@ OFFER LETTER
 
 Dear ${candidate.name},
 
-We are pleased to offer you the position of ${job.title} at Argaam.
+We are pleased to offer you the position of ${job.title} at PVARA.
 
 Position: ${job.title}
 Department: ${job.department}
@@ -186,7 +186,7 @@ This offer is contingent upon successful background verification and reference c
 Please confirm your acceptance or rejection by replying to this email.
 
 Best regards,
-Argaam Management
+PVARA Management
     `,
     salary,
     startDate,
@@ -312,8 +312,8 @@ export function recruiterPerformance(applications, hireIds) {
 
 // 10. SETTINGS & CUSTOMIZATION
 export function getCompanySettings() {
-  return JSON.parse(localStorage.getItem("Argaam_COMPANY_SETTINGS") || "{}") || {
-    companyName: "Argaam",
+  return JSON.parse(localStorage.getItem("PVARA_COMPANY_SETTINGS") || "{}") || {
+    companyName: "PVARA",
     logo: null,
     primaryColor: "#1f7e4f",
     emailTemplate: "default",
@@ -322,7 +322,7 @@ export function getCompanySettings() {
 }
 
 export function updateCompanySettings(settings) {
-  localStorage.setItem("Argaam_COMPANY_SETTINGS", JSON.stringify(settings));
+  localStorage.setItem("PVARA_COMPANY_SETTINGS", JSON.stringify(settings));
   return settings;
 }
 
@@ -333,7 +333,7 @@ export function addCustomField(fieldName, fieldType, isRequired = false) {
 }
 
 export function manageUsers(action, userData) {
-  const users = JSON.parse(localStorage.getItem("Argaam_TEAM_USERS") || "[]");
+  const users = JSON.parse(localStorage.getItem("PVARA_TEAM_USERS") || "[]");
   if (action === "add") {
     users.push({ ...userData, id: `user-${Date.now()}`, createdAt: new Date().toISOString() });
   } else if (action === "remove") {
@@ -341,6 +341,6 @@ export function manageUsers(action, userData) {
   } else if (action === "update") {
     return users.map((u) => (u.id === userData.id ? userData : u));
   }
-  localStorage.setItem("Argaam_TEAM_USERS", JSON.stringify(users));
+  localStorage.setItem("PVARA_TEAM_USERS", JSON.stringify(users));
   return users;
 }

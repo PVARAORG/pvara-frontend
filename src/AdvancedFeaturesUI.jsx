@@ -26,7 +26,7 @@ export function EmailNotificationsPanel({ applications }) {
     const app = applications.find((a) => a.id === candidateId);
     if (!app) return;
 
-    const job = JSON.parse(localStorage.getItem("ARGAAM_STATE") || "{}").jobs?.find((j) => j.id === app.jobId);
+    const job = JSON.parse(localStorage.getItem("PVARA_STATE") || "{}").jobs?.find((j) => j.id === app.jobId);
     let template;
 
     switch (templateType) {
@@ -57,7 +57,7 @@ export function EmailNotificationsPanel({ applications }) {
             <div className="flex gap-1">
               <button
                 onClick={() => sendNotification(app.id, "shortlisted")}
-                className="px-2 py-1 bg-orange-100 text-orange-700 rounded text-xs hover:bg-orange-200"
+                className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs hover:bg-green-200"
               >
                 Shortlist
               </button>
@@ -72,7 +72,7 @@ export function EmailNotificationsPanel({ applications }) {
         ))}
       </div>
       {sent.length > 0 && (
-        <div className="text-xs text-orange-600">
+        <div className="text-xs text-green-600">
           ✅ {sent.length} emails sent
         </div>
       )}
@@ -304,7 +304,7 @@ export function InterviewFeedbackModal({ open, candidate, job, onSave, onClose }
                 max="10"
                 value={formData.technicalSkills}
                 onChange={(e) => handleChange('technicalSkills', parseInt(e.target.value) || 1)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
               />
             </div>
             <div>
@@ -315,7 +315,7 @@ export function InterviewFeedbackModal({ open, candidate, job, onSave, onClose }
                 max="10"
                 value={formData.communication}
                 onChange={(e) => handleChange('communication', parseInt(e.target.value) || 1)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
               />
             </div>
             <div>
@@ -326,7 +326,7 @@ export function InterviewFeedbackModal({ open, candidate, job, onSave, onClose }
                 max="10"
                 value={formData.cultureFit}
                 onChange={(e) => handleChange('cultureFit', parseInt(e.target.value) || 1)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
               />
             </div>
             <div>
@@ -337,14 +337,14 @@ export function InterviewFeedbackModal({ open, candidate, job, onSave, onClose }
                 max="10"
                 value={formData.problemSolving}
                 onChange={(e) => handleChange('problemSolving', parseInt(e.target.value) || 1)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
               />
             </div>
           </div>
 
           <div className="mb-4">
             <div className="text-sm font-medium text-gray-500">Overall Score (Calculated)</div>
-            <div className="text-2xl font-bold text-orange-600">{overallScore} / 10</div>
+            <div className="text-2xl font-bold text-green-600">{overallScore} / 10</div>
           </div>
 
           <div className="mb-4">
@@ -352,7 +352,7 @@ export function InterviewFeedbackModal({ open, candidate, job, onSave, onClose }
             <select
               value={formData.recommendation}
               onChange={(e) => handleChange('recommendation', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
             >
               <option value="Hire">Hire</option>
               <option value="Strong Hire">Strong Hire</option>
@@ -361,14 +361,14 @@ export function InterviewFeedbackModal({ open, candidate, job, onSave, onClose }
             </select>
           </div>
 
-          <div className={`p-3 rounded-lg mb-4 ${isEligible ? 'bg-orange-50 border border-orange-200' : 'bg-yellow-50 border border-yellow-200'}`}>
+          <div className={`p-3 rounded-lg mb-4 ${isEligible ? 'bg-green-50 border border-green-200' : 'bg-yellow-50 border border-yellow-200'}`}>
             <div className="flex items-center gap-2">
-              <svg className={`w-5 h-5 ${isEligible ? 'text-orange-600' : 'text-yellow-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className={`w-5 h-5 ${isEligible ? 'text-green-600' : 'text-yellow-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <span className={`font-medium ${isEligible ? 'text-orange-700' : 'text-yellow-700'}`}>Next Action</span>
+              <span className={`font-medium ${isEligible ? 'text-green-700' : 'text-yellow-700'}`}>Next Action</span>
             </div>
-            <div className={`text-sm mt-1 flex items-center gap-1 ${isEligible ? 'text-orange-600' : 'text-yellow-600'}`}>
+            <div className={`text-sm mt-1 flex items-center gap-1 ${isEligible ? 'text-green-600' : 'text-yellow-600'}`}>
               {isEligible ? (
                 <>
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
@@ -386,7 +386,7 @@ export function InterviewFeedbackModal({ open, candidate, job, onSave, onClose }
               value={formData.notes}
               onChange={(e) => handleChange('notes', e.target.value)}
               placeholder="Add notes about the interview, candidate performance, concerns, or recommendations..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 h-24 resize-y"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 h-24 resize-y"
             />
           </div>
 
@@ -394,7 +394,7 @@ export function InterviewFeedbackModal({ open, candidate, job, onSave, onClose }
             <button onClick={onClose} className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
               Cancel
             </button>
-            <button onClick={handleSave} className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 font-medium">
+            <button onClick={handleSave} className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium">
               Save Feedback
             </button>
           </div>
@@ -436,13 +436,13 @@ export function ExtendOfferModal({ open, candidate, job, onSave, onClose }) {
         <div className="p-6">
           <h2 className="text-xl font-bold text-gray-900 mb-4">Extend Job Offer</h2>
 
-          <div className="bg-orange-50 p-4 rounded-lg mb-4">
+          <div className="bg-green-50 p-4 rounded-lg mb-4">
             <div className="font-semibold text-gray-900">{candidate?.applicant?.name || 'Unknown'}</div>
             <div className="text-sm text-gray-600">{job?.title || 'Position'}</div>
             <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
               <span>⭐ AI Score: {candidate?.aiScore || 'N/A'}</span>
               <span>📋 Interview: {candidate?.interview_feedback?.overall_score || 'N/A'}/10</span>
-              <span className="text-orange-600 font-medium">✓ Qualified</span>
+              <span className="text-green-600 font-medium">✓ Qualified</span>
             </div>
           </div>
 
@@ -453,7 +453,7 @@ export function ExtendOfferModal({ open, candidate, job, onSave, onClose }) {
               value={formData.salary}
               onChange={(e) => handleChange('salary', e.target.value)}
               placeholder="PKR 120,000 - 200,000"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
             />
           </div>
 
@@ -463,7 +463,7 @@ export function ExtendOfferModal({ open, candidate, job, onSave, onClose }) {
               type="date"
               value={formData.startDate}
               onChange={(e) => handleChange('startDate', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
             />
           </div>
 
@@ -472,7 +472,7 @@ export function ExtendOfferModal({ open, candidate, job, onSave, onClose }) {
             <textarea
               value={formData.benefits}
               onChange={(e) => handleChange('benefits', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 h-20 resize-y"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 h-20 resize-y"
             />
           </div>
 
@@ -482,18 +482,18 @@ export function ExtendOfferModal({ open, candidate, job, onSave, onClose }) {
               value={formData.notes}
               onChange={(e) => handleChange('notes', e.target.value)}
               placeholder="Any additional details or conditions..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 h-20 resize-y"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 h-20 resize-y"
             />
           </div>
 
-          <div className="bg-orange-50 border border-orange-200 p-3 rounded-lg mb-4">
+          <div className="bg-green-50 border border-green-200 p-3 rounded-lg mb-4">
             <div className="flex items-center gap-2">
-              <svg className="w-5 h-5 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
+              <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
               </svg>
-              <span className="font-medium text-orange-700">Final Stage - Offer Extension</span>
+              <span className="font-medium text-green-700">Final Stage - Offer Extension</span>
             </div>
-            <div className="text-xs text-orange-600 mt-1">
+            <div className="text-xs text-green-600 mt-1">
               🎉 This is the final stage of the recruitment pipeline. Once the offer is sent, the candidate can accept or reject it.
             </div>
           </div>
@@ -502,7 +502,7 @@ export function ExtendOfferModal({ open, candidate, job, onSave, onClose }) {
             <button onClick={onClose} className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
               Cancel
             </button>
-            <button onClick={handleSave} className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 font-medium flex items-center gap-2">
+            <button onClick={handleSave} className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium flex items-center gap-2">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
               </svg>
@@ -559,13 +559,13 @@ export function OfferManagementPanel({ applications }) {
         />
         <button
           onClick={generateOffer}
-          className="w-full px-3 py-2 bg-orange-600 text-white rounded hover:bg-orange-700 text-sm"
+          className="w-full px-3 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-sm"
         >
           Generate Offer
         </button>
       </div>
       {offers.length > 0 && (
-        <div className="text-xs text-orange-600">✅ {offers.length} offers generated</div>
+        <div className="text-xs text-green-600">✅ {offers.length} offers generated</div>
       )}
     </div>
   );
@@ -581,7 +581,7 @@ export function AnalyticsReportsPanel({ applications }) {
   }, [applications]);
 
   const exportData = () => {
-    exportToCSV(applications, "argaam-applications.csv");
+    exportToCSV(applications, "pvara-applications.csv");
     notifySlack(`📊 Report exported: ${applications.length} applications`);
   };
 
@@ -595,9 +595,9 @@ export function AnalyticsReportsPanel({ applications }) {
           <div className="text-xs text-gray-600">Total Applications</div>
           <div className="text-xl font-bold text-blue-600">{metrics.totalApplications}</div>
         </div>
-        <div className="p-2 bg-orange-50 rounded">
+        <div className="p-2 bg-green-50 rounded">
           <div className="text-xs text-gray-600">Hired</div>
-          <div className="text-xl font-bold text-orange-600">{metrics.hired}</div>
+          <div className="text-xl font-bold text-green-600">{metrics.hired}</div>
         </div>
         <div className="p-2 bg-yellow-50 rounded">
           <div className="text-xs text-gray-600">Conversion Rate</div>

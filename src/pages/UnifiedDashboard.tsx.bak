@@ -1,0 +1,633 @@
+import React, { useState, useEffect } from 'react';
+import { 
+  FiHome, FiFileText, FiShield, FiMessageCircle, FiFolder, 
+  FiSettings, FiLogOut, FiMenu, FiX, FiBell,
+  FiClock, FiTrendingUp,
+  FiZap, FiGlobe
+} from 'react-icons/fi';
+import { applicationsApi, ApplicationFolder, ComprehensiveEvaluation } from '../services/applications.api';
+import { NOCCreationPanel } from '../components/NOCCreationPanel';
+import { DocumentManagementPanel } from '../components/DocumentManagementPanel';
+import { AIBotPanel } from '../components/AIBotPanel';
+import '../styles/ultra-premium.css';
+
+interface UnifiedDashboardProps {
+  onLogout?: () => void;
+}
+
+type ActiveView = 'applications' | 'documents' | 'noc' | 'ai-bot' | 'settings';
+
+export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ onLogout }) => {
+  const [applications, setApplications] = useState<ApplicationFolder[]>([]);
+  const [selectedApp, setSelectedApp] = useState<ApplicationFolder | null>(null);
+  const [evaluation, setEvaluation] = useState<ComprehensiveEvaluation | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [evaluating, setEvaluating] = useState(false);
+  const [activeView, setActiveView] = useState<ActiveView>('applications');
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [showEvalModal, setShowEvalModal] = useState(false);
+
+  useEffect(() => {
+    loadApplications();
+  }, []);
+
+  const loadApplications = async () => {
+    try {
+      setLoading(true);
+      const result = await applicationsApi.scanApplications();
+      setApplications(result.applications);
+    } catch (err) {
+      console.error('Error loading applications:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const evaluateApplication = async (appId: string) => {
+    try {
+      setEvaluating(true);
+      const result = await applicationsApi.evaluateApplication(appId);
+      setEvaluation(result.evaluation);
+      setShowEvalModal(true);
+    } catch (err) {
+      console.error('Error evaluating application:', err);
+    } finally {
+      setEvaluating(false);
+    }
+  };
+
+  const getRiskColor = (level: string) => {
+    const colors: Record<string, string> = {
+      low: '#10b981',
+      medium: '#fbbf24',
+      high: '#f97316',
+      critical: '#ef4444',
+    };
+    return colors[level] || '#94a3b8';
+  };
+
+  const stats = {
+    total: applications.length,
+    approved: applications.filter(a => a.status === 'approved').length,
+    pending: applications.filter(a => a.status === 'pending').length,
+    processing: applications.filter(a => a.status === 'processing').length,
+  };
+
+  const menuItems = [
+    { id: 'applications', label: 'Applications', icon: <FiHome />, badge: stats.total },
+    { id: 'documents', label: 'Documents', icon: <FiFolder />, badge: null },
+    { id: 'noc', label: 'NOC Issuance', icon: <FiShield />, badge: stats.pending },
+    { id: 'ai-bot', label: 'AI Assistant', icon: <FiMessageCircle />, badge: null },
+    { id: 'settings', label: 'Settings', icon: <FiSettings />, badge: null },
+  ];
+
+  const renderContent = () => {
+    switch (activeView) {
+      case 'applications':
+        return renderApplicationsView();
+      case 'documents':
+        return selectedApp ? (
+          <DocumentManagementPanel applicationId={selectedApp.id} />
+        ) : (
+          <div style={{ padding: 'var(--space-2xl)', textAlign: 'center' }}>
+            <p style={{ color: 'var(--text-secondary)' }}>Select an application to manage documents</p>
+          </div>
+        );
+      case 'noc':
+        return selectedApp ? (
+          <NOCCreationPanel 
+            application={selectedApp} 
+            evaluation={evaluation || undefined}
+            onBack={() => setActiveView('applications')}
+          />
+        ) : (
+          <div style={{ padding: 'var(--space-2xl)', textAlign: 'center' }}>
+            <p style={{ color: 'var(--text-secondary)' }}>Select an application to create NOC</p>
+          </div>
+        );
+      case 'ai-bot':
+        return selectedApp ? (
+          <AIBotPanel 
+            applicationId={selectedApp.id}
+            applicationName={selectedApp.applicationData?.companyName || 'Application'}
+          />
+        ) : (
+          <div style={{ padding: 'var(--space-2xl)' }}>
+            <AIBotPanel 
+              applicationId="general"
+              applicationName="General Inquiry"
+            />
+          </div>
+        );
+      case 'settings':
+        return renderSettingsView();
+      default:
+        return renderApplicationsView();
+    }
+  };
+
+  const renderApplicationsView = () => (
+    <div style={{ padding: 'var(--space-2xl)' }}>
+      {/* Stats Bar */}
+      <div className="stats-bar" style={{ marginBottom: 'var(--space-2xl)' }}>
+        <div className="stat-item">
+          <span className="stat-value">{stats.total}</span>
+          <span className="stat-label">Total Applications</span>
+        </div>
+        <div className="stat-item">
+          <span className="stat-value" style={{ background: 'linear-gradient(135deg, #10b981 0%, #38ef7d 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+            {stats.approved}
+          </span>
+          <span className="stat-label">Approved</span>
+        </div>
+        <div className="stat-item">
+          <span className="stat-value" style={{ background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+            {stats.pending}
+          </span>
+          <span className="stat-label">Pending Review</span>
+        </div>
+        <div className="stat-item">
+          <span className="stat-value" style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+            {stats.processing}
+          </span>
+          <span className="stat-label">Processing</span>
+        </div>
+      </div>
+
+      {/* Applications Grid */}
+      <div className="applications-grid">
+        {applications.map((app) => (
+          <div
+            key={app.id}
+            className={`app-card ${selectedApp?.id === app.id ? 'selected' : ''}`}
+            onClick={() => setSelectedApp(app)}
+          >
+            <div className="app-card-header">
+              <div className="app-icon">
+                {app.applicationData?.companyName?.includes('Binance') ? '🏦' : app.applicationData?.companyName?.includes('HTX') ? '🌐' : '💼'}
+              </div>
+              <div className="app-info">
+                <h3 className="app-title">{app.applicationData?.companyName || 'Untitled Application'}</h3>
+                <p className="app-company">{app.applicationData?.appName || 'Application Platform'}</p>
+                <p className="app-id">{app.id}</p>
+              </div>
+              <span className="status-badge pending">
+                <FiClock /> {app.status}
+              </span>
+            </div>
+
+            <div className="app-metrics">
+              <div className="metric">
+                <span className="metric-value">{app.applicationData?.teamSize || 0}</span>
+                <span className="metric-label">Team Size</span>
+              </div>
+              <div className="metric">
+                <span className="metric-value">{app.applicationData?.aiCapabilities?.length || 0}</span>
+                <span className="metric-label">AI Features</span>
+              </div>
+              <div className="metric">
+                <span className="metric-value">
+                  ${((app.applicationData?.financialProjections?.year1Revenue || 0) / 1000000).toFixed(1)}M
+                </span>
+                <span className="metric-label">Year 1 Rev</span>
+              </div>
+            </div>
+
+            <div className="app-documents">
+              <FiFileText className="app-documents-icon" />
+              <span className="app-documents-text">
+                <span className="app-documents-count">{app.documents?.length || 0}</span> documents submitted
+              </span>
+            </div>
+
+            <div className="app-actions">
+              <button 
+                className="btn btn-primary"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  evaluateApplication(app.id);
+                }}
+                disabled={evaluating}
+              >
+                <FiShield /> {evaluating ? 'Evaluating...' : 'AI Evaluation'}
+              </button>
+              <button 
+                className="btn btn-secondary" 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedApp(app);
+                  setActiveView('noc');
+                }}
+              >
+                <FiFileText /> NOC
+              </button>
+            </div>
+
+            {app.applicationData?.applicationDate && (
+              <div style={{ marginTop: 'var(--space-md)', fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 'var(--space-sm)' }}>
+                <FiClock size={12} />
+                Submitted {new Date(app.applicationData.applicationDate).toLocaleDateString()}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  const renderSettingsView = () => (
+    <div style={{ padding: 'var(--space-2xl)', maxWidth: '800px' }}>
+      <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: 'var(--space-xl)' }}>Settings</h2>
+      <div style={{ background: 'var(--glass-bg)', padding: 'var(--space-xl)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--glass-border)' }}>
+        <p style={{ color: 'var(--text-secondary)' }}>Application settings and preferences will appear here.</p>
+      </div>
+    </div>
+  );
+
+  if (loading) {
+    return (
+      <div className="app-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div className="loading-spinner" style={{ margin: '0 auto 1rem' }}></div>
+          <p style={{ color: 'var(--text-secondary)' }}>Loading applications...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="app-container" style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
+      {/* Sidebar */}
+      <aside 
+        style={{
+          width: sidebarOpen ? '280px' : '80px',
+          background: 'var(--glass-bg)',
+          backdropFilter: 'blur(20px)',
+          borderRight: '1px solid var(--glass-border)',
+          display: 'flex',
+          flexDirection: 'column',
+          transition: 'width var(--transition-base)',
+          position: 'relative',
+          zIndex: 10
+        }}
+      >
+        {/* Logo */}
+        <div style={{ 
+          padding: 'var(--space-lg)', 
+          borderBottom: '1px solid var(--glass-border)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 'var(--space-md)',
+          minHeight: '80px'
+        }}>
+          <div style={{
+            width: '48px',
+            height: '48px',
+            background: 'var(--premium-gradient)',
+            borderRadius: 'var(--radius-md)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+            overflow: 'hidden'
+          }}>
+            <img 
+              src="/pvara-logo.png" 
+              alt="PVARA" 
+              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).parentElement!.innerHTML = '🛡️'; }}
+            />
+          </div>
+          {sidebarOpen && (
+            <div style={{ overflow: 'hidden' }}>
+              <h1 style={{ fontSize: '1.125rem', fontWeight: '700', whiteSpace: 'nowrap' }}>PVARA AI</h1>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>Licensing Platform</p>
+            </div>
+          )}
+        </div>
+
+        {/* Navigation */}
+        <nav style={{ flex: 1, padding: 'var(--space-lg)', overflow: 'auto' }}>
+          {menuItems.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => setActiveView(item.id as ActiveView)}
+              style={{
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 'var(--space-md)',
+                padding: 'var(--space-md)',
+                marginBottom: 'var(--space-sm)',
+                background: activeView === item.id ? 'var(--glass-bg)' : 'transparent',
+                border: activeView === item.id ? '1px solid var(--glass-border)' : '1px solid transparent',
+                borderRadius: 'var(--radius-md)',
+                color: 'var(--text-primary)',
+                cursor: 'pointer',
+                transition: 'all var(--transition-base)',
+                fontSize: '0.875rem',
+                fontWeight: '500',
+                position: 'relative'
+              }}
+              onMouseEnter={(e) => {
+                if (activeView !== item.id) {
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (activeView !== item.id) {
+                  e.currentTarget.style.background = 'transparent';
+                }
+              }}
+            >
+              <span style={{ fontSize: '1.25rem', flexShrink: 0 }}>{item.icon}</span>
+              {sidebarOpen && (
+                <>
+                  <span style={{ flex: 1, textAlign: 'left' }}>{item.label}</span>
+                  {item.badge !== null && (
+                    <span style={{
+                      background: 'var(--premium-blue)',
+                      color: 'white',
+                      fontSize: '0.75rem',
+                      padding: '0.125rem 0.5rem',
+                      borderRadius: '9999px',
+                      fontWeight: '600'
+                    }}>
+                      {item.badge}
+                    </span>
+                  )}
+                </>
+              )}
+            </button>
+          ))}
+        </nav>
+
+        {/* User Section */}
+        <div style={{ 
+          padding: 'var(--space-lg)', 
+          borderTop: '1px solid var(--glass-border)',
+        }}>
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            style={{
+              width: '100%',
+              padding: 'var(--space-md)',
+              background: 'var(--glass-bg)',
+              border: '1px solid var(--glass-border)',
+              borderRadius: 'var(--radius-md)',
+              color: 'var(--text-primary)',
+              cursor: 'pointer',
+              marginBottom: 'var(--space-sm)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 'var(--space-sm)'
+            }}
+          >
+            {sidebarOpen ? <FiX /> : <FiMenu />}
+            {sidebarOpen && <span style={{ fontSize: '0.875rem' }}>Collapse</span>}
+          </button>
+          {onLogout && (
+            <button
+              onClick={onLogout}
+              style={{
+                width: '100%',
+                padding: 'var(--space-md)',
+                background: 'transparent',
+                border: '1px solid var(--glass-border)',
+                borderRadius: 'var(--radius-md)',
+                color: 'var(--text-primary)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: sidebarOpen ? 'flex-start' : 'center',
+                gap: 'var(--space-sm)',
+                fontSize: '0.875rem'
+              }}
+            >
+              <FiLogOut />
+              {sidebarOpen && <span>Logout</span>}
+            </button>
+          )}
+        </div>
+      </aside>
+
+      {/* Main Content */}
+      <main style={{ flex: 1, overflow: 'auto', position: 'relative' }}>
+        {/* Top Bar */}
+        <header style={{
+          background: 'var(--glass-bg)',
+          backdropFilter: 'blur(20px)',
+          borderBottom: '1px solid var(--glass-border)',
+          padding: 'var(--space-lg) var(--space-2xl)',
+          position: 'sticky',
+          top: 0,
+          zIndex: 5,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          <div>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: '700', textTransform: 'capitalize' }}>
+              {activeView.replace('-', ' ')}
+            </h2>
+            <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+              {activeView === 'applications' && `Managing ${stats.total} applications`}
+              {activeView === 'documents' && 'Document repository and management'}
+              {activeView === 'noc' && 'NOC creation and issuance'}
+              {activeView === 'ai-bot' && 'AI-powered assistance and insights'}
+            </p>
+          </div>
+          <div style={{ display: 'flex', gap: 'var(--space-md)', alignItems: 'center' }}>
+            <button style={{
+              background: 'var(--glass-bg)',
+              border: '1px solid var(--glass-border)',
+              padding: 'var(--space-md)',
+              borderRadius: 'var(--radius-md)',
+              color: 'var(--text-primary)',
+              cursor: 'pointer'
+            }}>
+              <FiBell />
+            </button>
+            <div style={{
+              width: '40px',
+              height: '40px',
+              background: 'var(--premium-gradient)',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white',
+              fontWeight: '600'
+            }}>
+              A
+            </div>
+          </div>
+        </header>
+
+        {/* Content Area */}
+        <div style={{ minHeight: 'calc(100vh - 81px)' }}>
+          {renderContent()}
+        </div>
+      </main>
+
+      {/* Evaluation Modal */}
+      {showEvalModal && evaluation && (
+        <div className="modal-overlay" onClick={() => setShowEvalModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ padding: 'var(--space-2xl)', maxWidth: '1000px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: 'var(--space-xl)' }}>
+              <div>
+                <h2 style={{ fontSize: '2rem', fontWeight: '700', marginBottom: 'var(--space-sm)' }}>
+                  AI Evaluation Report
+                </h2>
+                <p style={{ color: 'var(--text-secondary)' }}>Application ID: {evaluation.applicationId}</p>
+              </div>
+              <button 
+                onClick={() => setShowEvalModal(false)}
+                style={{ 
+                  background: 'var(--glass-bg)', 
+                  border: '1px solid var(--glass-border)',
+                  padding: 'var(--space-md)',
+                  borderRadius: 'var(--radius-md)',
+                  cursor: 'pointer',
+                  color: 'var(--text-primary)',
+                  fontSize: '1.5rem'
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Score Overview */}
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+              gap: 'var(--space-lg)',
+              marginBottom: 'var(--space-2xl)'
+            }}>
+              <div style={{ 
+                background: 'var(--glass-bg)',
+                padding: 'var(--space-xl)',
+                borderRadius: 'var(--radius-lg)',
+                border: '1px solid var(--glass-border)',
+                textAlign: 'center'
+              }}>
+                <div style={{ fontSize: '3rem', fontWeight: '700', background: 'var(--premium-gradient)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                  {evaluation.overallScore}
+                </div>
+                <div style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', marginTop: 'var(--space-sm)' }}>Overall Score</div>
+              </div>
+              
+              <div style={{ 
+                background: 'var(--glass-bg)',
+                padding: 'var(--space-xl)',
+                borderRadius: 'var(--radius-lg)',
+                border: '1px solid var(--glass-border)',
+                textAlign: 'center'
+              }}>
+                <div style={{ fontSize: '2rem', fontWeight: '700', color: getRiskColor(evaluation.riskLevel) }}>
+                  {evaluation.riskLevel.toUpperCase()}
+                </div>
+                <div style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', marginTop: 'var(--space-sm)' }}>Risk Level</div>
+              </div>
+
+              <div style={{ 
+                background: 'var(--glass-bg)',
+                padding: 'var(--space-xl)',
+                borderRadius: 'var(--radius-lg)',
+                border: '1px solid var(--glass-border)',
+                textAlign: 'center'
+              }}>
+                <div style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--premium-blue)', textTransform: 'capitalize' }}>
+                  {evaluation.recommendation.replace(/-/g, ' ')}
+                </div>
+                <div style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', marginTop: 'var(--space-sm)' }}>Recommendation</div>
+              </div>
+            </div>
+
+            {/* Detailed Scores */}
+            <div style={{ marginBottom: 'var(--space-xl)' }}>
+              <h3 style={{ marginBottom: 'var(--space-lg)' }}>Detailed Assessment</h3>
+              <div style={{ display: 'grid', gap: 'var(--space-md)' }}>
+                {[
+                  { label: 'Compliance', score: evaluation.complianceScore, icon: <FiShield /> },
+                  { label: 'Technical', score: evaluation.technicalScore, icon: <FiZap /> },
+                  { label: 'Business', score: evaluation.businessScore, icon: <FiTrendingUp /> },
+                  { label: 'Regulatory', score: evaluation.regulatoryScore, icon: <FiGlobe /> },
+                ].map((item) => (
+                  <div key={item.label} style={{ 
+                    background: 'var(--glass-bg)',
+                    padding: 'var(--space-lg)',
+                    borderRadius: 'var(--radius-md)',
+                    border: '1px solid var(--glass-border)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 'var(--space-lg)'
+                  }}>
+                    <div style={{ fontSize: '1.5rem', color: 'var(--premium-blue)' }}>{item.icon}</div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--space-sm)' }}>
+                        <span style={{ fontWeight: '600' }}>{item.label}</span>
+                        <span style={{ fontWeight: '700', color: 'var(--premium-blue)' }}>{item.score}/100</span>
+                      </div>
+                      <div style={{ 
+                        height: '8px', 
+                        background: 'rgba(255,255,255,0.1)', 
+                        borderRadius: '4px',
+                        overflow: 'hidden'
+                      }}>
+                        <div style={{ 
+                          width: `${item.score}%`, 
+                          height: '100%', 
+                          background: 'var(--premium-gradient)',
+                          transition: 'width 1s ease'
+                        }} />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* AI Insights */}
+            {evaluation.aiInsights && (
+              <div style={{ 
+                background: 'var(--glass-bg)',
+                padding: 'var(--space-xl)',
+                borderRadius: 'var(--radius-lg)',
+                border: '1px solid var(--glass-border)',
+                marginBottom: 'var(--space-xl)'
+              }}>
+                <h3 style={{ marginBottom: 'var(--space-md)', display: 'flex', alignItems: 'center', gap: 'var(--space-sm)' }}>
+                  <FiZap /> AI Insights
+                </h3>
+                <p style={{ color: 'var(--text-secondary)', lineHeight: '1.8', whiteSpace: 'pre-wrap' }}>
+                  {evaluation.aiInsights}
+                </p>
+              </div>
+            )}
+
+            {/* Actions */}
+            <div style={{ display: 'flex', gap: 'var(--space-md)', justifyContent: 'flex-end' }}>
+              <button 
+                className="btn btn-secondary"
+                onClick={() => setShowEvalModal(false)}
+              >
+                Close
+              </button>
+              <button 
+                className="btn btn-primary"
+                onClick={() => {
+                  setShowEvalModal(false);
+                  setActiveView('noc');
+                }}
+              >
+                <FiFileText /> Proceed to NOC
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};

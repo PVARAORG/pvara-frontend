@@ -68,11 +68,11 @@ export default function LoginInline({ onLogin }) {
       <div>
         <input
           placeholder="Username"
-          className={`border-2 px-4 py-2.5 rounded-lg w-full text-sm transition-all focus:outline-none focus:ring-2 focus:ring-orange-200 ${touched.username && errors.username
+          className={`border-2 px-4 py-2.5 rounded-lg w-full text-sm transition-all focus:outline-none focus:ring-2 focus:ring-green-200 ${touched.username && errors.username
               ? 'border-red-400 bg-red-50 focus:border-red-500'
               : touched.username && !errors.username
-                ? 'border-orange-400 focus:border-orange-500'
-                : 'border-gray-200 focus:border-orange-500'
+                ? 'border-green-400 focus:border-green-500'
+                : 'border-gray-200 focus:border-green-500'
             }`}
           value={username}
           onChange={handleUsernameChange}
@@ -90,11 +90,11 @@ export default function LoginInline({ onLogin }) {
         <input
           placeholder="Password"
           type="password"
-          className={`border-2 px-4 py-2.5 rounded-lg w-full text-sm transition-all focus:outline-none focus:ring-2 focus:ring-orange-200 ${touched.password && errors.password
+          className={`border-2 px-4 py-2.5 rounded-lg w-full text-sm transition-all focus:outline-none focus:ring-2 focus:ring-green-200 ${touched.password && errors.password
               ? 'border-red-400 bg-red-50 focus:border-red-500'
               : touched.password && !errors.password
-                ? 'border-orange-400 focus:border-orange-500'
-                : 'border-gray-200 focus:border-orange-500'
+                ? 'border-green-400 focus:border-green-500'
+                : 'border-gray-200 focus:border-green-500'
             }`}
           value={password}
           onChange={handlePasswordChange}
@@ -111,9 +111,9 @@ export default function LoginInline({ onLogin }) {
       <button
         onClick={handleSubmit}
         disabled={!isValid}
-        className={`w-full bg-gradient-to-r from-orange-600 to-emerald-600 text-white px-4 py-2.5 rounded-lg text-sm font-semibold shadow-sm transition-all ${!isValid
+        className={`w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white px-4 py-2.5 rounded-lg text-sm font-semibold shadow-sm transition-all ${!isValid
             ? 'opacity-50 cursor-not-allowed'
-            : 'hover:from-orange-700 hover:to-emerald-700 hover:shadow-md'
+            : 'hover:from-green-700 hover:to-emerald-700 hover:shadow-md'
           }`}
       >
         Login

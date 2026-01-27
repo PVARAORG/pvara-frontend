@@ -35,7 +35,7 @@ export function ToastProvider({ children }) {
             <div
               className={
                 `min-w-[220px] px-3 py-2 rounded shadow-md text-slate-900 flex items-start justify-between gap-2 ` +
-                (t.type === 'error' ? 'bg-red-100' : t.type === 'success' ? 'bg-orange-50' : 'bg-sky-50')
+                (t.type === 'error' ? 'bg-red-100' : t.type === 'success' ? 'bg-green-50' : 'bg-sky-50')
               }
             >
               <div className="flex-1 text-sm">{t.message}</div>
