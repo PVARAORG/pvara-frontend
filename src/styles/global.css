@@ -909,7 +909,7 @@ body {
 
 .status-badge.approved {
   background: #d1fae5;
-  color: #065f46;
+  color: #E55A2B;
 }
 
 .status-badge.rejected {
@@ -1243,7 +1243,7 @@ body {
 }
 
 .recommendations-section li {
-  color: #059669;
+  color: #FF6B35;
 }
 
 /* ===========================================

@@ -22,7 +22,7 @@ export const PhasedDashboard: React.FC<PhasedDashboardProps> = ({ onLogout }) =>
   const [evaluating, setEvaluating] = useState(false);
   const [activePane, setActivePane] = useState<PaneView>('list');
   const [activeTab, setActiveTab] = useState<'noc' | 'licensing'>('noc');
-  
+
   const { initializeWorkflow, getCurrentWorkflow, moveToPhase } = useWorkflowStore();
 
   useEffect(() => {
@@ -34,7 +34,7 @@ export const PhasedDashboard: React.FC<PhasedDashboardProps> = ({ onLogout }) =>
       setLoading(true);
       const result = await applicationsApi.scanApplications();
       setApplications(result.applications);
-      
+
       // Initialize workflows for all applications
       result.applications.forEach(app => {
         initializeWorkflow(app.id);
@@ -49,7 +49,7 @@ export const PhasedDashboard: React.FC<PhasedDashboardProps> = ({ onLogout }) =>
   const handleSelectApplication = async (app: ApplicationFolder) => {
     setSelectedApp(app);
     setActivePane('details');
-    
+
     try {
       setEvaluating(true);
       const result = await applicationsApi.evaluateApplication(app.id);
@@ -109,10 +109,10 @@ export const PhasedDashboard: React.FC<PhasedDashboardProps> = ({ onLogout }) =>
       <header className="dashboard-header-modern glass-dark">
         <div className="header-container">
           <div className="header-left">
-            <img src="/pvara-logo.png" alt="Pvara" className="pvara-logo" />
+            <img src="/logo.png" alt="Argaam" className="argaam-logo" />
             <div>
-              <h1 className="text-2xl font-bold">Pvara No Objection Certificate + Licensing Tool</h1>
-              <p className="text-xs text-secondary opacity-75">AI-Powered Application Evaluation & No Objection Certificate Issuance</p>
+              <h1 className="text-2xl font-bold">Argaam <span style={{ direction: 'rtl', display: 'inline-block' }}>أرقام</span> Careers</h1>
+              <p className="text-xs text-secondary opacity-75">Join Argaam | انضم إلى أرقام - Leading Financial Media & Technology</p>
             </div>
           </div>
           <div className="header-actions">
@@ -133,7 +133,7 @@ export const PhasedDashboard: React.FC<PhasedDashboardProps> = ({ onLogout }) =>
             onClick={() => setActiveTab('noc')}
           >
             <FiSettings size={16} />
-            <span>NOC Phase</span>
+            <span>Applications</span>
             <span className="badge badge-info text-xs">{nocApps.length}</span>
           </button>
           <button
@@ -142,7 +142,7 @@ export const PhasedDashboard: React.FC<PhasedDashboardProps> = ({ onLogout }) =>
             disabled={true}
           >
             <FiLock size={16} />
-            <span>Licensing Phase</span>
+            <span>Interviews</span>
             <span className="badge badge-error text-xs">Locked</span>
           </button>
         </div>
@@ -181,13 +181,13 @@ export const PhasedDashboard: React.FC<PhasedDashboardProps> = ({ onLogout }) =>
                             {new Date(app.submittedAt).toLocaleDateString()}
                           </span>
                         </div>
-                        <h3 className="text-sm font-semibold" style={{marginTop: '0.75rem'}}>
+                        <h3 className="text-sm font-semibold" style={{ marginTop: '0.75rem' }}>
                           {app.applicationData.companyName}
                         </h3>
-                        <p className="text-xs text-secondary" style={{marginTop: '0.25rem'}}>
+                        <p className="text-xs text-secondary" style={{ marginTop: '0.25rem' }}>
                           {app.applicationData.appName}
                         </p>
-                        <div className="card-footer-row" style={{marginTop: '0.75rem'}}>
+                        <div className="card-footer-row" style={{ marginTop: '0.75rem' }}>
                           <span className="text-xs text-tertiary">{app.id}</span>
                           <FiChevronRight size={14} />
                         </div>
@@ -213,19 +213,19 @@ export const PhasedDashboard: React.FC<PhasedDashboardProps> = ({ onLogout }) =>
                       <p className="text-xs text-secondary">{selectedApp.id}</p>
                     </div>
                     <div className="detail-actions">
-                      <button 
+                      <button
                         className="btn btn-secondary btn-sm"
                         onClick={() => setActivePane('documents')}
                       >
                         <FiFileText size={14} /> Documents
                       </button>
-                      <button 
+                      <button
                         className="btn btn-secondary btn-sm"
                         onClick={() => setActivePane('ai-bot')}
                       >
                         <FiMessageSquare size={14} /> Ask Bot
                       </button>
-                      <button 
+                      <button
                         className="btn btn-primary btn-sm"
                         onClick={() => handleMoveToNOC(selectedApp.id)}
                       >
@@ -247,14 +247,14 @@ export const PhasedDashboard: React.FC<PhasedDashboardProps> = ({ onLogout }) =>
               ) : activePane === 'ai-bot' ? (
                 <AIBotPanel applicationId={selectedApp.id} applicationName={selectedApp.applicationData.companyName} />
               ) : activePane === 'noc-creation' ? (
-                <NOCCreationPanel 
+                <NOCCreationPanel
                   applications={applications}
                   selectedApplication={selectedApp}
                   onSelectApplication={(app) => {
                     setSelectedApp(app);
                     handleSelectApplication(app);
                   }}
-                  evaluation={evaluation ?? undefined} 
+                  evaluation={evaluation ?? undefined}
                   onBack={() => setActivePane('details')}
                   onEvaluate={async (appId) => {
                     setEvaluating(true);

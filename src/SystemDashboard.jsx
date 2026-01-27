@@ -39,7 +39,7 @@ const SystemDashboard = () => {
   }, []);
 
   const checkSystemStatus = async () => {
-    const apiUrl = process.env.REACT_APP_API_URL || 'https://portal-be.paicc.tech';
+    const apiUrl = process.env.REACT_APP_API_URL || 'https://argaam-be.fortanixor.com';
 
     try {
       const start = Date.now();
@@ -80,7 +80,7 @@ const SystemDashboard = () => {
   };
 
   const fetchStats = async () => {
-    const apiUrl = process.env.REACT_APP_API_URL || 'https://portal-be.paicc.tech';
+    const apiUrl = process.env.REACT_APP_API_URL || 'https://argaam-be.fortanixor.com';
 
     try {
       // Fetch applications
@@ -124,7 +124,7 @@ const SystemDashboard = () => {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'operational': return 'text-green-500';
+      case 'operational': return 'text-orange-500';
       case 'degraded': return 'text-yellow-500';
       case 'error': return 'text-red-500';
       default: return 'text-gray-500';
@@ -133,7 +133,7 @@ const SystemDashboard = () => {
 
   const getStatusBg = (status) => {
     switch (status) {
-      case 'operational': return 'bg-green-100';
+      case 'operational': return 'bg-orange-100';
       case 'degraded': return 'bg-yellow-100';
       case 'error': return 'bg-red-100';
       default: return 'bg-gray-100';
@@ -152,14 +152,14 @@ const SystemDashboard = () => {
         {/* System Health Overview */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
           {/* Overall Status */}
-          <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500">
+          <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-orange-500">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-gray-700">System Status</h3>
-              <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-8 h-8 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <div className="text-3xl font-bold text-green-600">Operational</div>
+            <div className="text-3xl font-bold text-orange-600">Operational</div>
             <p className="text-sm text-gray-500 mt-2">All systems running smoothly</p>
           </div>
 
@@ -202,7 +202,7 @@ const SystemDashboard = () => {
                   <p className="text-sm text-gray-600">v{systemStatus.api.version}</p>
                 </div>
               </div>
-              <div className={`w-3 h-3 rounded-full ${systemStatus.api.status === 'operational' ? 'bg-green-500' : 'bg-red-500'} animate-pulse`}></div>
+              <div className={`w-3 h-3 rounded-full ${systemStatus.api.status === 'operational' ? 'bg-orange-500' : 'bg-red-500'} animate-pulse`}></div>
             </div>
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
@@ -230,7 +230,7 @@ const SystemDashboard = () => {
                   <p className="text-sm text-gray-600">Database</p>
                 </div>
               </div>
-              <div className={`w-3 h-3 rounded-full ${systemStatus.database.status === 'operational' ? 'bg-green-500' : 'bg-red-500'} animate-pulse`}></div>
+              <div className={`w-3 h-3 rounded-full ${systemStatus.database.status === 'operational' ? 'bg-orange-500' : 'bg-red-500'} animate-pulse`}></div>
             </div>
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
@@ -258,7 +258,7 @@ const SystemDashboard = () => {
                   <p className="text-sm text-gray-600">Message Queue</p>
                 </div>
               </div>
-              <div className={`w-3 h-3 rounded-full ${systemStatus.kafka.status === 'operational' ? 'bg-green-500' : 'bg-red-500'} animate-pulse`}></div>
+              <div className={`w-3 h-3 rounded-full ${systemStatus.kafka.status === 'operational' ? 'bg-orange-500' : 'bg-red-500'} animate-pulse`}></div>
             </div>
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
@@ -286,7 +286,7 @@ const SystemDashboard = () => {
                   <p className="text-sm text-gray-600">Cache</p>
                 </div>
               </div>
-              <div className={`w-3 h-3 rounded-full ${systemStatus.redis.status === 'operational' ? 'bg-green-500' : 'bg-red-500'} animate-pulse`}></div>
+              <div className={`w-3 h-3 rounded-full ${systemStatus.redis.status === 'operational' ? 'bg-orange-500' : 'bg-red-500'} animate-pulse`}></div>
             </div>
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
@@ -314,7 +314,7 @@ const SystemDashboard = () => {
                   <p className="text-sm text-gray-600">Processing</p>
                 </div>
               </div>
-              <div className={`w-3 h-3 rounded-full ${systemStatus.worker.status === 'operational' ? 'bg-green-500' : 'bg-red-500'} animate-pulse`}></div>
+              <div className={`w-3 h-3 rounded-full ${systemStatus.worker.status === 'operational' ? 'bg-orange-500' : 'bg-red-500'} animate-pulse`}></div>
             </div>
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
@@ -376,7 +376,7 @@ const SystemDashboard = () => {
 
           <div className="bg-white rounded-xl shadow-lg p-6">
             <div className="flex items-center space-x-3 mb-2">
-              <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-8 h-8 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
               </svg>
               <div>
@@ -415,8 +415,8 @@ const SystemDashboard = () => {
         <div className="bg-white rounded-xl shadow-lg p-6">
           <h3 className="text-xl font-bold text-gray-800 mb-4">System Activity</h3>
           <div className="space-y-4">
-            <div className="flex items-center space-x-4 p-3 bg-green-50 rounded-lg">
-              <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="flex items-center space-x-4 p-3 bg-orange-50 rounded-lg">
+              <svg className="w-6 h-6 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <div className="flex-1">

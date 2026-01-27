@@ -14,7 +14,7 @@ const EMPLOYMENT_TYPE_OPTIONS = [
 
 // Status options
 const STATUS_OPTIONS = [
-  { value: "open", label: "Active", color: "bg-green-100 text-green-700" },
+  { value: "open", label: "Active", color: "bg-orange-100 text-orange-700" },
   { value: "paused", label: "Paused", color: "bg-yellow-100 text-yellow-700" },
   { value: "closed", label: "Closed", color: "bg-gray-100 text-gray-600" }
 ];
@@ -214,8 +214,8 @@ const JobList = ({ jobs, onCreate, onEdit, onDelete, onUpdateScreeningCriteria }
               <p className="text-sm text-gray-500">Total Jobs</p>
               <p className="text-2xl font-bold text-gray-900">{(jobs || []).length}</p>
             </div>
-            <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-              <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+              <svg className="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
               </svg>
             </div>
@@ -225,10 +225,10 @@ const JobList = ({ jobs, onCreate, onEdit, onDelete, onUpdateScreeningCriteria }
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-500">Active</p>
-              <p className="text-2xl font-bold text-green-600">{(jobs || []).filter(j => j.status === 'open').length}</p>
+              <p className="text-2xl font-bold text-orange-600">{(jobs || []).filter(j => j.status === 'open').length}</p>
             </div>
-            <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-              <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+              <svg className="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
@@ -275,13 +275,13 @@ const JobList = ({ jobs, onCreate, onEdit, onDelete, onUpdateScreeningCriteria }
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search jobs by title, department, or location..."
-                className="w-full sm:w-80 pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition text-sm"
+                className="w-full sm:w-80 pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition text-sm"
               />
             </div>
             <select
               value={departmentFilter}
               onChange={(e) => setDepartmentFilter(e.target.value)}
-              className="px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition text-sm bg-white"
+              className="px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition text-sm bg-white"
             >
               <option value="">All Departments</option>
               {departments.map(dept => (
@@ -291,7 +291,7 @@ const JobList = ({ jobs, onCreate, onEdit, onDelete, onUpdateScreeningCriteria }
           </div>
           <button
             onClick={openCreateModal}
-            className="w-full md:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium shadow-sm"
+            className="w-full md:w-auto flex items-center justify-center gap-2 px-5 py-2.5 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition font-medium shadow-sm"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -319,7 +319,7 @@ const JobList = ({ jobs, onCreate, onEdit, onDelete, onUpdateScreeningCriteria }
               <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                 <div className="flex-1">
                   <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-emerald-600 rounded-lg flex items-center justify-center flex-shrink-0">
                       <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                       </svg>
@@ -339,7 +339,7 @@ const JobList = ({ jobs, onCreate, onEdit, onDelete, onUpdateScreeningCriteria }
                           </span>
                         )}
                         {job.screeningCriteria && (job.screeningCriteria.requiredSkills?.length > 0 || job.screeningCriteria.requiredDegree !== "none") && (
-                          <span className="px-2.5 py-1 text-xs font-medium rounded-full bg-green-100 text-green-700 flex items-center gap-1">
+                          <span className="px-2.5 py-1 text-xs font-medium rounded-full bg-orange-100 text-orange-700 flex items-center gap-1">
                             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                             </svg>
@@ -463,7 +463,7 @@ const JobList = ({ jobs, onCreate, onEdit, onDelete, onUpdateScreeningCriteria }
                   value={localForm.title}
                   onChange={(e) => handleLocalChange('title', e.target.value)}
                   placeholder="e.g., Senior Software Engineer"
-                  className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition text-sm ${fieldErrors.title ? 'border-red-300 bg-red-50' : 'border-gray-200'}`}
+                  className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition text-sm ${fieldErrors.title ? 'border-red-300 bg-red-50' : 'border-gray-200'}`}
                 />
                 {fieldErrors.title && <p className="text-sm text-red-600 mt-1">{fieldErrors.title}</p>}
               </div>
@@ -478,7 +478,7 @@ const JobList = ({ jobs, onCreate, onEdit, onDelete, onUpdateScreeningCriteria }
                     value={localForm.department}
                     onChange={(e) => handleLocalChange('department', e.target.value)}
                     placeholder="e.g., Engineering"
-                    className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition text-sm ${fieldErrors.department ? 'border-red-300 bg-red-50' : 'border-gray-200'}`}
+                    className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition text-sm ${fieldErrors.department ? 'border-red-300 bg-red-50' : 'border-gray-200'}`}
                   />
                   {fieldErrors.department && <p className="text-sm text-red-600 mt-1">{fieldErrors.department}</p>}
                 </div>
@@ -490,7 +490,7 @@ const JobList = ({ jobs, onCreate, onEdit, onDelete, onUpdateScreeningCriteria }
                     value={(localForm.locations || []).join(', ')}
                     onChange={(e) => handleLocalChange('locations', e.target.value.split(',').map(s => s.trim()).filter(Boolean))}
                     placeholder="e.g., Islamabad"
-                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition text-sm"
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition text-sm"
                   />
                 </div>
               </div>
@@ -504,7 +504,7 @@ const JobList = ({ jobs, onCreate, onEdit, onDelete, onUpdateScreeningCriteria }
                   <select
                     value={localForm.employmentType}
                     onChange={(e) => handleLocalChange('employmentType', e.target.value)}
-                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition text-sm bg-white"
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition text-sm bg-white"
                   >
                     {EMPLOYMENT_TYPE_OPTIONS.map(opt => (
                       <option key={opt} value={opt}>{opt}</option>
@@ -518,7 +518,7 @@ const JobList = ({ jobs, onCreate, onEdit, onDelete, onUpdateScreeningCriteria }
                   <select
                     value={localForm.status || 'open'}
                     onChange={(e) => handleLocalChange('status', e.target.value)}
-                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition text-sm bg-white"
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition text-sm bg-white"
                   >
                     {STATUS_OPTIONS.map(opt => (
                       <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -536,7 +536,7 @@ const JobList = ({ jobs, onCreate, onEdit, onDelete, onUpdateScreeningCriteria }
                   <select
                     value={localForm.discipline}
                     onChange={(e) => handleLocalChange('discipline', e.target.value)}
-                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition text-sm bg-white"
+                    className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition text-sm bg-white"
                   >
                     <option value="">Select Discipline</option>
                     {DISCIPLINE_OPTIONS.map(opt => (
@@ -554,7 +554,7 @@ const JobList = ({ jobs, onCreate, onEdit, onDelete, onUpdateScreeningCriteria }
                     onChange={(e) => handleLocalChange('openings', e.target.value)}
                     placeholder="1"
                     min="1"
-                    className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition text-sm ${fieldErrors.openings ? 'border-red-300 bg-red-50' : 'border-gray-200'}`}
+                    className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition text-sm ${fieldErrors.openings ? 'border-red-300 bg-red-50' : 'border-gray-200'}`}
                   />
                   {fieldErrors.openings && <p className="text-sm text-red-600 mt-1">{fieldErrors.openings}</p>}
                 </div>
@@ -571,14 +571,14 @@ const JobList = ({ jobs, onCreate, onEdit, onDelete, onUpdateScreeningCriteria }
                     value={localForm.salary?.min ?? ""}
                     onChange={(e) => handleLocalSalaryChange('min', e.target.value)}
                     placeholder="Min"
-                    className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition text-sm ${fieldErrors.salary ? 'border-red-300 bg-red-50' : 'border-gray-200'}`}
+                    className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition text-sm ${fieldErrors.salary ? 'border-red-300 bg-red-50' : 'border-gray-200'}`}
                   />
                   <input
                     type="number"
                     value={localForm.salary?.max ?? ""}
                     onChange={(e) => handleLocalSalaryChange('max', e.target.value)}
                     placeholder="Max"
-                    className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition text-sm ${fieldErrors.salary ? 'border-red-300 bg-red-50' : 'border-gray-200'}`}
+                    className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition text-sm ${fieldErrors.salary ? 'border-red-300 bg-red-50' : 'border-gray-200'}`}
                   />
                 </div>
                 {fieldErrors.salary && <p className="text-sm text-red-600 mt-1">{fieldErrors.salary}</p>}
@@ -597,7 +597,7 @@ const JobList = ({ jobs, onCreate, onEdit, onDelete, onUpdateScreeningCriteria }
                     placeholder="Min Age (18-65)"
                     min="18"
                     max="65"
-                    className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition text-sm ${fieldErrors.minAge || fieldErrors.ageBracket ? 'border-red-300 bg-red-50' : 'border-gray-200'}`}
+                    className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition text-sm ${fieldErrors.minAge || fieldErrors.ageBracket ? 'border-red-300 bg-red-50' : 'border-gray-200'}`}
                   />
                   <input
                     type="number"
@@ -606,7 +606,7 @@ const JobList = ({ jobs, onCreate, onEdit, onDelete, onUpdateScreeningCriteria }
                     placeholder="Max Age (18-65)"
                     min="18"
                     max="65"
-                    className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition text-sm ${fieldErrors.maxAge || fieldErrors.ageBracket ? 'border-red-300 bg-red-50' : 'border-gray-200'}`}
+                    className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition text-sm ${fieldErrors.maxAge || fieldErrors.ageBracket ? 'border-red-300 bg-red-50' : 'border-gray-200'}`}
                   />
                 </div>
                 {(fieldErrors.minAge || fieldErrors.maxAge || fieldErrors.ageBracket) && (
@@ -624,7 +624,7 @@ const JobList = ({ jobs, onCreate, onEdit, onDelete, onUpdateScreeningCriteria }
                   onChange={(e) => handleLocalChange('description', e.target.value)}
                   placeholder="Describe the role, responsibilities, and what you're looking for..."
                   rows={4}
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition text-sm resize-none"
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition text-sm resize-none"
                 />
               </div>
 
@@ -639,7 +639,7 @@ const JobList = ({ jobs, onCreate, onEdit, onDelete, onUpdateScreeningCriteria }
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2.5 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition shadow-sm"
+                  className="flex-1 px-4 py-2.5 bg-orange-600 text-white rounded-lg font-medium hover:bg-orange-700 transition shadow-sm"
                 >
                   {editingJobId ? 'Update Job' : 'Create Job'}
                 </button>
@@ -671,7 +671,7 @@ const JobList = ({ jobs, onCreate, onEdit, onDelete, onUpdateScreeningCriteria }
             </ul>
             <button
               onClick={() => setShowValidationPopup(false)}
-              className="w-full px-4 py-2.5 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition"
+              className="w-full px-4 py-2.5 bg-orange-600 text-white font-medium rounded-lg hover:bg-orange-700 transition"
             >
               Got it
             </button>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+const API_URL = process.env.REACT_APP_API_URL || 'https://argaam-be.fortanixor.com';
 
 /**
  * ContentPage - Generic component to display content pages (About Us, FAQ, Privacy Policy, Terms of Service)
@@ -39,7 +39,7 @@ export default function ContentPage({ slug, onBack }) {
         return (
             <div className="min-h-[60vh] flex items-center justify-center">
                 <div className="flex flex-col items-center gap-4">
-                    <div className="w-12 h-12 border-4 border-green-600 border-t-transparent rounded-full animate-spin"></div>
+                    <div className="w-12 h-12 border-4 border-orange-600 border-t-transparent rounded-full animate-spin"></div>
                     <p className="text-gray-600 font-medium">Loading content...</p>
                 </div>
             </div>
@@ -59,7 +59,7 @@ export default function ContentPage({ slug, onBack }) {
                     <p className="text-gray-600 mb-6">The content you're looking for hasn't been created yet.</p>
                     <button
                         onClick={onBack}
-                        className="px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white font-semibold rounded-xl hover:from-green-700 hover:to-green-800 transition-all shadow-lg hover:shadow-xl"
+                        className="px-6 py-3 bg-gradient-to-r from-orange-600 to-orange-700 text-white font-semibold rounded-xl hover:from-orange-700 hover:to-orange-800 transition-all shadow-lg hover:shadow-xl"
                     >
                         Go Back
                     </button>
@@ -73,7 +73,7 @@ export default function ContentPage({ slug, onBack }) {
             {/* Back Button */}
             <button
                 onClick={onBack}
-                className="mb-6 flex items-center gap-2 text-gray-600 hover:text-green-700 transition-colors group"
+                className="mb-6 flex items-center gap-2 text-gray-600 hover:text-orange-700 transition-colors group"
             >
                 <svg className="w-5 h-5 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -98,7 +98,7 @@ export default function ContentPage({ slug, onBack }) {
             prose-ul:my-4 prose-ul:list-disc prose-ul:pl-6
             prose-ol:my-4 prose-ol:list-decimal prose-ol:pl-6
             prose-li:mb-2
-            prose-a:text-green-700 prose-a:hover:text-green-800 prose-a:underline
+            prose-a:text-orange-700 prose-a:hover:text-orange-800 prose-a:underline
             prose-strong:text-gray-900"
                     dangerouslySetInnerHTML={{ __html: page.content }}
                 />

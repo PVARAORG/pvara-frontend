@@ -18,9 +18,9 @@ export function AnalyticsDashboard({ state, onGenerateTestData }) {
       </div>
 
       {/* Recruitment Pipeline Workflow Visualization */}
-      <div className="bg-gradient-to-r from-green-50 to-blue-50 p-6 rounded-xl shadow-md border border-green-200">
+      <div className="bg-gradient-to-r from-orange-50 to-blue-50 p-6 rounded-xl shadow-md border border-orange-200">
         <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-          <svg className="w-6 h-6 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-6 h-6 text-orange-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
           </svg>
           Recruitment Pipeline Workflow
@@ -30,7 +30,7 @@ export function AnalyticsDashboard({ state, onGenerateTestData }) {
             { name: 'HR Review', icon: '👥', color: 'bg-blue-500', count: (state.applications || []).filter(a => ['submitted', 'hr-review'].includes(a.status)).length },
             { name: 'AI Screening', icon: '🤖', color: 'bg-purple-500', count: (state.applications || []).filter(a => ['screening', 'ai-reviewed', 'shortlisted'].includes(a.status)).length },
             { name: 'Interview', icon: '🎤', color: 'bg-orange-500', count: (state.applications || []).filter(a => ['interview', 'interview-complete'].includes(a.status)).length },
-            { name: 'Offer', icon: '📄', color: 'bg-green-500', count: (state.applications || []).filter(a => ['offer'].includes(a.status)).length },
+            { name: 'Offer', icon: '📄', color: 'bg-orange-500', count: (state.applications || []).filter(a => ['offer'].includes(a.status)).length },
           ].map((stage, index, arr) => (
             <div key={stage.name} className="flex items-center">
               <div className="flex flex-col items-center">
@@ -79,8 +79,8 @@ export function AnalyticsDashboard({ state, onGenerateTestData }) {
             key={tab}
             onClick={() => setSelectedTab(tab)}
             className={`px-4 py-2.5 font-medium text-sm border-b-2 whitespace-nowrap transition-colors ${selectedTab === tab
-              ? "border-green-600 text-green-700 bg-green-50/50"
-              : "border-transparent text-gray-500 hover:text-green-600 hover:bg-gray-50"
+              ? "border-orange-600 text-orange-700 bg-orange-50/50"
+              : "border-transparent text-gray-500 hover:text-orange-600 hover:bg-gray-50"
               }`}
           >
             {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -141,7 +141,7 @@ export function AnalyticsDashboard({ state, onGenerateTestData }) {
             <h4 className="font-semibold mb-4 text-gray-800">Time to Hire</h4>
             <div className="grid grid-cols-3 gap-4 text-center">
               <div>
-                <div className="text-2xl font-bold text-green-700">
+                <div className="text-2xl font-bold text-orange-700">
                   {analytics.timeToHireStats.average}
                 </div>
                 <div className="text-xs text-gray-500">Average (days)</div>
@@ -196,8 +196,8 @@ export function AnalyticsDashboard({ state, onGenerateTestData }) {
                     <div className="font-bold text-gray-800">{job.totalApplications}</div>
                     <div className="text-xs text-gray-500">Applications</div>
                   </div>
-                  <div className="text-center p-2 bg-green-50 rounded-lg">
-                    <div className="font-bold text-green-600">{job.offers}</div>
+                  <div className="text-center p-2 bg-orange-50 rounded-lg">
+                    <div className="font-bold text-orange-600">{job.offers}</div>
                     <div className="text-xs text-gray-500">Offers</div>
                   </div>
                   <div className="text-center p-2 bg-blue-50 rounded-lg">
@@ -238,7 +238,7 @@ export function AnalyticsDashboard({ state, onGenerateTestData }) {
           {/* Export Report */}
           <button
             onClick={() => exportReport(report)}
-            className="px-5 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 font-medium shadow-sm hover:shadow-md transition-all flex items-center gap-2"
+            className="px-5 py-2.5 bg-gradient-to-r from-orange-600 to-emerald-600 text-white rounded-xl hover:from-orange-700 hover:to-emerald-700 font-medium shadow-sm hover:shadow-md transition-all flex items-center gap-2"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -254,7 +254,7 @@ export function AnalyticsDashboard({ state, onGenerateTestData }) {
 function MetricCard({ label, value, icon }) {
   return (
     <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100 text-center hover:shadow-md transition-shadow">
-      <div className="flex justify-center text-green-600 mb-2">{icon}</div>
+      <div className="flex justify-center text-orange-600 mb-2">{icon}</div>
       <div className="text-2xl font-bold text-gray-800">{value}</div>
       <div className="text-xs text-gray-500 mt-1 font-medium">{label}</div>
     </div>
@@ -271,7 +271,7 @@ function ProgressBar({ label, value }) {
       </div>
       <div className="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
         <div
-          className="bg-gradient-to-r from-green-500 to-emerald-500 h-2.5 rounded-full transition-all"
+          className="bg-gradient-to-r from-orange-500 to-emerald-500 h-2.5 rounded-full transition-all"
           style={{ width: `${cappedValue}%` }}
         ></div>
       </div>
@@ -285,7 +285,7 @@ function FunnelChart({ funnel }) {
     { label: "Applications", value: funnel.applications, color: "bg-blue-500" },
     { label: "Screened", value: funnel.screened, color: "bg-yellow-500" },
     { label: "Interviewed", value: funnel.interviewed, color: "bg-purple-500" },
-    { label: "Offers", value: funnel.offers, color: "bg-green-500" },
+    { label: "Offers", value: funnel.offers, color: "bg-orange-500" },
   ];
 
   return (
@@ -335,7 +335,7 @@ export function AIScreeningPanel({ candidates, jobRequirements, onSelectCandidat
   return (
     <div className="space-y-4 bg-white p-4 rounded shadow">
       <div className="flex items-center gap-2">
-        <svg className="w-6 h-6 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-6 h-6 text-orange-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
         </svg>
         <h3 className="text-lg font-semibold">AI Candidate Screening</h3>
@@ -352,7 +352,7 @@ export function AIScreeningPanel({ candidates, jobRequirements, onSelectCandidat
           onChange={(e) => setThreshold(Number(e.target.value))}
           className="flex-1"
         />
-        <span className="text-lg font-bold text-green-700">{threshold}</span>
+        <span className="text-lg font-bold text-orange-700">{threshold}</span>
       </div>
 
       {/* Scored Candidates */}
@@ -361,7 +361,7 @@ export function AIScreeningPanel({ candidates, jobRequirements, onSelectCandidat
           <div
             key={candidate.id}
             className={`p-3 rounded border-l-4 ${candidate.autoSelected
-              ? "border-l-green-700 bg-green-50"
+              ? "border-l-orange-700 bg-orange-50"
               : candidate.aiScore >= 60
                 ? "border-l-yellow-700 bg-yellow-50"
                 : "border-l-red-700 bg-red-50"
@@ -375,7 +375,7 @@ export function AIScreeningPanel({ candidates, jobRequirements, onSelectCandidat
                 </div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-green-700">
+                <div className="text-2xl font-bold text-orange-700">
                   {candidate.aiScore}
                 </div>
                 <div className="text-xs text-gray-600">AI Score</div>
@@ -423,7 +423,7 @@ export function AIScreeningPanel({ candidates, jobRequirements, onSelectCandidat
       {selectedForReview.size > 0 && (
         <button
           onClick={() => onSelectCandidates && onSelectCandidates(Array.from(selectedForReview))}
-          className="w-full px-4 py-2 bg-green-700 text-white rounded hover:bg-green-800 font-semibold flex items-center justify-center gap-2"
+          className="w-full px-4 py-2 bg-orange-700 text-white rounded hover:bg-orange-800 font-semibold flex items-center justify-center gap-2"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -471,8 +471,8 @@ export function InterviewEvaluationForm({ candidate, onSubmit, onCancel }) {
                   key={num}
                   onClick={() => setScores({ ...scores, [key]: num })}
                   className={`w-8 h-8 rounded border ${value === num
-                    ? "bg-green-700 text-white border-green-700"
-                    : "border-gray-300 hover:border-green-700"
+                    ? "bg-orange-700 text-white border-orange-700"
+                    : "border-gray-300 hover:border-orange-700"
                     }`}
                 >
                   {num}
@@ -502,7 +502,7 @@ export function InterviewEvaluationForm({ candidate, onSubmit, onCancel }) {
       <div className="flex gap-2">
         <button
           onClick={handleSubmit}
-          className="flex-1 px-4 py-2 bg-green-700 text-white rounded hover:bg-green-800"
+          className="flex-1 px-4 py-2 bg-orange-700 text-white rounded hover:bg-orange-800"
         >
           Save Evaluation
         </button>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+const API_URL = process.env.REACT_APP_API_URL || 'https://argaam-be.fortanixor.com';
 
 /**
  * ContentManagementPanel - Admin panel for managing content pages
@@ -206,7 +206,7 @@ export default function ContentManagementPanel() {
         return (
             <div className="p-6 flex items-center justify-center min-h-[400px]">
                 <div className="flex flex-col items-center gap-4">
-                    <div className="w-12 h-12 border-4 border-green-600 border-t-transparent rounded-full animate-spin"></div>
+                    <div className="w-12 h-12 border-4 border-orange-600 border-t-transparent rounded-full animate-spin"></div>
                     <p className="text-gray-600 font-medium">Loading content pages...</p>
                 </div>
             </div>
@@ -223,7 +223,7 @@ export default function ContentManagementPanel() {
 
             {/* Message Toast */}
             {message && (
-                <div className={`fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white font-medium transition-all ${message.type === 'error' ? 'bg-red-500' : 'bg-green-500'
+                <div className={`fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white font-medium transition-all ${message.type === 'error' ? 'bg-red-500' : 'bg-orange-500'
                     }`}>
                     {message.text}
                 </div>
@@ -263,7 +263,7 @@ export default function ContentManagementPanel() {
                                 onChange={(e) => setFormData(f => ({ ...f, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-') }))}
                                 disabled={editMode !== 'create'}
                                 placeholder="about-us"
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent disabled:bg-gray-100"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent disabled:bg-gray-100"
                             />
                             <p className="text-xs text-gray-500 mt-1">URL-friendly identifier (lowercase, hyphens only)</p>
                         </div>
@@ -274,7 +274,7 @@ export default function ContentManagementPanel() {
                                 value={formData.title}
                                 onChange={(e) => setFormData(f => ({ ...f, title: e.target.value }))}
                                 placeholder="About Us"
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                             />
                         </div>
                     </div>
@@ -287,7 +287,7 @@ export default function ContentManagementPanel() {
                             onChange={(e) => setFormData(f => ({ ...f, metaDescription: e.target.value }))}
                             placeholder="Brief description for search engines..."
                             maxLength={300}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                         />
                     </div>
 
@@ -298,7 +298,7 @@ export default function ContentManagementPanel() {
                             onChange={(e) => setFormData(f => ({ ...f, content: e.target.value }))}
                             placeholder="<h2>Page Heading</h2><p>Your content here...</p>"
                             rows={12}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent font-mono text-sm"
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent font-mono text-sm"
                         />
                         <p className="text-xs text-gray-500 mt-1">Supports HTML tags: h2, h3, p, ul, ol, li, a, strong, em</p>
                     </div>
@@ -311,7 +311,7 @@ export default function ContentManagementPanel() {
                                 value={formData.order}
                                 onChange={(e) => setFormData(f => ({ ...f, order: parseInt(e.target.value) || 0 }))}
                                 min={0}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                             />
                         </div>
                         <div className="flex items-center gap-3 pt-6">
@@ -320,7 +320,7 @@ export default function ContentManagementPanel() {
                                     type="checkbox"
                                     checked={formData.isActive}
                                     onChange={(e) => setFormData(f => ({ ...f, isActive: e.target.checked }))}
-                                    className="w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-500"
+                                    className="w-5 h-5 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
                                 />
                                 <span className="font-medium text-gray-700">Published (visible to users)</span>
                             </label>
@@ -331,7 +331,7 @@ export default function ContentManagementPanel() {
                         <button
                             onClick={handleSave}
                             disabled={saving}
-                            className="px-6 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition disabled:opacity-50 flex items-center gap-2"
+                            className="px-6 py-2 bg-orange-600 text-white rounded-lg font-medium hover:bg-orange-700 transition disabled:opacity-50 flex items-center gap-2"
                         >
                             {saving ? (
                                 <>
@@ -396,7 +396,7 @@ export default function ContentManagementPanel() {
                                         <button
                                             onClick={() => togglePageActive(page)}
                                             className={`px-2 py-1 rounded text-xs font-medium ${page.isActive
-                                                ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                                                ? 'bg-orange-100 text-orange-700 hover:bg-orange-200'
                                                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                                                 }`}
                                         >
