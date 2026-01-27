@@ -4,7 +4,7 @@ import React from "react";
 // Example: fetch('/api/interviews')
 
 const InterviewRubric = ({ rubric, onEvaluate, jobs = [], applications = [], selectedJobForAI, handleSelectJobForAI }) => {
-  // AI Screening logic migrated from PvaraPhase2.jsx (Argaam)
+  // AI Screening logic migrated from PvaraPhase2.jsx
   // Include jobs that are 'open' or have no status (newly created jobs)
   const jobList = jobs.filter(j => j.status === 'open' || !j.status);
   const selectedJob = selectedJobForAI ? jobs.find(j => j.id === selectedJobForAI) : jobList[0];
@@ -20,12 +20,12 @@ const InterviewRubric = ({ rubric, onEvaluate, jobs = [], applications = [], sel
       <div className="bg-white p-4 rounded shadow">
         <div className="flex justify-between items-center mb-4">
           <div>
-            <h2 className="text-xl font-semibold text-orange-800">AI Screening</h2>
+            <h2 className="text-xl font-semibold text-green-800">AI Screening</h2>
             <p className="text-sm text-gray-600">Batch evaluate applications using AI</p>
           </div>
           <button
             onClick={() => onEvaluate()}
-            className="px-4 py-2 bg-orange-700 text-white rounded hover:bg-orange-800 disabled:opacity-50"
+            className="px-4 py-2 bg-green-700 text-white rounded hover:bg-green-800 disabled:opacity-50"
             disabled={unevaluatedCount === 0}
           >
             🤖 Run AI Evaluation ({unevaluatedCount} pending)
@@ -62,11 +62,11 @@ const InterviewRubric = ({ rubric, onEvaluate, jobs = [], applications = [], sel
                     <div className="text-xs text-gray-500">{app.applicant.email}</div>
                     <div className="text-xs text-gray-600 mt-1">
                       Status: <span className="font-medium">{app.status}</span>
-                      {app.aiScore && <span className="ml-3">AI Score: <span className="font-semibold text-orange-700">{app.aiScore}</span></span>}
+                      {app.aiScore && <span className="ml-3">AI Score: <span className="font-semibold text-green-700">{app.aiScore}</span></span>}
                     </div>
                   </div>
                   {app.aiScore ? (
-                    <span className="px-3 py-1 bg-orange-100 text-orange-700 rounded text-sm">
+                    <span className="px-3 py-1 bg-green-100 text-green-700 rounded text-sm">
                       ✓ Evaluated
                     </span>
                   ) : (

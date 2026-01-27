@@ -1,5 +1,5 @@
 /**
- * Validation Utilities for Argaam Frontend
+ * Validation Utilities for PVARA Frontend
  * Provides reusable validation functions for forms
  */
 

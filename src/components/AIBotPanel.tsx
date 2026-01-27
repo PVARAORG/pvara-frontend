@@ -35,12 +35,12 @@ export const AIBotPanel: React.FC<AIBotPanelProps> = ({ applicationId, applicati
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
+  
   // STT (Speech-to-Text) state
   const [isListening, setIsListening] = useState(false);
   const [isSttSupported, setIsSttSupported] = useState(false);
   const recognitionRef = useRef<any>(null);
-
+  
   // TTS (Text-to-Speech) state
   const [isTtsEnabled, setIsTtsEnabled] = useState(true);
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -94,10 +94,10 @@ export const AIBotPanel: React.FC<AIBotPanelProps> = ({ applicationId, applicati
   // TTS function to speak text
   const speakText = (text: string) => {
     if (!isTtsSupported || !isTtsEnabled) return;
-
+    
     // Cancel any ongoing speech
     window.speechSynthesis.cancel();
-
+    
     // Clean text for speech (remove markdown symbols)
     const cleanText = text
       .replace(/\*\*/g, '')
@@ -105,17 +105,17 @@ export const AIBotPanel: React.FC<AIBotPanelProps> = ({ applicationId, applicati
       .replace(/\n/g, '. ')
       .replace(/•/g, '')
       .replace(/\d+\./g, '');
-
+    
     const utterance = new SpeechSynthesisUtterance(cleanText);
     utterance.rate = 1;
     utterance.pitch = 1;
     utterance.volume = 1;
     utterance.lang = 'en-US';
-
+    
     utterance.onstart = () => setIsSpeaking(true);
     utterance.onend = () => setIsSpeaking(false);
     utterance.onerror = () => setIsSpeaking(false);
-
+    
     speechSynthRef.current = utterance;
     window.speechSynthesis.speak(utterance);
   };
@@ -129,7 +129,7 @@ export const AIBotPanel: React.FC<AIBotPanelProps> = ({ applicationId, applicati
   // Toggle listening (STT)
   const toggleListening = () => {
     if (!isSttSupported) return;
-
+    
     if (isListening) {
       recognitionRef.current?.stop();
     } else {
@@ -162,7 +162,7 @@ export const AIBotPanel: React.FC<AIBotPanelProps> = ({ applicationId, applicati
 
       'document|file|upload': `You can manage documents in the Document Management section:\n\n• **Upload**: Click "Upload Document" to add files (PDF, DOCX, XLSX, images)\n• **Version Control**: Each upload creates a new version\n• **Feedback**: Reviewers can add feedback with severity levels\n• **Track Changes**: See who made what changes and when\n• **History**: Access previous versions of documents\n\nWhat documents do you need to work with?`,
 
-      'noc|notice of compliance|signature': `The NOC (Notice of Compliance) can be created when the application is ready:\n\n1. Navigate to the NOC Creation panel\n2. System auto-generates a license number (ARGAAM-NOC-YYYY-NNNNN format)\n3. Set validity dates (typically 1-5 years)\n4. Add compliance conditions\n5. Add signatories:\n   - Authorizer (usually senior official)\n   - Reviewer (compliance officer)\n   - Additional signatories as needed\n6. Download as formatted document\n7. Signatures can be added manually or digitally\n\nNeed help with any specific part?`,
+      'noc|notice of compliance|signature': `The NOC (Notice of Compliance) can be created when the application is ready:\n\n1. Navigate to the NOC Creation panel\n2. System auto-generates a license number (PVARA-NOC-YYYY-NNNNN format)\n3. Set validity dates (typically 1-5 years)\n4. Add compliance conditions\n5. Add signatories:\n   - Authorizer (usually senior official)\n   - Reviewer (compliance officer)\n   - Additional signatories as needed\n6. Download as formatted document\n7. Signatures can be added manually or digitally\n\nNeed help with any specific part?`,
 
       'feedback|comment|review': `The Feedback system works as follows:\n\n1. **Adding Feedback**: Go to Document Management → Select document → Add Feedback\n2. **Priority Levels**: Low, Medium, High, Critical\n3. **Categories**: Can be any heading (e.g., "KYC Procedures", "API Documentation")\n4. **Feedback Status**: Pending → Accept/Reject\n5. **Change Trail**: Track who suggested what and when\n\nFeedback helps ensure documents meet all requirements before NOC issuance.`,
 
@@ -220,7 +220,7 @@ export const AIBotPanel: React.FC<AIBotPanelProps> = ({ applicationId, applicati
 
       setMessages(prev => [...prev, botResponse]);
       setIsLoading(false);
-
+      
       // Speak the response if TTS is enabled
       if (isTtsEnabled) {
         speakText(responseContent);
@@ -295,7 +295,7 @@ export const AIBotPanel: React.FC<AIBotPanelProps> = ({ applicationId, applicati
           </button>
         </div>
       </div>
-
+      
       {/* Voice Status Bar */}
       {(isListening || isSpeaking) && (
         <div className="voice-status-bar">

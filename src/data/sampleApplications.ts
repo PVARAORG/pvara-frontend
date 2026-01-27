@@ -72,7 +72,7 @@ export const sampleApplications: Application[] = [
       'Derivatives products offer up to 125x leverage - excessive for retail market without investor suitability assessments',
       'Cold wallet custody arrangements reference external custodians but lack specific provider details and insurance coverage',
       'Daily reconciliation processes described but no independent third-party audit verification provided',
-      'Data localization strategy unclear - Argaam regulations may require Pakistan-based data storage',
+      'Data localization strategy unclear - PVARA regulations may require Pakistan-based data storage',
       'Business plan lacks Shariah compliance assessment for Islamic banking market compatibility'
     ],
     recommendations: [

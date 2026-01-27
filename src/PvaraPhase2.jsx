@@ -23,7 +23,7 @@ import ContentManagementPanel from "./ContentManagementPanel";
 import { OfferManagementPanel, InterviewSchedulingPanel, InterviewFeedbackModal, ExtendOfferModal } from "./AdvancedFeaturesUI";
 
 // ---------- Storage utilities ----------
-const STORAGE_KEY = "argaam_v3";
+const STORAGE_KEY = "pvara_v3";
 function saveState(s) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
@@ -53,7 +53,7 @@ function ConfirmModal({ open, title, message, onConfirm, onCancel }) {
           <button onClick={onCancel} className="px-3 py-1 border rounded">
             Cancel
           </button>
-          <button onClick={onConfirm} className="px-3 py-1 bg-orange-600 text-white rounded">
+          <button onClick={onConfirm} className="px-3 py-1 bg-green-700 text-white rounded">
             Confirm
           </button>
         </div>
@@ -68,8 +68,8 @@ function SuccessModal({ open, title, message, onClose }) {
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div className="bg-white rounded-xl shadow-2xl w-96 p-6 text-center animate-bounce-in">
-        <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <svg className="w-8 h-8 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
         </div>
@@ -77,7 +77,7 @@ function SuccessModal({ open, title, message, onClose }) {
         <div className="text-gray-600 mb-6">{message}</div>
         <button
           onClick={onClose}
-          className="w-full px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 font-medium transition"
+          className="w-full px-4 py-2 bg-green-700 text-white rounded-lg hover:bg-green-800 font-medium transition"
         >
           Got it
         </button>
@@ -91,7 +91,7 @@ function CandidateProfileModal({ open, candidate, onClose, jobs }) {
   const [cvExists, setCvExists] = React.useState(null); // null = loading, true/false = result
   const [cvUrl, setCvUrl] = React.useState(null);
 
-  const apiUrl = process.env.REACT_APP_API_URL || "https://argaam-be.fortanixor.com";
+  const apiUrl = process.env.REACT_APP_API_URL || "https://portal-be.paicc.tech";
 
   // Check if CV exists when modal opens
   React.useEffect(() => {
@@ -165,7 +165,7 @@ function CandidateProfileModal({ open, candidate, onClose, jobs }) {
           <div>
             <div className="flex items-center gap-3">
               <h2 className="text-2xl font-bold text-gray-900">{c.applicant?.name || c.name}</h2>
-              <span className={`px-2 py-1 text-xs rounded-full font-semibold ${c.status === 'offer' ? 'bg-orange-100 text-orange-600' :
+              <span className={`px-2 py-1 text-xs rounded-full font-semibold ${c.status === 'offer' ? 'bg-green-100 text-green-700' :
                 c.status === 'interview' || c.status === 'phone-interview' ? 'bg-blue-100 text-blue-700' :
                   c.status === 'screening' ? 'bg-yellow-100 text-yellow-700' :
                     c.status === 'rejected' ? 'bg-red-100 text-red-700' :
@@ -263,7 +263,7 @@ function CandidateProfileModal({ open, candidate, onClose, jobs }) {
                 </h3>
                 <div className="flex items-start gap-4">
                   <div className="flex flex-col items-center">
-                    <span className={`text-4xl font-bold ${c.aiScore >= 75 ? 'text-orange-600' : c.aiScore >= 60 ? 'text-yellow-600' : 'text-red-600'}`}>{c.aiScore}</span>
+                    <span className={`text-4xl font-bold ${c.aiScore >= 75 ? 'text-green-600' : c.aiScore >= 60 ? 'text-yellow-600' : 'text-red-600'}`}>{c.aiScore}</span>
                     <span className="text-xs text-gray-500 uppercase font-semibold mt-1">Score</span>
                   </div>
                   <div className="flex-1">
@@ -316,7 +316,7 @@ function generateTestApplications(jobs, baseTime = Date.now()) {
     "Master in Cybersecurity",
     "Bachelor in Accounting"
   ];
-  const cities = ["Riyadh", "Jeddah", "Dammam", "Khobar", "Mecca", "Medina", "Abha"];
+  const cities = ["Islamabad", "Karachi", "Lahore", "Rawalpindi", "Faisalabad", "Peshawar", "Multan"];
 
   const applications = [];
   const statuses = ["submitted", "screening", "phone-interview", "interview", "offer", "rejected"];
@@ -360,7 +360,7 @@ function defaultState() {
   const jobs = [
     {
       id: "job-1733450000001",
-      title: "Director General - Technology & Product",
+      title: "Director General - Virtual Assets Oversight",
       department: "Executive Leadership",
       grade: "DG",
       createdAt: "2025-12-05T09:00:00.000Z",
@@ -369,8 +369,8 @@ function defaultState() {
         minExperience: { value: 15, mandatory: true },
         uploads: { value: { cv: true, coverLetter: true }, mandatory: true },
       },
-      description: "Lead Argaam's technology and product strategy, overseeing development of financial data platforms, market analytics tools, and digital media solutions serving the GCC region.",
-      locations: ["Riyadh"],
+      description: "Lead the national Virtual Assets Regulatory Authority (PVARA), setting strategy for licensing, supervision, and enforcement across VASPs, exchanges, and custodians.",
+      locations: ["Islamabad"],
       openings: 1,
       employmentType: "Full-time",
       salary: { min: 900000, max: 1200000 },
@@ -378,8 +378,8 @@ function defaultState() {
     },
     {
       id: "job-1733450000002",
-      title: "Director - Engineering & Development",
-      department: "Engineering",
+      title: "Director - Licensing & Authorizations",
+      department: "Licensing",
       grade: "Director",
       createdAt: "2025-12-04T15:30:00.000Z",
       fields: {
@@ -387,8 +387,8 @@ function defaultState() {
         minExperience: { value: 12, mandatory: true },
         uploads: { value: { cv: true, coverLetter: true }, mandatory: true },
       },
-      description: "Lead engineering teams building Argaam's core financial data infrastructure, real-time market data systems, and web/mobile applications serving millions of users.",
-      locations: ["Riyadh"],
+      description: "Own end-to-end authorization of virtual asset service providers (VASPs), including fit-and-proper assessments, capital adequacy, and travel-rule readiness.",
+      locations: ["Islamabad"],
       openings: 1,
       employmentType: "Full-time",
       salary: { min: 650000, max: 850000 },
@@ -405,7 +405,7 @@ function defaultState() {
         minExperience: { value: 12, mandatory: true },
         uploads: { value: { cv: true, coverLetter: true }, mandatory: true },
       },
-      description: "Manage product development lifecycle, coordinate cross-functional teams, and ensure delivery of high-quality financial technology solutions and media platforms.",
+      description: "Lead ongoing supervision of VASPs, exchanges, custodians, and wallet providers with on-site/remote inspections and risk-based monitoring.",
       locations: ["Islamabad", "Karachi"],
       openings: 1,
       employmentType: "Full-time",
@@ -423,8 +423,8 @@ function defaultState() {
         minExperience: { value: 12, mandatory: true },
         uploads: { value: { cv: true, coverLetter: true }, mandatory: true },
       },
-      description: "Lead data analytics and business intelligence initiatives, building dashboards and reports that provide insights to investors and financial professionals.",
-      locations: ["Riyadh"],
+      description: "Oversee complex investigations, sanctions, and remediation for AML/CFT breaches, market abuse, and consumer protection violations in virtual assets.",
+      locations: ["Islamabad"],
       openings: 1,
       employmentType: "Full-time",
       salary: { min: 650000, max: 850000 },
@@ -432,7 +432,7 @@ function defaultState() {
     },
     {
       id: "job-1733450000005",
-      title: "Director - Content & Editorial",
+      title: "Director - Policy & Standards (Virtual Assets)",
       department: "Policy",
       grade: "Director",
       createdAt: "2025-12-03T10:15:00.000Z",
@@ -441,8 +441,8 @@ function defaultState() {
         minExperience: { value: 10, mandatory: true },
         uploads: { value: { cv: true, coverLetter: true }, mandatory: true },
       },
-      description: "Lead editorial strategy and content production for Argaam's financial news, market analysis, and investment research serving the Saudi and GCC markets.",
-      locations: ["Riyadh"],
+      description: "Shape national policy for virtual assets, align with FATF travel rule, IOSCO recommendations, and develop prudential/market conduct standards.",
+      locations: ["Islamabad"],
       openings: 1,
       employmentType: "Full-time",
       salary: { min: 580000, max: 780000 },
@@ -459,7 +459,7 @@ function defaultState() {
         minExperience: { value: 10, mandatory: true },
         uploads: { value: { cv: true, coverLetter: true }, mandatory: true },
       },
-      description: "Oversee cybersecurity and infrastructure security for Argaam's platforms, ensuring protection of financial data and maintaining high availability standards.",
+      description: "Set cybersecurity baseline for VASPs, penetration testing standards, key management, cold/warm wallet controls, and incident reporting protocols.",
       locations: ["Karachi", "Islamabad"],
       openings: 1,
       employmentType: "Full-time",
@@ -468,8 +468,8 @@ function defaultState() {
     },
     {
       id: "job-1733450000007",
-      title: "Deputy Director - Backend Engineering",
-      department: "Engineering",
+      title: "Deputy Director - Licensing (Exchanges & Custodians)",
+      department: "Licensing",
       grade: "Deputy Director",
       createdAt: "2025-12-02T09:20:00.000Z",
       fields: {
@@ -478,7 +478,7 @@ function defaultState() {
         uploads: { value: { cv: true, coverLetter: true }, mandatory: true },
       },
       description: "Lead evaluations of exchange and custodian license applications, focusing on custody controls, segregation of client assets, and solvency.",
-      locations: ["Riyadh"],
+      locations: ["Islamabad"],
       openings: 2,
       employmentType: "Full-time",
       salary: { min: 380000, max: 520000 },
@@ -486,7 +486,7 @@ function defaultState() {
     },
     {
       id: "job-1733450000008",
-      title: "Deputy Director - Frontend Engineering",
+      title: "Deputy Director - Supervision (VASP Monitoring)",
       department: "Supervision",
       grade: "Deputy Director",
       createdAt: "2025-12-01T17:10:00.000Z",
@@ -495,8 +495,8 @@ function defaultState() {
         minExperience: { value: 8, mandatory: true },
         uploads: { value: { cv: true, coverLetter: true }, mandatory: true },
       },
-      description: "Lead technology initiatives and manage engineering teams building Argaam's financial data and media platforms.",
-      locations: ["Riyadh", "Jeddah"],
+      description: "Perform risk-based supervision, thematic reviews, and remediation tracking for licensed VASPs across Pakistan.",
+      locations: ["Karachi", "Lahore"],
       openings: 2,
       employmentType: "Full-time",
       salary: { min: 360000, max: 500000 },
@@ -532,7 +532,7 @@ function defaultState() {
         uploads: { value: { cv: true, coverLetter: true }, mandatory: true },
       },
       description: "Draft and socialize travel rule guidance, sanction-screening requirements, and cross-border information sharing standards.",
-      locations: ["Riyadh"],
+      locations: ["Islamabad"],
       openings: 1,
       employmentType: "Full-time",
       salary: { min: 340000, max: 480000 },
@@ -540,8 +540,8 @@ function defaultState() {
     },
     {
       id: "job-1733450000011",
-      title: "Assistant Director - Mobile Development",
-      department: "Engineering",
+      title: "Assistant Director - Licensing (Retail VASP)",
+      department: "Licensing",
       grade: "Assistant Director",
       createdAt: "2025-11-30T10:25:00.000Z",
       fields: {
@@ -549,7 +549,7 @@ function defaultState() {
         minExperience: { value: 5, mandatory: true },
         uploads: { value: { cv: true, coverLetter: true }, mandatory: true },
       },
-      description: "Develop and maintain Argaam's mobile applications for iOS and Android, delivering exceptional user experiences for investors and financial professionals.",
+      description: "Review retail VASP applications, client asset safeguarding plans, outsourcing arrangements, and operational resilience.",
       locations: ["Islamabad", "Karachi"],
       openings: 3,
       employmentType: "Full-time",
@@ -568,7 +568,7 @@ function defaultState() {
         uploads: { value: { cv: true, coverLetter: true }, mandatory: true },
       },
       description: "Monitor exchange uptime, liquidity, market integrity controls, proof-of-reserves attestations, and incident reporting.",
-      locations: ["Riyadh", "Jeddah"],
+      locations: ["Karachi", "Lahore"],
       openings: 3,
       employmentType: "Full-time",
       salary: { min: 230000, max: 340000 },
@@ -603,8 +603,8 @@ function defaultState() {
         minExperience: { value: 4, mandatory: true },
         uploads: { value: { cv: true, coverLetter: true }, mandatory: true },
       },
-      description: "Design and implement user interfaces for Argaam's web and mobile platforms, focusing on data visualization and financial information presentation.",
-      locations: ["Riyadh"],
+      description: "Develop guardrails for stablecoins, tokenized assets, disclosure standards, and consumer protection around virtual asset offerings.",
+      locations: ["Islamabad"],
       openings: 2,
       employmentType: "Full-time",
       salary: { min: 210000, max: 320000 },
@@ -640,7 +640,7 @@ function defaultState() {
         uploads: { value: { cv: true, coverLetter: false }, mandatory: true },
       },
       description: "Monitor trade surveillance alerts, wash trading patterns, spoofing/layering, and suspicious volume movements across exchanges.",
-      locations: ["Riyadh", "Jeddah"],
+      locations: ["Karachi"],
       openings: 2,
       employmentType: "Full-time",
       salary: { min: 170000, max: 250000 },
@@ -648,7 +648,7 @@ function defaultState() {
     },
     {
       id: "job-1733450000017",
-      title: "Senior Legal Counsel - Technology & Media",
+      title: "Senior Legal Counsel - Virtual Assets",
       department: "Legal",
       grade: "Scale-9",
       createdAt: "2025-11-26T16:15:00.000Z",
@@ -657,8 +657,8 @@ function defaultState() {
         minExperience: { value: 8, mandatory: true },
         uploads: { value: { cv: true, coverLetter: true }, mandatory: true },
       },
-      description: "Provide legal guidance on technology contracts, intellectual property, data privacy, and media regulations for Argaam's operations across the GCC region.",
-      locations: ["Riyadh"],
+      description: "Draft regulatory instruments, enforcement orders, and licensing conditions; advise on cross-border cooperation and data sharing agreements.",
+      locations: ["Islamabad"],
       openings: 2,
       employmentType: "Full-time",
       salary: { min: 320000, max: 460000 },
@@ -666,7 +666,7 @@ function defaultState() {
     },
     {
       id: "job-1733450000018",
-      title: "Senior Risk Officer - Technology & Operations",
+      title: "Senior Risk Officer - VASP Oversight",
       department: "Risk",
       grade: "Scale-8",
       createdAt: "2025-11-26T10:00:00.000Z",
@@ -752,14 +752,14 @@ function JobButton({ job, stats, isSelected, onSelectJob }) {
     <button
       onClick={() => onSelectJob(job.id)}
       className={`w-full text-left p-3 rounded-lg border-2 transition ${isSelected
-        ? 'border-orange-600 bg-orange-50'
-        : 'border-gray-200 hover:border-orange-300 hover:bg-gray-50'
+        ? 'border-green-700 bg-green-50'
+        : 'border-gray-200 hover:border-green-300 hover:bg-gray-50'
         }`}
     >
       <div className="font-semibold text-sm text-gray-800 mb-1">{job.title}</div>
       <div className="text-xs text-gray-500 mb-2">{job.department}</div>
       <div className="flex items-center justify-between">
-        <span className="text-lg font-bold text-orange-600">{stats.total}</span>
+        <span className="text-lg font-bold text-green-700">{stats.total}</span>
         <div className="flex gap-1">
           {stats.submitted > 0 && (
             <span className="px-2 py-0.5 bg-gray-100 text-gray-700 rounded text-xs">
@@ -836,7 +836,7 @@ function HRReviewPanel({ jobs, applications, onStatusChange, onAIEvaluate, onBul
           <select
             value={currentJobId || ''}
             onChange={(e) => onSelectJob(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-green-500"
           >
             {jobs.map(job => {
               const stats = jobStats.find(s => s.jobId === job.id);
@@ -906,7 +906,7 @@ function HRReviewPanel({ jobs, applications, onStatusChange, onAIEvaluate, onBul
   );
 }
 
-function ArgaamPhase2() {
+function PvaraPhase2() {
   // Start with empty jobs/applications - will be populated from backend only
   const [state, setState] = useState(() => {
     const cached = loadState();
@@ -1428,7 +1428,7 @@ function ArgaamPhase2() {
     };
 
     // POST to backend API to save to MongoDB
-    const apiUrl = process.env.REACT_APP_API_URL || "https://argaam-be.fortanixor.com";
+    const apiUrl = process.env.REACT_APP_API_URL || "https://portal-be.paicc.tech";
     fetch(`${apiUrl}/api/applications/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -1551,7 +1551,7 @@ function ArgaamPhase2() {
       },
     };
 
-    const apiUrl = process.env.REACT_APP_API_URL || "https://argaam-be.fortanixor.com";
+    const apiUrl = process.env.REACT_APP_API_URL || "https://portal-be.paicc.tech";
     fetch(`${apiUrl}/api/email/send-template`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -1641,7 +1641,7 @@ function ArgaamPhase2() {
           },
         };
 
-        const apiUrl = process.env.REACT_APP_API_URL || "https://argaam-be.fortanixor.com";
+        const apiUrl = process.env.REACT_APP_API_URL || "https://portal-be.paicc.tech";
         fetch(`${apiUrl}/api/email/send-template`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -1837,26 +1837,25 @@ function ArgaamPhase2() {
         {/* Sidebar */}
         <div className={`fixed lg:static w-72 glass-sidebar text-gray-800 h-screen lg:h-auto lg:min-h-screen flex flex-col z-40 transition-transform duration-300 shadow-2xl overflow-y-auto pt-14 px-4 pb-6 lg:pt-6 lg:px-6 lg:pb-6 ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
           <div className="flex items-center gap-3 mb-6">
-            <img src={logo} alt="Argaam" className="h-10" />
+            <img src={logo} alt="PVARA" className="h-10" />
             <div>
-              <div className="font-display font-bold text-2xl text-orange-600">Argaam</div>
-              <div className="text-xs text-gray-600 font-medium tracking-wide" style={{ direction: 'rtl' }}>أرقام</div>
-              <div className="text-xs text-gray-600 font-medium tracking-wide">JOB PORTAL</div>
+              <div className="font-display font-bold text-2xl text-green-700">PVARA</div>
+              <div className="text-xs text-gray-600 font-medium tracking-wide">RECRUITMENT</div>
             </div>
           </div>
 
           <nav className="flex-1 space-y-1">
             {/* Public Candidate Portal - Always Visible */}
             <div className="text-xs uppercase font-semibold text-gray-500 px-3 py-2 mb-1">For Candidates</div>
-            <button onClick={() => { setView("jobs"); setMobileMenuOpen(false); setSelectedJobId(null); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "jobs" ? "glass-button text-orange-600 shadow-md" : "hover:glass-button"}`}>
+            <button onClick={() => { setView("jobs"); setMobileMenuOpen(false); setSelectedJobId(null); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "jobs" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>
               Browse Jobs
             </button>
-            <button onClick={() => { setView("apply"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "apply" ? "glass-button text-orange-600 shadow-md" : "hover:glass-button"}`}>
+            <button onClick={() => { setView("apply"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "apply" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 20h9" /><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" /></svg>
               Apply Now
             </button>
-            <button onClick={() => { setView("candidate-login"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "candidate-login" || view === "my-apps" ? "glass-button text-orange-600 shadow-md" : "hover:glass-button"}`}>
+            <button onClick={() => { setView("candidate-login"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "candidate-login" || view === "my-apps" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" /><path d="M14 2v4a2 2 0 0 0 2 2h4" /></svg>
               Track My Applications
             </button>
@@ -1867,64 +1866,64 @@ function ArgaamPhase2() {
                 <div className="border-t border-gray-300/50 mt-4 pt-4 mb-2">
                   <div className="text-xs uppercase font-semibold text-gray-500 px-3 py-1">Staff Portal</div>
                 </div>
-                <button onClick={() => { setView("dashboard"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "dashboard" ? "glass-button text-orange-600 shadow-md" : "hover:glass-button"}`}>
+                <button onClick={() => { setView("dashboard"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "dashboard" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect width="7" height="9" x="3" y="3" rx="1" /><rect width="7" height="5" x="14" y="3" rx="1" /><rect width="7" height="9" x="14" y="12" rx="1" /><rect width="7" height="5" x="3" y="16" rx="1" /></svg>
                   Dashboard
                 </button>
               </>
             )}
             {auth.hasRole('admin') && (
-              <button onClick={() => { setView("admin"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "admin" ? "glass-button text-orange-600 shadow-md" : "hover:glass-button"}`}>
+              <button onClick={() => { setView("admin"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "admin" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" /><circle cx="12" cy="12" r="3" /></svg>
                 Admin
               </button>
             )}
             {auth.hasRole(['hr', 'admin', 'recruiter']) && (
-              <button onClick={() => { setView("hr"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "hr" ? "glass-button text-orange-600 shadow-md" : "hover:glass-button"}`}>
+              <button onClick={() => { setView("hr"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "hr" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
                 HR Review
               </button>
             )}
             {auth.hasRole(['hr', 'admin', 'recruiter']) && (
-              <button onClick={() => { setView("ai-screening"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "ai-screening" ? "glass-button text-orange-600 shadow-md" : "hover:glass-button"}`}>
+              <button onClick={() => { setView("ai-screening"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "ai-screening" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8V4H8" /><rect width="16" height="12" x="4" y="8" rx="2" /><path d="M2 14h2" /><path d="M20 14h2" /><path d="M15 13v2" /><path d="M9 13v2" /></svg>
                 AI Screening
               </button>
             )}
             {/* TODO: Re-enable when testing integration is complete
             {auth.hasRole(['hr', 'admin', 'recruiter']) && (
-              <button onClick={() => { setView("test-management"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "test-management" ? "glass-button text-orange-600 shadow-md" : "hover:glass-button"}`}>
+              <button onClick={() => { setView("test-management"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "test-management" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></svg>
                 Test Management
               </button>
             )}
             */}
             {auth.hasRole(['hr', 'admin', 'recruiter']) && (
-              <button onClick={() => { setView("interview-management"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "interview-management" ? "glass-button text-orange-600 shadow-md" : "hover:glass-button"}`}>
+              <button onClick={() => { setView("interview-management"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "interview-management" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
                 Interview Management
               </button>
             )}
             {auth.hasRole(['hr', 'admin', 'recruiter']) && (
-              <button onClick={() => { setView("offer-management"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "offer-management" ? "glass-button text-orange-600 shadow-md" : "hover:glass-button"}`}>
+              <button onClick={() => { setView("offer-management"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "offer-management" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /><polyline points="10 9 9 9 8 9" /></svg>
                 Offer Management
               </button>
             )}
             {auth.hasRole(['hr', 'admin', 'recruiter']) && (
-              <button onClick={() => { setView("analytics"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "analytics" ? "glass-button text-orange-600 shadow-md" : "hover:glass-button"}`}>
+              <button onClick={() => { setView("analytics"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "analytics" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 3v18h18" /><path d="m19 9-5 5-4-4-3 3" /></svg>
                 Analytics
               </button>
             )}
             {auth.hasRole(['hr', 'admin', 'recruiter']) && (
-              <button onClick={() => { setView("shortlists"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "shortlists" ? "glass-button text-orange-600 shadow-md" : "hover:glass-button"}`}>
+              <button onClick={() => { setView("shortlists"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "shortlists" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polygon points="12 2 15 9 22 9 17 14 19 21 12 17 5 21 7 14 2 9 9 9 12 2" /></svg>
                 Shortlists
               </button>
             )}
             {auth.hasRole(['hr', 'admin']) && (
-              <button onClick={() => { setView("audit"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "audit" ? "glass-button text-orange-600 shadow-md" : "hover:glass-button"}`}>
+              <button onClick={() => { setView("audit"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "audit" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2" /><path d="M9 7h6" /><path d="M9 11h6" /><path d="M9 15h4" /></svg>
                 Audit Log
               </button>
@@ -1936,11 +1935,11 @@ function ArgaamPhase2() {
                 <div className="mt-4 pt-4 border-t border-gray-200">
                   <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-3">Advanced</span>
                 </div>
-                <button onClick={() => { setView("settings"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "settings" ? "glass-button text-orange-600 shadow-md" : "hover:glass-button"}`}>
+                <button onClick={() => { setView("settings"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "settings" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" /><circle cx="12" cy="12" r="3" /></svg>
                   Settings
                 </button>
-                <button onClick={() => { setView("content-admin"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "content-admin" ? "glass-button text-orange-600 shadow-md" : "hover:glass-button"}`}>
+                <button onClick={() => { setView("content-admin"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "content-admin" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                   Content Management
                 </button>
@@ -1953,11 +1952,11 @@ function ArgaamPhase2() {
             {user ? (
               <div className="mt-auto glass-card p-4 rounded-lg">
                 <div className="flex items-center gap-2 font-medium mb-2">
-                  <svg className="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+                  <svg className="w-5 h-5 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
                   <strong>{user.name}</strong>
                 </div>
                 <div className="text-xs text-gray-600 mb-3">
-                  Role: <span className="font-semibold text-orange-600">{user.role}</span>
+                  Role: <span className="font-semibold text-green-700">{user.role}</span>
                 </div>
                 <button
                   onClick={() => {
@@ -1992,7 +1991,7 @@ function ArgaamPhase2() {
       <div className="bg-white p-4 rounded shadow-sm mb-4">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h2 className="text-xl md:text-2xl font-semibold text-orange-700">{title}</h2>
+            <h2 className="text-xl md:text-2xl font-semibold text-green-800">{title}</h2>
             <div className="text-sm text-gray-500">Enterprise Recruitment Portal</div>
           </div>
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
@@ -2066,7 +2065,7 @@ function ArgaamPhase2() {
           </div>
         )}
         <div className="flex gap-2">
-          <button className="px-3 py-2 bg-orange-600 text-white rounded disabled:opacity-50" disabled={jobErrs.length > 0}>{editingJobId ? 'Update Job' : 'Create Job'}</button>
+          <button className="px-3 py-2 bg-green-700 text-white rounded disabled:opacity-50" disabled={jobErrs.length > 0}>{editingJobId ? 'Update Job' : 'Create Job'}</button>
           <button
             type="button"
             onClick={() => {
@@ -2141,7 +2140,7 @@ function ArgaamPhase2() {
         </div>
 
         <div className="flex gap-2">
-          <button type="submit" className="px-4 py-2 bg-orange-600 text-white rounded">
+          <button type="submit" className="px-4 py-2 bg-green-700 text-white rounded">
             Submit
           </button>
           <button
@@ -2198,8 +2197,8 @@ function ArgaamPhase2() {
         "manual-review": "bg-yellow-50 text-yellow-700 border-yellow-200",
         "screening": "bg-purple-50 text-purple-700 border-purple-200",
         "interviewed": "bg-orange-50 text-orange-700 border-orange-200",
-        "shortlisted": "bg-orange-50 text-orange-600 border-orange-200",
-        "hired": "bg-orange-50 text-orange-700 border-orange-200",
+        "shortlisted": "bg-green-50 text-green-700 border-green-200",
+        "hired": "bg-emerald-50 text-emerald-700 border-emerald-200",
         "rejected": "bg-red-50 text-red-700 border-red-200",
       };
       return colors[status] || "bg-gray-50 text-gray-700 border-gray-200";
@@ -2214,7 +2213,7 @@ function ArgaamPhase2() {
               <div className="text-gray-500 mb-4">No applications yet</div>
               <button
                 onClick={() => setView("apply")}
-                className="px-4 py-2 bg-orange-600 text-white rounded"
+                className="px-4 py-2 bg-green-700 text-white rounded"
               >
                 Apply Now
               </button>
@@ -2369,7 +2368,7 @@ function ArgaamPhase2() {
                       </button>
                       <button
                         onClick={() => toggleSelectApp(a.id)}
-                        className={`px-2 py-1 rounded text-sm ${selectedApps.includes(a.id) ? 'bg-orange-600 text-white border-orange-600' : 'border'}`}
+                        className={`px-2 py-1 rounded text-sm ${selectedApps.includes(a.id) ? 'bg-green-700 text-white border-green-700' : 'border'}`}
                       >
                         {selectedApps.includes(a.id) ? "✓ Selected" : "Select"}
                       </button>
@@ -2389,7 +2388,7 @@ function ArgaamPhase2() {
                     setSelectedApps([]);
                     addToast("Shortlist created", { type: 'success' });
                   }}
-                  className="px-3 py-2 bg-orange-600 text-white rounded hover:bg-orange-700 disabled:opacity-50"
+                  className="px-3 py-2 bg-green-700 text-white rounded hover:bg-green-800 disabled:opacity-50"
                   disabled={selectedApps.length === 0}
                 >
                   Create Shortlist ({selectedApps.length} selected)
@@ -2477,7 +2476,7 @@ function ArgaamPhase2() {
         <div className="max-w-5xl mx-auto">
           <button
             onClick={() => setSelectedJobId(null)}
-            className="mb-6 flex items-center gap-2 bg-white/80 backdrop-blur-sm px-5 py-2.5 rounded-xl text-gray-700 hover:text-orange-600 font-medium shadow-sm hover:shadow-md transition-all border border-gray-200"
+            className="mb-6 flex items-center gap-2 bg-white/80 backdrop-blur-sm px-5 py-2.5 rounded-xl text-gray-700 hover:text-green-700 font-medium shadow-sm hover:shadow-md transition-all border border-gray-200"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -2487,19 +2486,19 @@ function ArgaamPhase2() {
 
           <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
             {/* Job Header - Enhanced with gradient */}
-            <div className="relative bg-gradient-to-br from-orange-600 via-orange-700 to-orange-800 text-white p-8 md:p-10">
+            <div className="relative bg-gradient-to-br from-green-600 via-green-700 to-emerald-800 text-white p-8 md:p-10">
               <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMzLjMxNCAwIDYgMi42ODYgNiA2cy0yLjY4NiA2LTYgNi02LTIuNjg2LTYtNiAyLjY4Ni02IDYtNiIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMSkiIHN0cm9rZS13aWR0aD0iMiIvPjwvZz48L3N2Zz4=')] opacity-30"></div>
               <div className="relative">
                 <div className="flex items-center gap-3 mb-4">
                   <span className="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-sm font-medium">
                     {job.employmentType}
                   </span>
-                  <span className="px-3 py-1 bg-orange-500/30 backdrop-blur-sm rounded-full text-sm font-medium">
+                  <span className="px-3 py-1 bg-emerald-500/30 backdrop-blur-sm rounded-full text-sm font-medium">
                     Open Position
                   </span>
                 </div>
                 <h1 className="text-3xl md:text-4xl font-bold mb-4">{job.title}</h1>
-                <div className="flex flex-wrap gap-4 text-orange-100">
+                <div className="flex flex-wrap gap-4 text-green-100">
                   <span className="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-lg">
                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clipRule="evenodd" /></svg>
                     {job.department}
@@ -2520,8 +2519,8 @@ function ArgaamPhase2() {
             <div className="p-8 md:p-10 space-y-8">
               <div>
                 <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                  <span className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
-                    <svg className="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <span className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                    <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </span>
@@ -2531,9 +2530,9 @@ function ArgaamPhase2() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="p-5 bg-gradient-to-br from-orange-50 to-orange-50 rounded-xl border border-orange-100">
+                <div className="p-5 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border border-green-100">
                   <div className="flex items-center gap-3 mb-2">
-                    <div className="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center">
+                    <div className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
                       <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" /></svg>
                     </div>
                     <h3 className="font-semibold text-gray-800">Location</h3>
@@ -2579,7 +2578,7 @@ function ArgaamPhase2() {
                     setView('apply');
                     setAppForm(prev => ({ ...prev, jobId: job.id }));
                   }}
-                  className="flex-1 sm:flex-none px-8 py-4 bg-gradient-to-r from-orange-600 to-orange-600 text-white rounded-xl hover:from-orange-700 hover:to-orange-700 font-bold text-lg transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+                  className="flex-1 sm:flex-none px-8 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 font-bold text-lg transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -2599,32 +2598,24 @@ function ArgaamPhase2() {
       );
     }
 
-    // Main Job Listing View - Enhanced with Argaam branding
+    // Main Job Listing View - Enhanced with PVARA branding
     return (
       <div className="max-w-7xl mx-auto">
-        {/* Hero Section - Professional Argaam Branding */}
+        {/* Hero Section - Professional PVARA Branding */}
         <div className="relative mb-6 md:mb-12 rounded-xl md:rounded-2xl overflow-hidden mx-[-1rem] md:mx-0">
-          <div className="absolute inset-0 bg-gradient-to-br from-orange-600 via-orange-700 to-orange-800"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-green-600 via-green-700 to-emerald-800"></div>
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMzLjMxNCAwIDYgMi42ODYgNiA2cy0yLjY4NiA2LTYgNi02LTIuNjg2LTYtNiAyLjY4Ni02IDYtNiIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMSkiIHN0cm9rZS13aWR0aD0iMiIvPjwvZz48L3N2Zz4=')] opacity-40"></div>
           <div className="relative px-4 py-8 md:px-8 md:py-16 lg:py-20 text-center text-white pt-14 md:pt-16">
             <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-3 py-1.5 md:px-4 md:py-2 rounded-full mb-4 md:mb-6">
-              <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
-              <span className="text-xs md:text-sm font-medium text-white">Now Hiring</span>
+              <span className="w-2 h-2 bg-green-300 rounded-full animate-pulse"></span>
+              <span className="text-xs md:text-sm font-medium">Now Hiring</span>
             </div>
-            <h1 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6 leading-tight text-white drop-shadow-lg">
-              Build Your Future with Argaam
+            <h1 className="font-display text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold mb-3 md:mb-4 leading-tight">
+              Build Your Future with PVARA
             </h1>
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold mb-6 text-white drop-shadow-md" style={{ direction: 'rtl', display: 'block' }}>
-              أرقام - ربط المواهب بالفرص
-            </h2>
-            <div className="max-w-3xl mx-auto px-4 mb-8 text-center">
-              <p className="text-white text-lg md:text-xl lg:text-2xl mb-4 leading-relaxed font-normal drop-shadow-sm">
-                Join Argaam, the leading financial media and technology platform in Saudi Arabia and the GCC.
-              </p>
-              <p className="text-white/95 text-base md:text-lg lg:text-xl leading-relaxed font-normal drop-shadow-sm">
-                Build your career with a company that powers the region's financial markets and investment decisions.
-              </p>
-            </div>
+            <p className="text-sm md:text-lg lg:text-xl text-green-100 max-w-3xl mx-auto mb-6 md:mb-8 px-2">
+              Join Pakistan's Virtual Assets Regulatory Authority and be part of the team shaping the future of digital finance regulation
+            </p>
 
             {/* Enhanced Search Bar - Mobile Optimized */}
             <div className="max-w-2xl mx-auto px-2 md:px-0">
@@ -2644,7 +2635,7 @@ function ArgaamPhase2() {
                 </div>
                 <button
                   type="submit"
-                  className="bg-orange-600 hover:bg-orange-700 text-white px-6 md:px-8 py-2.5 md:py-3 rounded-lg md:rounded-xl font-semibold transition-all shadow-lg hover:shadow-xl text-sm md:text-base w-full sm:w-auto"
+                  className="bg-green-600 hover:bg-green-700 text-white px-6 md:px-8 py-2.5 md:py-3 rounded-lg md:rounded-xl font-semibold transition-all shadow-lg hover:shadow-xl text-sm md:text-base w-full sm:w-auto"
                 >
                   Search
                 </button>
@@ -2656,7 +2647,7 @@ function ArgaamPhase2() {
         {/* Stats Bar */}
         <div className="grid grid-cols-2 gap-3 md:gap-4 mb-6 md:mb-10 max-w-md mx-auto px-1">
           <div className="bg-white rounded-lg md:rounded-xl p-3 md:p-5 shadow-sm border border-gray-100 text-center">
-            <div className="text-2xl md:text-3xl font-bold text-orange-600 mb-0.5 md:mb-1">{visibleJobs.length}</div>
+            <div className="text-2xl md:text-3xl font-bold text-green-600 mb-0.5 md:mb-1">{visibleJobs.length}</div>
             <div className="text-xs md:text-sm text-gray-500 font-medium">Open Positions</div>
           </div>
           <div className="bg-white rounded-lg md:rounded-xl p-3 md:p-5 shadow-sm border border-gray-100 text-center">
@@ -2665,21 +2656,21 @@ function ArgaamPhase2() {
           </div>
         </div>
 
-        {/* Why Join Argaam Section - Hidden on mobile for cleaner UX */}
+        {/* Why Join PVARA Section - Hidden on mobile for cleaner UX */}
         <div className="hidden md:block mb-12">
           <div className="text-center mb-8">
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">Why Join Argaam?</h2>
-            <p className="text-gray-500">Join the team powering Saudi Arabia's financial markets</p>
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">Why Join PVARA?</h2>
+            <p className="text-gray-500">Be part of Pakistan's digital transformation journey</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-lg transition-all group">
-              <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                 <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
               </div>
               <h3 className="font-bold text-lg text-gray-800 mb-2">Innovation at Core</h3>
-              <p className="text-gray-500 text-sm">Work on cutting-edge financial technology and media platforms that serve millions of investors across the GCC.</p>
+              <p className="text-gray-500 text-sm">Work on cutting-edge blockchain and virtual asset regulations that will shape the future of finance in Pakistan.</p>
             </div>
             <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-lg transition-all group">
               <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
@@ -2711,7 +2702,7 @@ function ArgaamPhase2() {
           {normalizedSearch && (
             <button
               onClick={() => { setLocalSearch(''); handleJobSearchChange(''); }}
-              className="text-xs md:text-sm text-orange-600 hover:text-orange-600 font-medium flex items-center gap-1"
+              className="text-xs md:text-sm text-green-600 hover:text-green-700 font-medium flex items-center gap-1"
             >
               Clear
               <svg className="w-3 h-3 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2733,7 +2724,7 @@ function ArgaamPhase2() {
             {normalizedSearch && (
               <button
                 onClick={() => { setLocalSearch(''); handleJobSearchChange(''); }}
-                className="px-6 py-2.5 bg-orange-600 text-white rounded-lg hover:bg-orange-600 font-medium transition"
+                className="px-6 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition"
               >
                 View All Positions
               </button>
@@ -2745,29 +2736,29 @@ function ArgaamPhase2() {
               {paginatedJobs.map(job => (
                 <div
                   key={job.id}
-                  className="bg-white rounded-xl md:rounded-2xl shadow-sm border border-gray-100 hover:shadow-xl hover:border-orange-200 transition-all duration-300 overflow-hidden cursor-pointer group"
+                  className="bg-white rounded-xl md:rounded-2xl shadow-sm border border-gray-100 hover:shadow-xl hover:border-green-200 transition-all duration-300 overflow-hidden cursor-pointer group"
                   onClick={() => setSelectedJobId(job.id)}
                 >
                   {/* Colored Top Bar */}
-                  <div className="h-1 md:h-1.5 bg-gradient-to-r from-orange-500 via-orange-500 to-teal-500"></div>
+                  <div className="h-1 md:h-1.5 bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500"></div>
 
                   <div className="p-4 md:p-6">
                     <div className="flex items-start justify-between gap-3 md:gap-4 mb-3 md:mb-4">
                       <div className="flex-1 min-w-0">
                         <div className="flex flex-wrap items-center gap-1.5 md:gap-2 mb-2">
-                          <span className="px-2 py-0.5 md:px-2.5 md:py-1 bg-orange-100 text-orange-600 rounded text-[10px] md:text-xs font-semibold uppercase tracking-wide">
+                          <span className="px-2 py-0.5 md:px-2.5 md:py-1 bg-green-100 text-green-700 rounded text-[10px] md:text-xs font-semibold uppercase tracking-wide">
                             {job.employmentType}
                           </span>
                           <span className="px-2 py-0.5 md:px-2.5 md:py-1 bg-gray-100 text-gray-600 rounded text-[10px] md:text-xs font-medium">
                             {job.openings} opening{job.openings > 1 ? 's' : ''}
                           </span>
                         </div>
-                        <h2 className="text-base md:text-xl font-bold text-gray-800 group-hover:text-orange-600 transition-colors mb-0.5 md:mb-1 truncate">
+                        <h2 className="text-base md:text-xl font-bold text-gray-800 group-hover:text-green-700 transition-colors mb-0.5 md:mb-1 truncate">
                           {job.title}
                         </h2>
                         <p className="text-xs md:text-sm text-gray-500 font-medium truncate">{job.department}</p>
                       </div>
-                      <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg md:rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                      <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg md:rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
                         <svg className="w-5 h-5 md:w-6 md:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                         </svg>
@@ -2793,7 +2784,7 @@ function ArgaamPhase2() {
                           e.stopPropagation();
                           setSelectedJobId(job.id);
                         }}
-                        className="flex-1 px-3 md:px-4 py-2 md:py-2.5 bg-gradient-to-r from-orange-600 to-orange-600 text-white rounded-lg md:rounded-xl hover:from-orange-700 hover:to-orange-700 font-medium transition-all shadow-sm hover:shadow-md text-xs md:text-sm flex items-center justify-center gap-1.5 md:gap-2"
+                        className="flex-1 px-3 md:px-4 py-2 md:py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg md:rounded-xl hover:from-green-700 hover:to-emerald-700 font-medium transition-all shadow-sm hover:shadow-md text-xs md:text-sm flex items-center justify-center gap-1.5 md:gap-2"
                       >
                         View
                         <svg className="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2806,7 +2797,7 @@ function ArgaamPhase2() {
                           setSelectedJobForApply(job.id);
                           setView('apply');
                         }}
-                        className="flex-1 px-3 md:px-4 py-2 md:py-2.5 border-2 border-orange-600 text-orange-600 rounded-lg md:rounded-xl hover:bg-orange-50 font-medium transition-all text-xs md:text-sm flex items-center justify-center gap-1.5 md:gap-2"
+                        className="flex-1 px-3 md:px-4 py-2 md:py-2.5 border-2 border-green-600 text-green-600 rounded-lg md:rounded-xl hover:bg-green-50 font-medium transition-all text-xs md:text-sm flex items-center justify-center gap-1.5 md:gap-2"
                       >
                         Apply
                         <svg className="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2849,7 +2840,7 @@ function ArgaamPhase2() {
                         key={page}
                         onClick={() => setCurrentPage(page)}
                         className={`w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl font-medium transition-all text-sm md:text-base ${currentPage === page
-                          ? 'bg-orange-600 text-white shadow-lg'
+                          ? 'bg-green-600 text-white shadow-lg'
                           : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300'
                           }`}
                       >
@@ -2996,7 +2987,7 @@ function ArgaamPhase2() {
                         <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                       </div>
                       <div className="flex flex-col items-center flex-shrink-0 opacity-30">
-                        <div className="w-8 h-8 rounded-full bg-orange-400 text-white flex items-center justify-center font-bold text-xs">4</div>
+                        <div className="w-8 h-8 rounded-full bg-green-400 text-white flex items-center justify-center font-bold text-xs">4</div>
                         <div className="text-xs font-medium text-gray-600 mt-1">Offer</div>
                       </div>
                     </div>
@@ -3034,14 +3025,14 @@ function ArgaamPhase2() {
                       <svg className="w-10 h-10 text-yellow-400 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                     </div>
                   </div>
-                  <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-4 border border-orange-200">
+                  <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4 border border-green-200">
                     <div className="flex items-center justify-between">
                       <div>
-                        <div className="text-2xl font-bold text-orange-600">{completedCount}</div>
-                        <div className="text-sm text-orange-600">Completed</div>
-                        <div className="text-xs text-orange-500">Ready for next stage</div>
+                        <div className="text-2xl font-bold text-green-700">{completedCount}</div>
+                        <div className="text-sm text-green-600">Completed</div>
+                        <div className="text-xs text-green-500">Ready for next stage</div>
                       </div>
-                      <svg className="w-10 h-10 text-orange-400 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                      <svg className="w-10 h-10 text-green-400 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                     </div>
                   </div>
                 </div>
@@ -3049,13 +3040,13 @@ function ArgaamPhase2() {
                 {/* Filter Tabs */}
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
                   <div className="flex gap-2">
-                    <button onClick={() => setInterviewFilter('all')} className={`px-4 py-2 rounded-lg font-medium transition ${interviewFilter === 'all' ? 'bg-orange-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>
+                    <button onClick={() => setInterviewFilter('all')} className={`px-4 py-2 rounded-lg font-medium transition ${interviewFilter === 'all' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>
                       All ({interviewCandidates.length})
                     </button>
                     <button onClick={() => setInterviewFilter('pending')} className={`px-4 py-2 rounded-lg font-medium transition flex items-center gap-2 ${interviewFilter === 'pending' ? 'bg-yellow-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>
                       ⏱ Pending Feedback ({pendingCount})
                     </button>
-                    <button onClick={() => setInterviewFilter('completed')} className={`px-4 py-2 rounded-lg font-medium transition flex items-center gap-2 ${interviewFilter === 'completed' ? 'bg-orange-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>
+                    <button onClick={() => setInterviewFilter('completed')} className={`px-4 py-2 rounded-lg font-medium transition flex items-center gap-2 ${interviewFilter === 'completed' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>
                       ✓ Completed ({completedCount})
                     </button>
                   </div>
@@ -3091,7 +3082,7 @@ function ArgaamPhase2() {
                               </span>
                             </td>
                             <td className="px-6 py-4">
-                              <span className={`px-2 py-1 rounded text-sm ${app.interview_feedback?.overall_score ? 'bg-orange-100 text-orange-600' : 'bg-yellow-100 text-yellow-700'}`}>
+                              <span className={`px-2 py-1 rounded text-sm ${app.interview_feedback?.overall_score ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
                                 {app.interview_feedback?.overall_score || 'Pending'}
                               </span>
                             </td>
@@ -3111,7 +3102,7 @@ function ArgaamPhase2() {
                               ) : (
                                 <button
                                   onClick={() => changeApplicationStatus(app.id || app._id, 'offer')}
-                                  className="px-3 py-1.5 bg-orange-600 text-white rounded-lg text-sm font-medium hover:bg-orange-600 transition"
+                                  className="px-3 py-1.5 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition"
                                 >
                                   Move to Offer
                                 </button>
@@ -3162,7 +3153,7 @@ function ArgaamPhase2() {
                   <p className="text-gray-600">Extend and track job offers for successful candidates</p>
 
                   {/* Pipeline Progress Indicator */}
-                  <div className="mt-4 bg-gradient-to-r from-orange-50 to-orange-50 border border-orange-200 rounded-lg p-4">
+                  <div className="mt-4 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4">
                     <div className="flex items-center gap-2 overflow-x-auto pb-2">
                       <div className="flex items-center gap-2 flex-shrink-0 opacity-50">
                         <div className="flex flex-col items-center">
@@ -3186,13 +3177,13 @@ function ArgaamPhase2() {
                         <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                       </div>
                       <div className="flex flex-col items-center flex-shrink-0">
-                        <div className="w-10 h-10 rounded-full bg-orange-600 text-white flex items-center justify-center font-bold shadow-lg ring-4 ring-orange-200">4</div>
-                        <div className="text-xs font-bold text-orange-900 mt-1">Offer Stage</div>
-                        <div className="text-xs text-orange-600 font-medium">Final</div>
+                        <div className="w-10 h-10 rounded-full bg-green-600 text-white flex items-center justify-center font-bold shadow-lg ring-4 ring-green-200">4</div>
+                        <div className="text-xs font-bold text-green-900 mt-1">Offer Stage</div>
+                        <div className="text-xs text-green-600 font-medium">Final</div>
                       </div>
                     </div>
                     <p className="text-xs text-gray-700 mt-3 italic">
-                      <svg className="w-4 h-4 inline-block text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                      <svg className="w-4 h-4 inline-block text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                       <strong> Stage 4 of 4 - Final:</strong> Extend job offers to successful candidates. Track offer acceptance, rejection, or withdrawal.
                     </p>
                   </div>
@@ -3204,7 +3195,7 @@ function ArgaamPhase2() {
                   <select
                     value={offerJobFilter}
                     onChange={(e) => setOfferJobFilter(e.target.value)}
-                    className="w-full md:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className="w-full md:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   >
                     <option value="all">All Positions</option>
                     {(state.jobs || []).map(job => (
@@ -3233,13 +3224,13 @@ function ArgaamPhase2() {
                       <svg className="w-8 h-8 text-yellow-400 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                     </div>
                   </div>
-                  <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-4 border border-orange-200">
+                  <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4 border border-green-200">
                     <div className="flex items-center justify-between">
                       <div>
-                        <div className="text-2xl font-bold text-orange-600">{acceptedCount}</div>
-                        <div className="text-sm text-orange-600">Accepted</div>
+                        <div className="text-2xl font-bold text-green-700">{acceptedCount}</div>
+                        <div className="text-sm text-green-600">Accepted</div>
                       </div>
-                      <svg className="w-8 h-8 text-orange-400 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                      <svg className="w-8 h-8 text-green-400 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
                     </div>
                   </div>
                   <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-lg p-4 border border-red-200">
@@ -3256,7 +3247,7 @@ function ArgaamPhase2() {
                 {/* Filter Tabs */}
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
                   <div className="flex flex-wrap gap-2">
-                    <button onClick={() => setOfferFilter('all')} className={`px-4 py-2 rounded-lg font-medium transition ${offerFilter === 'all' ? 'bg-orange-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>
+                    <button onClick={() => setOfferFilter('all')} className={`px-4 py-2 rounded-lg font-medium transition ${offerFilter === 'all' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>
                       All ({offerCandidates.length})
                     </button>
                     <button onClick={() => setOfferFilter('eligible')} className={`px-4 py-2 rounded-lg font-medium transition ${offerFilter === 'eligible' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>
@@ -3265,7 +3256,7 @@ function ArgaamPhase2() {
                     <button onClick={() => setOfferFilter('pending')} className={`px-4 py-2 rounded-lg font-medium transition ${offerFilter === 'pending' ? 'bg-yellow-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>
                       Pending ({pendingCount})
                     </button>
-                    <button onClick={() => setOfferFilter('accepted')} className={`px-4 py-2 rounded-lg font-medium transition ${offerFilter === 'accepted' ? 'bg-orange-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>
+                    <button onClick={() => setOfferFilter('accepted')} className={`px-4 py-2 rounded-lg font-medium transition ${offerFilter === 'accepted' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>
                       Accepted ({acceptedCount})
                     </button>
                     <button onClick={() => setOfferFilter('rejected')} className={`px-4 py-2 rounded-lg font-medium transition ${offerFilter === 'rejected' ? 'bg-red-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>
@@ -3316,7 +3307,7 @@ function ArgaamPhase2() {
                               </span>
                             </td>
                             <td className="px-6 py-4">
-                              <span className={`px-2 py-1 rounded text-xs font-medium ${app.status === 'hired' ? 'bg-orange-100 text-orange-600' :
+                              <span className={`px-2 py-1 rounded text-xs font-medium ${app.status === 'hired' ? 'bg-green-100 text-green-700' :
                                 app.status === 'offer' ? 'bg-yellow-100 text-yellow-700' :
                                   app.status === 'offer-rejected' ? 'bg-red-100 text-red-700' :
                                     'bg-gray-100 text-gray-600'
@@ -3331,7 +3322,7 @@ function ArgaamPhase2() {
                               {app.status === 'interview-complete' && (
                                 <button
                                   onClick={() => setOfferModalApp(app)}
-                                  className="px-3 py-1.5 bg-orange-600 text-white rounded-lg text-sm font-medium hover:bg-orange-600 transition flex items-center gap-1"
+                                  className="px-3 py-1.5 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition flex items-center gap-1"
                                 >
                                   + Extend Offer
                                 </button>
@@ -3340,7 +3331,7 @@ function ArgaamPhase2() {
                                 <div className="flex gap-2">
                                   <button
                                     onClick={() => changeApplicationStatus(app.id || app._id, 'hired')}
-                                    className="px-3 py-1.5 bg-orange-600 text-white rounded-lg text-sm font-medium hover:bg-orange-700 transition"
+                                    className="px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 transition"
                                   >
                                     Hire
                                   </button>
@@ -3399,39 +3390,35 @@ function ArgaamPhase2() {
               <div className="col-span-2">
                 <div className="flex items-center gap-2 mb-3 md:mb-4">
                   <img src={logo} alt="Careers" className="h-6 md:h-8" />
-                  <span className="font-display text-xl md:text-2xl font-bold text-orange-600">Argaam</span>
-                  <span className="font-display text-lg md:text-xl font-bold text-orange-600" style={{ direction: 'rtl', display: 'inline-block' }}>أرقام</span>
+                  <span className="font-display text-xl md:text-2xl font-bold text-green-700">Careers</span>
                 </div>
                 <p className="text-xs md:text-sm text-gray-600 mb-3 md:mb-4 leading-relaxed">
-                  Job Portal powered by AI. Connect talent with opportunities through intelligent matching and analytics.
-                </p>
-                <p className="text-xs md:text-sm text-gray-600 mb-3 md:mb-4 leading-relaxed" style={{ direction: 'rtl' }}>
-                  بوابة الوظائف مدعومة بالذكاء الاصطناعي. ربط المواهب بالفرص من خلال المطابقة الذكية والتحليلات.
+                  Enterprise Recruitment Portal powered by AI. Streamline your hiring process with intelligent candidate screening and analytics.
                 </p>
                 <div className="flex gap-4">
                   <a
-                    href="https://www.facebook.com/argaam"
+                    href="https://www.facebook.com/people/Pakistan-Virtual-Assets-Regulatory-Authority/61580867075371/?mibextid=wwXIfr&rdid=YpFMGLWpMwXj8ZJA&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F19vK1MMWJL%2F%3Fmibextid%3DwwXIfr"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-gray-600 hover:text-orange-600 transition"
+                    className="text-gray-600 hover:text-green-700 transition"
                     aria-label="Visit Facebook"
                   >
                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" /></svg>
                   </a>
                   <a
-                    href="https://x.com/argaam"
+                    href="https://x.com/pvara_gov"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-gray-600 hover:text-orange-600 transition"
+                    className="text-gray-600 hover:text-green-700 transition"
                     aria-label="Visit Twitter/X"
                   >
                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" /></svg>
                   </a>
                   <a
-                    href="https://www.linkedin.com/company/argaam"
+                    href="https://www.linkedin.com/company/pakistanvara"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-gray-600 hover:text-orange-600 transition"
+                    className="text-gray-600 hover:text-green-700 transition"
                     aria-label="Visit LinkedIn"
                   >
                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" /></svg>
@@ -3443,10 +3430,10 @@ function ArgaamPhase2() {
               <div>
                 <h3 className="font-semibold text-gray-800 mb-2 md:mb-4 text-sm md:text-base">Quick Links</h3>
                 <ul className="space-y-1.5 md:space-y-2 text-xs md:text-sm">
-                  <li><button type="button" onClick={() => setView("jobs")} className="text-gray-600 hover:text-orange-600 transition">Browse Jobs</button></li>
-                  <li><button type="button" onClick={() => setView("about-us")} className="text-gray-600 hover:text-orange-600 transition">About Us</button></li>
-                  <li><button type="button" onClick={() => setView("jobs")} className="text-gray-600 hover:text-orange-600 transition">Careers</button></li>
-                  <li><button type="button" onClick={() => setView("apply")} className="text-gray-600 hover:text-orange-600 transition">Apply Now</button></li>
+                  <li><button type="button" onClick={() => setView("jobs")} className="text-gray-600 hover:text-green-700 transition">Browse Jobs</button></li>
+                  <li><button type="button" onClick={() => setView("about-us")} className="text-gray-600 hover:text-green-700 transition">About Us</button></li>
+                  <li><button type="button" onClick={() => setView("jobs")} className="text-gray-600 hover:text-green-700 transition">Careers</button></li>
+                  <li><button type="button" onClick={() => setView("apply")} className="text-gray-600 hover:text-green-700 transition">Apply Now</button></li>
                 </ul>
               </div>
 
@@ -3454,17 +3441,17 @@ function ArgaamPhase2() {
               <div>
                 <h3 className="font-semibold text-gray-800 mb-2 md:mb-4 text-sm md:text-base">Support</h3>
                 <ul className="space-y-1.5 md:space-y-2 text-xs md:text-sm">
-                  <li><button type="button" onClick={() => setView("faq")} className="text-gray-600 hover:text-orange-600 transition">FAQ</button></li>
-                  <li><button type="button" onClick={() => setView("privacy-policy")} className="text-gray-600 hover:text-orange-600 transition">Privacy Policy</button></li>
-                  <li><button type="button" onClick={() => setView("terms-of-service")} className="text-gray-600 hover:text-orange-600 transition">Terms of Service</button></li>
-                  <li><button type="button" onClick={() => setView("about-us")} className="text-gray-600 hover:text-orange-600 transition">Contact Us</button></li>
+                  <li><button type="button" onClick={() => setView("faq")} className="text-gray-600 hover:text-green-700 transition">FAQ</button></li>
+                  <li><button type="button" onClick={() => setView("privacy-policy")} className="text-gray-600 hover:text-green-700 transition">Privacy Policy</button></li>
+                  <li><button type="button" onClick={() => setView("terms-of-service")} className="text-gray-600 hover:text-green-700 transition">Terms of Service</button></li>
+                  <li><button type="button" onClick={() => setView("about-us")} className="text-gray-600 hover:text-green-700 transition">Contact Us</button></li>
                 </ul>
               </div>
             </div>
 
             <div className="border-t border-gray-300/50 mt-4 md:mt-8 pt-4 md:pt-6 text-center">
               <p className="text-[10px] md:text-sm text-gray-600 whitespace-nowrap">
-                © {new Date().getFullYear()} Argaam. All rights reserved. | Powered by AI Technology
+                © {new Date().getFullYear()} PVARA. All rights reserved. | Powered by AI Technology
               </p>
             </div>
           </div>
@@ -3519,8 +3506,8 @@ function ArgaamPhase2() {
                         'screening': { label: 'Screen', className: 'bg-yellow-50 hover:bg-yellow-100' },
                         'phone-interview': { label: 'Phone Interview', className: 'bg-blue-50 hover:bg-blue-100' },
                         'interview': { label: 'In-Person Interview', className: 'bg-blue-50 hover:bg-blue-100' },
-                        'offer': { label: 'Send Offer', className: 'bg-orange-50 hover:bg-orange-100' },
-                        'hired': { label: 'Mark as Hired', className: 'bg-orange-50 hover:bg-orange-100' },
+                        'offer': { label: 'Send Offer', className: 'bg-green-50 hover:bg-green-100' },
+                        'hired': { label: 'Mark as Hired', className: 'bg-emerald-50 hover:bg-emerald-100' },
                         'rejected': { label: 'Reject', className: 'bg-red-50 hover:bg-red-100' },
                       };
 
@@ -3631,11 +3618,11 @@ function ArgaamPhase2() {
 }
 
 // Wrap with AuthProvider and ToastProvider for standalone mounting
-export default function ArgaamPhase2Wrapper() {
+export default function PvaraPhase2Wrapper() {
   return (
     <AuthProvider>
       <ToastProvider>
-        <ArgaamPhase2 />
+        <PvaraPhase2 />
       </ToastProvider>
     </AuthProvider>
   );

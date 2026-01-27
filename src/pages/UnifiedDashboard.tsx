@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import {
-  FiHome, FiFileText, FiShield, FiFolder,
+import { 
+  FiHome, FiFileText, FiShield, FiFolder, 
   FiSettings, FiLogOut, FiMenu, FiX, FiBell,
   FiClock, FiTrendingUp,
   FiZap, FiGlobe, FiChevronDown, FiFile
@@ -121,20 +121,21 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ onLogout }) 
     processing: applications.filter(a => a.status === 'processing').length,
   };
 
-  const getLogoForCompany = (name?: string) => {
-    const company = (name || '').toLowerCase();
-    if (company.includes('binance')) {
-      return 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Binance_Logo.png/320px-Binance_Logo.png';
-    }
-    if (company.includes('htx') || company.includes('huobi')) {
-      return 'https://assets.coingecko.com/coins/images/2829/large/huobi-token-logo.png';
-    }
-    return null;
-  };
+    const getLogoForCompany = (name?: string) => {
+      const company = (name || '').toLowerCase();
+      if (company.includes('binance')) {
+        return 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Binance_Logo.png/320px-Binance_Logo.png';
+      }
+      if (company.includes('htx') || company.includes('huobi')) {
+        return 'https://assets.coingecko.com/coins/images/2829/large/huobi-token-logo.png';
+      }
+      return null;
+    };
 
   const menuItems = [
     { id: 'applications', label: 'Applications', icon: <FiHome />, badge: stats.total },
     { id: 'documents', label: 'Documents', icon: <FiFolder />, badge: null },
+    { id: 'noc', label: 'No Objection Certificate', icon: <FiShield />, badge: stats.pending },
     { id: 'settings', label: 'Settings', icon: <FiSettings />, badge: null },
   ];
 
@@ -144,8 +145,8 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ onLogout }) 
         return renderApplicationsView();
       case 'documents':
         return selectedApp ? (
-          <DocumentManagementPanel
-            applicationId={selectedApp.id}
+          <DocumentManagementPanel 
+            applicationId={selectedApp.id} 
             documents={selectedApp.documents}
             companyName={selectedApp.applicationData?.companyName}
           />
@@ -154,15 +155,26 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ onLogout }) 
             <p style={{ color: 'var(--text-secondary)' }}>Select an application to manage documents</p>
           </div>
         );
+      case 'noc':
+        return (
+          <NOCCreationPanel 
+            applications={applications}
+            selectedApplication={selectedApp || undefined}
+            onSelectApplication={setSelectedApp}
+            evaluation={evaluation || undefined}
+            onBack={() => setActiveView('applications')}
+            onEvaluate={evaluateApplication}
+          />
+        );
       case 'ai-bot':
         return selectedApp ? (
-          <AIBotPanel
+          <AIBotPanel 
             applicationId={selectedApp.id}
             applicationName={selectedApp.applicationData?.companyName || 'Application'}
           />
         ) : (
           <div style={{ padding: 'var(--space-2xl)' }}>
-            <AIBotPanel
+            <AIBotPanel 
               applicationId="general"
               applicationName="General Inquiry"
             />
@@ -270,7 +282,7 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ onLogout }) 
                 <p className="app-company">{app.applicationData?.appName || 'Application Platform'}</p>
                 <p className="app-id">{app.id}</p>
               </div>
-              <span className="status-badge pending" style={{ filter: 'saturate(0.9) brightness(0.9)' }}>
+              <span className="status-badge pending" style={{filter: 'saturate(0.9) brightness(0.9)'}}>
                 <FiClock /> {app.status}
               </span>
             </div>
@@ -293,14 +305,14 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ onLogout }) 
             </div>
 
             {/* Document Summary Section - Always Visible */}
-            <div className="app-documents-summary" style={{
-              background: 'rgba(0,0,0,0.3)',
-              borderRadius: '10px',
-              padding: '12px',
+            <div className="app-documents-summary" style={{ 
+              background: 'rgba(0,0,0,0.3)', 
+              borderRadius: '10px', 
+              padding: '12px', 
               border: '1px solid rgba(255,255,255,0.08)',
               marginTop: 'var(--space-sm)'
             }}>
-              <div
+              <div 
                 onClick={(e) => {
                   e.stopPropagation();
                   setSelectedApp(app);
@@ -308,10 +320,10 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ onLogout }) 
                 }}
                 style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px' }}
               >
-                <div style={{
-                  width: '36px', height: '36px',
-                  borderRadius: '8px',
-                  background: 'linear-gradient(135deg, #3b82f6, #06b6d4)',
+                <div style={{ 
+                  width: '36px', height: '36px', 
+                  borderRadius: '8px', 
+                  background: 'linear-gradient(135deg, #3b82f6, #06b6d4)', 
                   display: 'flex', alignItems: 'center', justifyContent: 'center'
                 }}>
                   <FiFolder size={18} color="white" />
@@ -331,40 +343,40 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ onLogout }) 
               {(() => {
                 const docs = app.documents || [];
                 // Smarter counting that avoids overlap
-                const getArgaamCount = () => docs.filter(d => {
+                const getPVARACount = () => docs.filter(d => {
                   const l = d.toLowerCase();
                   return l.includes('ordinance') || l.includes('moit') || l === 'aml.pdf' ||
-                    false; // Removed regulatory references
+                         l.includes('secp') || l.includes('sbp');
                 }).length;
                 const getNOCFormsCount = () => docs.filter(d => {
                   const l = d.toLowerCase();
                   return (l.includes('form a1') || l.includes('form a2') || l.includes('form a5') ||
-                    l.includes('outsourcing declaration')) && !l.includes('a3');
+                          l.includes('outsourcing declaration')) && !l.includes('a3');
                 }).length;
                 const getPersonnelCount = () => docs.filter(d => {
                   const l = d.toLowerCase();
                   return l.includes('form a3') || l.includes('a3 forms') || l.includes('a3-') ||
-                    l.match(/chen ling|jimmy su|kaiser|richard teng|wilson|heidi|ryan|sunny|ying pok/);
+                         l.match(/chen ling|jimmy su|kaiser|richard teng|wilson|heidi|ryan|sunny|ying pok/);
                 }).length;
                 const getComplianceCount = () => docs.filter(d => {
                   const l = d.toLowerCase();
-                  return (l.includes('aml') || l.includes('kyc') || l.includes('kyb') || l.includes('compliance') ||
-                    l.includes('sanctions') || l.includes('edd')) &&
-                    true; // Simplified categorization
+                  return (l.includes('aml') || l.includes('kyc') || l.includes('kyb') || l.includes('compliance') || 
+                          l.includes('sanctions') || l.includes('edd')) && 
+                         l !== 'aml.pdf' && !l.includes('secp') && !l.includes('sbp');
                 }).length;
-
+                
                 const categories = [
-                  { label: 'Argaam/Regs', count: getArgaamCount(), color: '#dc2626', icon: '📜' },
+                  { label: 'PVARA/Regs', count: getPVARACount(), color: '#dc2626', icon: '📜' },
                   { label: 'NOC Forms', count: getNOCFormsCount(), color: '#2563eb', icon: '📋' },
                   { label: 'Personnel', count: getPersonnelCount(), color: '#be185d', icon: '👤' },
-                  { label: 'Compliance', count: getComplianceCount(), color: '#FF6B35', icon: '✅' },
+                  { label: 'Compliance', count: getComplianceCount(), color: '#059669', icon: '✅' },
                 ].filter(c => c.count > 0);
 
                 return (
-                  <div style={{
-                    display: 'flex',
-                    gap: '6px',
-                    marginTop: '10px',
+                  <div style={{ 
+                    display: 'flex', 
+                    gap: '6px', 
+                    marginTop: '10px', 
                     flexWrap: 'wrap'
                   }}>
                     {categories.map((cat, i) => (
@@ -390,7 +402,7 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ onLogout }) 
 
             {/* Documents Preview Dropdown */}
             {showDocsPreview === app.id && app.documents && app.documents.length > 0 && (
-              <div
+              <div 
                 style={{
                   background: 'rgba(0,0,0,0.4)',
                   borderRadius: '8px',
@@ -407,67 +419,67 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ onLogout }) 
                   const docs = app.documents || [];
                   const categorize = (doc: string) => {
                     const lower = doc.toLowerCase();
-                    // Argaam Regulations & Ordinance (NOT applicant policies)
-                    if (lower.includes('ordinance') || lower.includes('regulation') || lower.includes('argaam') ||
-                      (lower === 'aml.pdf')) return 'Argaam Regulations';
+                    // PVARA Regulations & Ordinance (NOT applicant policies)
+                    if (lower.includes('ordinance') || lower.includes('moit') || lower.includes('pvara') ||
+                        (lower === 'aml.pdf')) return 'PVARA Regulations';
                     // Regulatory Correspondence
-                    if (lower.includes('email') || lower.includes('correspondence')) return 'Correspondence';
+                    if (lower.includes('secp') || lower.includes('sbp') || lower.includes('comments on')) return 'Regulatory Correspondence';
                     // NOC Application Forms
-                    if (lower.includes('form a1') || lower.includes('form a2') || lower.includes('form a5') ||
-                      lower.includes('form_a1') || lower.includes('form_a2') || lower.includes('form_a5') ||
-                      lower.includes('application for no objection') || lower.includes('outsourcing declaration')) return 'NOC Application Forms';
+                    if (lower.includes('form a1') || lower.includes('form a2') || lower.includes('form a5') || 
+                        lower.includes('form_a1') || lower.includes('form_a2') || lower.includes('form_a5') ||
+                        lower.includes('application for no objection') || lower.includes('outsourcing declaration')) return 'NOC Application Forms';
                     // Key Personnel (Form A3)
                     if (lower.includes('form a3') || lower.includes('a3 forms') || lower.includes('a3-') ||
-                      lower.includes('director') || lower.includes('cfo') || lower.includes('mlro') ||
-                      lower.match(/chen ling|jimmy su|kaiser|richard teng|wilson|heidi|ryan|sunny|ying pok/)) return 'Key Personnel';
+                        lower.includes('director') || lower.includes('cfo') || lower.includes('mlro') ||
+                        lower.match(/chen ling|jimmy su|kaiser|richard teng|wilson|heidi|ryan|sunny|ying pok/)) return 'Key Personnel';
                     // Corporate Documents
-                    if (lower.includes('certificate') || lower.includes('moa') || lower.includes('board') ||
-                      lower.includes('incorporation') || lower.includes('apostille')) return 'Corporate Documents';
-                    // Applicant Compliance Policies (not Argaam regs)
-                    if (lower.includes('aml') || lower.includes('kyc') || lower.includes('kyb') ||
-                      lower.includes('compliance') || lower.includes('sanctions') || lower.includes('edd') ||
-                      lower.includes('transaction monitoring') || lower.includes('record keeping')) return 'Compliance Policies';
+                    if (lower.includes('certificate') || lower.includes('moa') || lower.includes('board') || 
+                        lower.includes('incorporation') || lower.includes('apostille')) return 'Corporate Documents';
+                    // Applicant Compliance Policies (not PVARA regs)
+                    if (lower.includes('aml') || lower.includes('kyc') || lower.includes('kyb') || 
+                        lower.includes('compliance') || lower.includes('sanctions') || lower.includes('edd') ||
+                        lower.includes('transaction monitoring') || lower.includes('record keeping')) return 'Compliance Policies';
                     if (lower.includes('financial') || lower.includes('statement')) return 'Financial Documents';
                     if (lower.includes('technical') || lower.includes('risk') || lower.includes('outsourcing') ||
-                      lower.includes('bcms') || lower.includes('continuity')) return 'Technical Documents';
+                        lower.includes('bcms') || lower.includes('continuity')) return 'Technical Documents';
                     return 'Other Documents';
                   };
-
+                  
                   const grouped: Record<string, string[]> = {};
                   docs.forEach(d => {
                     const cat = categorize(d);
                     if (!grouped[cat]) grouped[cat] = [];
                     grouped[cat].push(d);
                   });
-
+                  
                   const catColors: Record<string, string> = {
-                    'Argaam Regulations': '#dc2626',
+                    'PVARA Regulations': '#dc2626',
                     'Regulatory Correspondence': '#4b5563',
                     'NOC Application Forms': '#2563eb',
                     'Key Personnel': '#be185d',
                     'Corporate Documents': '#7c3aed',
-                    'Compliance Policies': '#FF6B35',
+                    'Compliance Policies': '#059669',
                     'Financial Documents': '#d97706',
                     'Technical Documents': '#0891b2',
                     'Other Documents': '#6b7280'
                   };
-
+                  
                   return Object.entries(grouped).slice(0, 5).map(([catName, catDocs], catIdx) => (
                     <div key={catIdx} style={{ marginBottom: '10px' }}>
-                      <div style={{
-                        fontSize: '0.7rem',
-                        color: catColors[catName] || '#6b7280',
-                        marginBottom: '4px',
+                      <div style={{ 
+                        fontSize: '0.7rem', 
+                        color: catColors[catName] || '#6b7280', 
+                        marginBottom: '4px', 
                         fontWeight: 600,
                         display: 'flex',
                         alignItems: 'center',
                         gap: '6px'
                       }}>
-                        <span style={{
-                          width: '4px',
-                          height: '12px',
-                          background: catColors[catName],
-                          borderRadius: '2px'
+                        <span style={{ 
+                          width: '4px', 
+                          height: '12px', 
+                          background: catColors[catName], 
+                          borderRadius: '2px' 
                         }}></span>
                         {catName} ({catDocs.length})
                       </div>
@@ -475,7 +487,7 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ onLogout }) 
                         const fileName = doc.split('/').pop() || doc;
                         const fileExt = fileName.split('.').pop()?.toLowerCase() || '';
                         return (
-                          <div
+                          <div 
                             key={idx}
                             style={{
                               display: 'flex',
@@ -493,8 +505,8 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ onLogout }) 
                             <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1, color: 'var(--text-secondary)' }}>
                               {fileName}
                             </span>
-                            <span style={{
-                              fontSize: '0.55rem',
+                            <span style={{ 
+                              fontSize: '0.55rem', 
                               padding: '1px 4px',
                               background: fileExt === 'pdf' ? '#ef4444' : fileExt === 'docx' ? '#3b82f6' : '#10b981',
                               color: 'white',
@@ -538,7 +550,7 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ onLogout }) 
             )}
 
             <div className="app-actions">
-              <button
+              <button 
                 className="btn btn-primary"
                 onClick={(e) => {
                   e.stopPropagation();
@@ -549,8 +561,8 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ onLogout }) 
               >
                 <FiShield /> {evaluating ? 'Evaluating...' : 'AI Evaluation'}
               </button>
-              <button
-                className="btn btn-secondary"
+              <button 
+                className="btn btn-secondary" 
                 onClick={(e) => {
                   e.stopPropagation();
                   setSelectedApp(app);
@@ -596,7 +608,7 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ onLogout }) 
   return (
     <div className="app-container" style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
       {/* Sidebar */}
-      <aside
+      <aside 
         style={{
           width: sidebarOpen ? '280px' : '80px',
           background: 'var(--glass-bg)',
@@ -610,8 +622,8 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ onLogout }) 
         }}
       >
         {/* Logo */}
-        <div style={{
-          padding: 'var(--space-lg)',
+        <div style={{ 
+          padding: 'var(--space-lg)', 
           borderBottom: '1px solid var(--glass-border)',
           display: 'flex',
           alignItems: 'center',
@@ -629,18 +641,17 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ onLogout }) 
             flexShrink: 0,
             overflow: 'hidden'
           }}>
-            <img
-              src="/logo.png"
-              alt="Argaam"
+            <img 
+              src="/pvara-logo.png" 
+              alt="PVARA" 
               style={{ width: '100%', height: '100%', objectFit: 'contain' }}
               onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).parentElement!.innerHTML = '🛡️'; }}
             />
           </div>
           {sidebarOpen && (
             <div style={{ overflow: 'hidden' }}>
-              <h1 style={{ fontSize: '1.125rem', fontWeight: '700', whiteSpace: 'nowrap' }}>Argaam</h1>
-              <h1 style={{ fontSize: '1rem', fontWeight: '600', whiteSpace: 'nowrap', direction: 'rtl' }}>أرقام</h1>
-              <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>Job Portal | بوابة الوظائف</p>
+              <h1 style={{ fontSize: '1.125rem', fontWeight: '700', whiteSpace: 'nowrap' }}>PVARA AI</h1>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>Licensing Platform</p>
             </div>
           )}
         </div>
@@ -702,8 +713,8 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ onLogout }) 
         </nav>
 
         {/* User Section */}
-        <div style={{
-          padding: 'var(--space-lg)',
+        <div style={{ 
+          padding: 'var(--space-lg)', 
           borderTop: '1px solid var(--glass-border)',
         }}>
           <button
@@ -833,11 +844,11 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ onLogout }) 
                 </h2>
                 <p style={{ color: 'var(--text-secondary)' }}>Application ID: {evaluation.applicationId}</p>
               </div>
-              <button
+              <button 
                 type="button"
                 onClick={() => setShowEvalModal(false)}
-                style={{
-                  background: 'var(--glass-bg)',
+                style={{ 
+                  background: 'var(--glass-bg)', 
                   border: '1px solid var(--glass-border)',
                   padding: 'var(--space-sm)',
                   borderRadius: 'var(--radius-md)',
@@ -851,13 +862,13 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ onLogout }) 
             </div>
 
             {/* Score Overview */}
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
               gap: 'var(--space-lg)',
               marginBottom: 'var(--space-xl)'
             }}>
-              <div style={{
+              <div style={{ 
                 background: 'var(--glass-bg)',
                 padding: 'var(--space-xl)',
                 borderRadius: 'var(--radius-lg)',
@@ -869,8 +880,8 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ onLogout }) 
                 </div>
                 <div style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', marginTop: 'var(--space-sm)' }}>Overall Score</div>
               </div>
-
-              <div style={{
+              
+              <div style={{ 
                 background: 'var(--glass-bg)',
                 padding: 'var(--space-xl)',
                 borderRadius: 'var(--radius-lg)',
@@ -883,7 +894,7 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ onLogout }) 
                 <div style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', marginTop: 'var(--space-sm)' }}>Risk Level</div>
               </div>
 
-              <div style={{
+              <div style={{ 
                 background: 'var(--glass-bg)',
                 padding: 'var(--space-xl)',
                 borderRadius: 'var(--radius-lg)',
@@ -920,7 +931,7 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ onLogout }) 
                         items: items.length ? items : [`No specific findings recorded. Score reflects automated checks for ${item.label.toLowerCase()}.`]
                       });
                     }}
-                    style={{
+                    style={{ 
                       background: 'var(--glass-bg)',
                       padding: 'var(--space-lg)',
                       borderRadius: 'var(--radius-md)',
@@ -938,15 +949,15 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ onLogout }) 
                         <span style={{ fontWeight: '600' }}>{item.label}</span>
                         <span style={{ fontWeight: '700', color: 'var(--premium-blue)' }}>{item.score}/100</span>
                       </div>
-                      <div style={{
-                        height: '8px',
-                        background: 'rgba(255,255,255,0.1)',
+                      <div style={{ 
+                        height: '8px', 
+                        background: 'rgba(255,255,255,0.1)', 
                         borderRadius: '4px',
                         overflow: 'hidden'
                       }}>
-                        <div style={{
-                          width: `${item.score}%`,
-                          height: '100%',
+                        <div style={{ 
+                          width: `${item.score}%`, 
+                          height: '100%', 
                           background: 'var(--premium-gradient)',
                           transition: 'width 1s ease'
                         }} />
@@ -981,7 +992,7 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ onLogout }) 
 
             {/* AI Insights */}
             {evaluation.aiInsights && (
-              <div style={{
+              <div style={{ 
                 background: 'var(--glass-bg)',
                 padding: 'var(--space-xl)',
                 borderRadius: 'var(--radius-lg)',
@@ -999,13 +1010,13 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ onLogout }) 
 
             {/* Actions */}
             <div style={{ display: 'flex', gap: 'var(--space-md)', justifyContent: 'flex-end' }}>
-              <button
+              <button 
                 className="btn btn-secondary"
                 onClick={() => setShowEvalModal(false)}
               >
                 Close
               </button>
-              <button
+              <button 
                 className="btn btn-primary"
                 onClick={() => {
                   setShowEvalModal(false);

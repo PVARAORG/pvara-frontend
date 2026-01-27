@@ -1,6 +1,6 @@
-# Argaam Job Portal Frontend
+# PVARA Frontend
 
-This repository contains the Argaam Job Portal frontend (enterprise recruitment demo).
+This repository contains a small React demo for PVARA (enterprise recruitment demo).
 
 Features added in this branch:
 - Toast notifications (`src/ToastContext.jsx`)

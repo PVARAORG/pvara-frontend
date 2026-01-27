@@ -1,25 +1,25 @@
 {
-  "short_name": "Argaam",
-  "name": "Argaam - Job Portal | أرقام - بوابة الوظائف",
+  "short_name": "PVARA",
+  "name": "PVARA - Enterprise Recruitment Portal",
   "icons": [
     {
-      "src": "logo.png",
-      "sizes": "any",
+      "src": "favicon-32.png",
+      "sizes": "32x32",
       "type": "image/png"
     },
     {
-      "src": "logo.png",
+      "src": "logo192.png",
       "type": "image/png",
       "sizes": "192x192"
     },
     {
-      "src": "logo.png",
+      "src": "logo512.png",
       "type": "image/png",
       "sizes": "512x512"
     }
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#FF6B35",
+  "theme_color": "#3b82f6",
   "background_color": "#ffffff"
 }

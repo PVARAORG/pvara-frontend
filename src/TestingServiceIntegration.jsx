@@ -64,7 +64,7 @@ function TestingServiceIntegration({ applications = [], jobs = [], onUpdateAppli
     setLoading(true);
     try {
       // Mock API call to send test
-      const apiUrl = process.env.REACT_APP_API_URL || 'https://argaam-be.fortanixor.com';
+      const apiUrl = process.env.REACT_APP_API_URL || 'https://portal-be.paicc.tech';
 
       for (const candidateId of selectedCandidates) {
         const candidate = applications.find(app => app.id === candidateId);
@@ -178,13 +178,13 @@ function TestingServiceIntegration({ applications = [], jobs = [], onUpdateAppli
           </div>
         </div>
 
-        <div className="bg-orange-50 border-l-4 border-orange-500 p-4 rounded-lg">
+        <div className="bg-green-50 border-l-4 border-green-500 p-4 rounded-lg">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Test Completed</p>
-              <p className="text-2xl font-bold text-orange-700">{candidatesWithCompletedTest.length}</p>
+              <p className="text-2xl font-bold text-green-700">{candidatesWithCompletedTest.length}</p>
             </div>
-            <svg className="w-10 h-10 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
@@ -325,7 +325,7 @@ function TestingServiceIntegration({ applications = [], jobs = [], onUpdateAppli
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2">
                           <div
-                            className={`h-2 rounded-full ${section.score / section.maxScore >= 0.8 ? 'bg-orange-500' :
+                            className={`h-2 rounded-full ${section.score / section.maxScore >= 0.8 ? 'bg-green-500' :
                               section.score / section.maxScore >= 0.6 ? 'bg-yellow-500' : 'bg-red-500'
                               }`}
                             style={{ width: `${(section.score / section.maxScore) * 100}%` }}
@@ -361,7 +361,7 @@ function TestingServiceIntegration({ applications = [], jobs = [], onUpdateAppli
 
                   {/* Recommendation Badge */}
                   <div className="flex items-center gap-3">
-                    <span className={`px-3 py-1 rounded-full text-sm font-semibold ${results.recommendation === 'PROCEED' ? 'bg-orange-100 text-orange-700' :
+                    <span className={`px-3 py-1 rounded-full text-sm font-semibold ${results.recommendation === 'PROCEED' ? 'bg-green-100 text-green-700' :
                       results.recommendation === 'MAYBE' ? 'bg-yellow-100 text-yellow-700' :
                         'bg-red-100 text-red-700'
                       }`}>
@@ -390,7 +390,7 @@ function TestingServiceIntegration({ applications = [], jobs = [], onUpdateAppli
       <div className="bg-gray-50 border rounded-lg p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-3 h-3 rounded-full bg-orange-500 animate-pulse"></div>
+            <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
             <span className="text-sm text-gray-700">
               <span className="font-semibold">{selectedProvider}</span> integration active
             </span>

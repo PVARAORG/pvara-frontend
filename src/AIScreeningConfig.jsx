@@ -96,7 +96,7 @@ const AIScreeningConfig = ({ job, isOpen, onClose, onSave }) => {
                 onClick={e => e.stopPropagation()}
             >
                 {/* Header */}
-                <div className="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-orange-600 to-orange-700">
+                <div className="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-green-600 to-green-700">
                     <div className="flex items-center justify-between">
                         <div>
                             <h2 className="text-xl font-bold text-white flex items-center gap-2">
@@ -105,7 +105,7 @@ const AIScreeningConfig = ({ job, isOpen, onClose, onSave }) => {
                                 </svg>
                                 AI Screening Configuration
                             </h2>
-                            <p className="text-orange-100 text-sm mt-1">Configure AI criteria for: {job.title}</p>
+                            <p className="text-green-100 text-sm mt-1">Configure AI criteria for: {job.title}</p>
                         </div>
                         <button onClick={onClose} className="text-white/80 hover:text-white transition">
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -143,21 +143,21 @@ const AIScreeningConfig = ({ job, isOpen, onClose, onSave }) => {
                                 onChange={(e) => setSkillInput(e.target.value)}
                                 onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addToList('requiredSkills', skillInput, setSkillInput))}
                                 placeholder="e.g., Python, React, Project Management"
-                                className="flex-1 px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                                className="flex-1 px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500"
                             />
                             <button
                                 type="button"
                                 onClick={() => addToList('requiredSkills', skillInput, setSkillInput)}
-                                className="px-4 py-2.5 bg-orange-600 text-white rounded-lg text-sm font-medium hover:bg-orange-700 transition"
+                                className="px-4 py-2.5 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition"
                             >
                                 Add
                             </button>
                         </div>
                         <div className="flex flex-wrap gap-2 min-h-[32px]">
                             {(criteria.requiredSkills || []).map((skill, idx) => (
-                                <span key={idx} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-orange-100 text-orange-800 text-sm rounded-full">
+                                <span key={idx} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-100 text-green-800 text-sm rounded-full">
                                     {skill}
-                                    <button type="button" onClick={() => removeFromList('requiredSkills', skill)} className="hover:text-orange-900 font-bold">×</button>
+                                    <button type="button" onClick={() => removeFromList('requiredSkills', skill)} className="hover:text-green-900 font-bold">×</button>
                                 </span>
                             ))}
                             {(criteria.requiredSkills || []).length === 0 && (
@@ -245,7 +245,7 @@ const AIScreeningConfig = ({ job, isOpen, onClose, onSave }) => {
                             <select
                                 value={criteria.requiredDegree || 'none'}
                                 onChange={(e) => handleChange('requiredDegree', e.target.value)}
-                                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 bg-white"
+                                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white"
                             >
                                 {DEGREE_OPTIONS.map(opt => (
                                     <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -260,7 +260,7 @@ const AIScreeningConfig = ({ job, isOpen, onClose, onSave }) => {
                                 max="30"
                                 value={criteria.minExperienceYears ?? 0}
                                 onChange={(e) => handleChange('minExperienceYears', parseInt(e.target.value) || 0)}
-                                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500"
                             />
                         </div>
                     </div>
@@ -269,7 +269,7 @@ const AIScreeningConfig = ({ job, isOpen, onClose, onSave }) => {
                     <div className="bg-gray-50 rounded-xl p-4">
                         <label className="block text-sm font-semibold text-gray-800 mb-3">
                             Score Weights
-                            <span className={`ml-2 text-xs font-medium px-2 py-0.5 rounded-full ${totalWeight === 100 ? 'bg-orange-100 text-orange-700' : 'bg-red-100 text-red-700'}`}>
+                            <span className={`ml-2 text-xs font-medium px-2 py-0.5 rounded-full ${totalWeight === 100 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                                 Total: {totalWeight}%
                             </span>
                         </label>
@@ -289,7 +289,7 @@ const AIScreeningConfig = ({ job, isOpen, onClose, onSave }) => {
                                         step="5"
                                         value={criteria[key] ?? 25}
                                         onChange={(e) => handleChange(key, parseInt(e.target.value))}
-                                        className="flex-1 h-2 accent-orange-600"
+                                        className="flex-1 h-2 accent-green-600"
                                     />
                                     <span className="text-sm font-semibold text-gray-800 w-12 text-right">{criteria[key] ?? 25}%</span>
                                 </div>
@@ -302,8 +302,8 @@ const AIScreeningConfig = ({ job, isOpen, onClose, onSave }) => {
 
                     {/* Thresholds */}
                     <div className="grid grid-cols-2 gap-4">
-                        <div className="bg-orange-50 rounded-xl p-4">
-                            <label className="block text-sm font-semibold text-orange-800 mb-2">
+                        <div className="bg-green-50 rounded-xl p-4">
+                            <label className="block text-sm font-semibold text-green-800 mb-2">
                                 Auto-Shortlist Threshold
                             </label>
                             <div className="flex items-center gap-2">
@@ -313,11 +313,11 @@ const AIScreeningConfig = ({ job, isOpen, onClose, onSave }) => {
                                     max="100"
                                     value={criteria.autoShortlistThreshold ?? 75}
                                     onChange={(e) => handleChange('autoShortlistThreshold', parseInt(e.target.value))}
-                                    className="flex-1 h-2 accent-orange-600"
+                                    className="flex-1 h-2 accent-green-600"
                                 />
-                                <span className="text-lg font-bold text-orange-700">≥{criteria.autoShortlistThreshold ?? 75}%</span>
+                                <span className="text-lg font-bold text-green-700">≥{criteria.autoShortlistThreshold ?? 75}%</span>
                             </div>
-                            <p className="text-xs text-orange-600 mt-2">Candidates above this score are recommended for interviews</p>
+                            <p className="text-xs text-green-600 mt-2">Candidates above this score are recommended for interviews</p>
                         </div>
                         <div className="bg-red-50 rounded-xl p-4">
                             <label className="block text-sm font-semibold text-red-800 mb-2">
@@ -350,7 +350,7 @@ const AIScreeningConfig = ({ job, isOpen, onClose, onSave }) => {
                                 <label
                                     key={mode.value}
                                     className={`p-4 border-2 rounded-xl cursor-pointer transition text-center ${criteria.screeningMode === mode.value
-                                            ? 'border-orange-500 bg-orange-50'
+                                            ? 'border-green-500 bg-green-50'
                                             : 'border-gray-200 hover:border-gray-300'
                                         }`}
                                 >
@@ -382,7 +382,7 @@ const AIScreeningConfig = ({ job, isOpen, onClose, onSave }) => {
                     <button
                         onClick={handleSave}
                         disabled={isSaving}
-                        className="flex-1 px-4 py-2.5 bg-orange-600 text-white rounded-lg font-medium hover:bg-orange-700 transition shadow-sm disabled:opacity-50"
+                        className="flex-1 px-4 py-2.5 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition shadow-sm disabled:opacity-50"
                     >
                         {isSaving ? 'Saving...' : 'Save Configuration'}
                     </button>

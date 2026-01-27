@@ -2,7 +2,7 @@ import axios, { AxiosInstance } from 'axios';
 
 // Use relative URL for Vercel deployment, or full URL for local development
 const API_BASE_URL = process.env.REACT_APP_API_URL || (
-  process.env.NODE_ENV === 'production' ? 'https://argaam-be.fortanixor.com/api' : 'https://argaam-be.fortanixor.com/api'
+  process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:3001/api'
 );
 
 const apiClient: AxiosInstance = axios.create({

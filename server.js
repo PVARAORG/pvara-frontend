@@ -1,5 +1,5 @@
 /**
- * Argaam Backend Email Server
+ * PVARA Backend Email Server
  * Handles real email sending for recruitment portal
  * Runs on port 5000
  */
@@ -58,8 +58,8 @@ app.post('/api/send-email', async (req, res) => {
       <html>
         <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
           <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-            <div style="background: linear-gradient(to right, #003f7f, #f58220); color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-              <h1 style="margin: 0;">Argaam Recruitment</h1>
+            <div style="background: linear-gradient(to right, #059669, #10b981); color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+              <h1 style="margin: 0;">PVARA Recruitment</h1>
               <p style="margin: 5px 0 0 0; font-size: 14px;">Enterprise Recruitment Portal</p>
             </div>
             
@@ -67,13 +67,13 @@ app.post('/api/send-email', async (req, res) => {
               <p style="margin-top: 0;">Dear ${candidateName || 'Candidate'},</p>
               ${body.replace(/\n/g, '</p><p>')}
               <p>Best regards,<br/>
-              <strong>Argaam Recruitment Team</strong><br/>
-              <a href="mailto:recruitment@argaam.com" style="color: #059669; text-decoration: none;">recruitment@argaam.com</a>
+              <strong>PVARA Recruitment Team</strong><br/>
+              <a href="mailto:recruitment@pvara.com" style="color: #059669; text-decoration: none;">recruitment@pvara.com</a>
               </p>
             </div>
             
             <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e7eb; font-size: 12px; color: #6b7280; text-align: center;">
-              <p>This is an automated email from Argaam Recruitment Portal. Please do not reply directly to this email.</p>
+              <p>This is an automated email from PVARA Recruitment Portal. Please do not reply directly to this email.</p>
             </div>
           </div>
         </body>
@@ -81,7 +81,7 @@ app.post('/api/send-email', async (req, res) => {
     `;
 
     const mailOptions = {
-      from: process.env.EMAIL_USER || 'noreply@argaam.com',
+      from: process.env.EMAIL_USER || 'noreply@pvara.com',
       to,
       subject,
       text: body,
@@ -147,7 +147,7 @@ app.post('/api/send-email-template', async (req, res) => {
     }
 
     const mailOptions = {
-      from: process.env.EMAIL_USER || 'noreply@argaam.com',
+      from: process.env.EMAIL_USER || 'noreply@pvara.com',
       to,
       subject: template.subject,
       text: template.body,
@@ -156,12 +156,12 @@ app.post('/api/send-email-template', async (req, res) => {
           <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
             <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
               <div style="background: linear-gradient(to right, #059669, #10b981); color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-                <h1 style="margin: 0;">Argaam Recruitment</h1>
+                <h1 style="margin: 0;">PVARA Recruitment</h1>
               </div>
               <div style="background: #f9fafb; padding: 20px; border-radius: 8px;">
                 <p>Dear ${data?.candidateName || 'Candidate'},</p>
                 <p>${template.body}</p>
-                <p>Best regards,<br/><strong>Argaam Recruitment Team</strong></p>
+                <p>Best regards,<br/><strong>PVARA Recruitment Team</strong></p>
               </div>
             </div>
           </body>
@@ -201,7 +201,7 @@ app.get('/api/email-logs', (req, res) => {
 // Start server
 app.listen(PORT, () => {
   console.log(`\n╔════════════════════════════════════════╗`);
-  console.log(`║  🚀 Argaam Email Server Running        ║`);
+  console.log(`║  🚀 PVARA Email Server Running        ║`);
   console.log(`║  Port: ${PORT}                               ║`);
   console.log(`║  Endpoint: http://localhost:${PORT}         ║`);
   console.log(`╚════════════════════════════════════════╝\n`);

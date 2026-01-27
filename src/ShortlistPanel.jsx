@@ -4,7 +4,7 @@ import React from "react";
 // Example: fetch('/api/shortlist')
 
 const ShortlistPanel = ({ shortlist = [], onUpdate }) => {
-  // Real shortlist UI migrated from PvaraPhase2.jsx (Argaam)
+  // Real shortlist UI migrated from PvaraPhase2.jsx
   return (
     <div>
       <h2 className="font-semibold text-xl mb-4">Shortlists</h2>

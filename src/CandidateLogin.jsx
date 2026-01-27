@@ -96,8 +96,8 @@ export default function CandidateLogin({ onLogin, onCancel }) {
       <div className="bg-white rounded-2xl shadow-2xl p-8 w-full">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-orange-100 rounded-full mb-4">
-            <svg className="w-8 h-8 text-orange-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
+            <svg className="w-8 h-8 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
           </div>
@@ -119,9 +119,9 @@ export default function CandidateLogin({ onLogin, onCancel }) {
               onBlur={() => handleBlur('cnic')}
               placeholder="12345-1234567-1"
               maxLength="15"
-              className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-orange-200 transition font-mono text-lg ${touched.cnic && errors.cnic ? 'border-red-500 focus:border-red-500' :
-                  touched.cnic && !errors.cnic ? 'border-orange-500 focus:border-orange-500' :
-                    'border-gray-300 focus:border-orange-500'
+              className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-green-200 transition font-mono text-lg ${touched.cnic && errors.cnic ? 'border-red-500 focus:border-red-500' :
+                  touched.cnic && !errors.cnic ? 'border-green-500 focus:border-green-500' :
+                    'border-gray-300 focus:border-green-500'
                 }`}
               required
             />
@@ -146,7 +146,7 @@ export default function CandidateLogin({ onLogin, onCancel }) {
                   setTouched(prev => ({ ...prev, email: false }));
                 }}
                 className={`flex-1 px-4 py-2 rounded-lg font-medium transition ${verificationMethod === "phone"
-                    ? "bg-orange-700 text-white"
+                    ? "bg-green-700 text-white"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                   }`}
               >
@@ -160,7 +160,7 @@ export default function CandidateLogin({ onLogin, onCancel }) {
                   setTouched(prev => ({ ...prev, phone: false }));
                 }}
                 className={`flex-1 px-4 py-2 rounded-lg font-medium transition ${verificationMethod === "email"
-                    ? "bg-orange-700 text-white"
+                    ? "bg-green-700 text-white"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                   }`}
               >
@@ -177,9 +177,9 @@ export default function CandidateLogin({ onLogin, onCancel }) {
                   onChange={handlePhoneChange}
                   onBlur={() => handleBlur('phone')}
                   placeholder="0300-1234567"
-                  className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-orange-200 transition ${touched.phone && errors.phone ? 'border-red-500 focus:border-red-500' :
-                      touched.phone && !errors.phone ? 'border-orange-500 focus:border-orange-500' :
-                        'border-gray-300 focus:border-orange-500'
+                  className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-green-200 transition ${touched.phone && errors.phone ? 'border-red-500 focus:border-red-500' :
+                      touched.phone && !errors.phone ? 'border-green-500 focus:border-green-500' :
+                        'border-gray-300 focus:border-green-500'
                     }`}
                   required
                 />
@@ -195,9 +195,9 @@ export default function CandidateLogin({ onLogin, onCancel }) {
                   onChange={handleEmailChange}
                   onBlur={() => handleBlur('email')}
                   placeholder="your.email@example.com"
-                  className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-orange-200 transition ${touched.email && errors.email ? 'border-red-500 focus:border-red-500' :
-                      touched.email && !errors.email ? 'border-orange-500 focus:border-orange-500' :
-                        'border-gray-300 focus:border-orange-500'
+                  className={`w-full px-4 py-3 border-2 rounded-lg focus:ring-2 focus:ring-green-200 transition ${touched.email && errors.email ? 'border-red-500 focus:border-red-500' :
+                      touched.email && !errors.email ? 'border-green-500 focus:border-green-500' :
+                        'border-gray-300 focus:border-green-500'
                     }`}
                   required
                 />
@@ -213,7 +213,7 @@ export default function CandidateLogin({ onLogin, onCancel }) {
             type="submit"
             disabled={!isValid}
             className={`w-full py-3 rounded-lg font-semibold transition flex items-center justify-center gap-2 ${isValid
-                ? 'bg-orange-700 text-white hover:bg-orange-800'
+                ? 'bg-green-700 text-white hover:bg-green-800'
                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'
               }`}
           >

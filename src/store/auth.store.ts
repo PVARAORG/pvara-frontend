@@ -15,7 +15,7 @@ interface AuthState {
   logout: () => void;
 }
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://argaam-be.fortanixor.com/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
 
 export const useAuthStore = create<AuthState>()(
   persist(

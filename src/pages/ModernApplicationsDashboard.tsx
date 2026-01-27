@@ -38,7 +38,7 @@ export const ModernApplicationsDashboard: React.FC<ModernDashboardProps> = ({ on
   const handleSelectApplication = async (app: ApplicationFolder) => {
     setSelectedApp(app);
     setEvaluation(null);
-
+    
     try {
       setEvaluating(true);
       const result = await applicationsApi.evaluateApplication(app.id);
@@ -94,10 +94,10 @@ export const ModernApplicationsDashboard: React.FC<ModernDashboardProps> = ({ on
       <header className="dashboard-header-modern glass-dark">
         <div className="header-container">
           <div className="header-left">
-            <img src="/logo.png" alt="Argaam" className="argaam-logo" />
+            <img src="/pvara-logo.png" alt="Pvara" className="pvara-logo" />
             <div>
-              <h1 className="text-2xl font-bold">Argaam <span style={{ direction: 'rtl', display: 'inline-block' }}>أرقام</span></h1>
-              <p className="text-xs text-secondary opacity-75">Job Portal | بوابة الوظائف - Connecting Talent with Opportunity</p>
+              <h1 className="text-2xl font-bold">Pvara AI Platform</h1>
+              <p className="text-xs text-secondary opacity-75">AI-Powered Licensing & No Objection Certificate Evaluation</p>
             </div>
           </div>
           <div className="header-actions">
@@ -116,7 +116,7 @@ export const ModernApplicationsDashboard: React.FC<ModernDashboardProps> = ({ on
       {/* Stats Bar */}
       <div className="stats-container">
         <div className="stat-card card-glass">
-          <div className="stat-icon" style={{ background: 'linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%)' }}>
+          <div className="stat-icon" style={{background: 'linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%)'}}>
             <FiFileText />
           </div>
           <div className="stat-content">
@@ -125,7 +125,7 @@ export const ModernApplicationsDashboard: React.FC<ModernDashboardProps> = ({ on
           </div>
         </div>
         <div className="stat-card card-glass">
-          <div className="stat-icon" style={{ background: 'linear-gradient(135deg, #10B981 0%, #34D399 100%)' }}>
+          <div className="stat-icon" style={{background: 'linear-gradient(135deg, #10B981 0%, #34D399 100%)'}}>
             <FiCheckCircle />
           </div>
           <div className="stat-content">
@@ -136,7 +136,7 @@ export const ModernApplicationsDashboard: React.FC<ModernDashboardProps> = ({ on
           </div>
         </div>
         <div className="stat-card card-glass">
-          <div className="stat-icon" style={{ background: 'linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)' }}>
+          <div className="stat-icon" style={{background: 'linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)'}}>
             <FiClock />
           </div>
           <div className="stat-content">
@@ -147,7 +147,7 @@ export const ModernApplicationsDashboard: React.FC<ModernDashboardProps> = ({ on
           </div>
         </div>
         <div className="stat-card card-glass">
-          <div className="stat-icon" style={{ background: 'linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%)' }}>
+          <div className="stat-icon" style={{background: 'linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%)'}}>
             <FiShield />
           </div>
           <div className="stat-content">
@@ -186,10 +186,10 @@ export const ModernApplicationsDashboard: React.FC<ModernDashboardProps> = ({ on
                     {new Date(app.submittedAt).toLocaleDateString()}
                   </span>
                 </div>
-                <h3 className="text-sm font-semibold" style={{ marginTop: '0.75rem' }}>
+                <h3 className="text-sm font-semibold" style={{marginTop: '0.75rem'}}>
                   {app.applicationData.companyName}
                 </h3>
-                <p className="text-xs text-secondary" style={{ marginTop: '0.25rem' }}>
+                <p className="text-xs text-secondary" style={{marginTop: '0.25rem'}}>
                   {app.applicationData.appName}
                 </p>
                 <div className="app-metrics" style={{
