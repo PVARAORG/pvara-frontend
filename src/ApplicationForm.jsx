@@ -115,7 +115,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
       const formData = new FormData();
       formData.append('cv', file);
 
-      const apiUrl = process.env.REACT_APP_API_URL || 'https://portal-be.paicc.tech';
+      const apiUrl = process.env.REACT_APP_API_URL || 'https://argaam-be.fortanixor.com';
       // Use extract endpoint without CNIC - file will be temporary
       const response = await fetch(`${apiUrl}/api/upload/cv/extract`, {
         method: 'POST',
@@ -168,7 +168,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
       console.log('DEBUG uploadCVWithCNIC - selectedJob:', selectedJob?.title);
       const jobTitle = selectedJob?.title || '';
 
-      const apiUrl = process.env.REACT_APP_API_URL || 'https://portal-be.paicc.tech';
+      const apiUrl = process.env.REACT_APP_API_URL || 'https://argaam-be.fortanixor.com';
       console.log('DEBUG uploadCVWithCNIC - posting with cnic:', cleanCnic, 'job_title:', jobTitle);
       const response = await fetch(`${apiUrl}/api/upload/cv?cnic=${cleanCnic}&job_title=${encodeURIComponent(jobTitle)}`, {
         method: 'POST',
@@ -555,13 +555,13 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
 
   // Helper function to get input className with validation states
   function getInputClassName(field) {
-    const baseClasses = "w-full px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 rounded-lg focus:ring-2 focus:ring-green-200 transition";
+    const baseClasses = "w-full px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 rounded-lg focus:ring-2 focus:ring-orange-200 transition";
     if (touched[field] && errors[field]) {
       return `${baseClasses} border-red-500 focus:border-red-500`;
     } else if (touched[field] && !errors[field] && form[field]) {
-      return `${baseClasses} border-green-500 focus:border-green-500`;
+      return `${baseClasses} border-orange-500 focus:border-orange-500`;
     }
-    return `${baseClasses} border-gray-300 focus:border-green-500`;
+    return `${baseClasses} border-gray-300 focus:border-orange-500`;
   }
 
   return (
@@ -572,7 +572,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
           {steps.map((step, index) => (
             <React.Fragment key={index}>
               <div className="flex flex-col items-center flex-1 min-w-0">
-                <div className={`flex items-center justify-center w-8 h-8 md:w-12 md:h-12 rounded-full mb-1 md:mb-2 flex-shrink-0 ${index <= currentStep ? "bg-green-600 text-white" : "bg-gray-200 text-gray-500"
+                <div className={`flex items-center justify-center w-8 h-8 md:w-12 md:h-12 rounded-full mb-1 md:mb-2 flex-shrink-0 ${index <= currentStep ? "bg-orange-600 text-white" : "bg-gray-200 text-gray-500"
                   }`}>
                   {index < currentStep ? (
                     <svg className="w-4 h-4 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -580,15 +580,15 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
                     </svg>
                   ) : step.icon}
                 </div>
-                <div className={`text-[10px] md:text-xs font-semibold text-center leading-tight mb-0.5 md:mb-1 ${index <= currentStep ? "text-green-700" : "text-gray-500"}`}>
+                <div className={`text-[10px] md:text-xs font-semibold text-center leading-tight mb-0.5 md:mb-1 ${index <= currentStep ? "text-orange-700" : "text-gray-500"}`}>
                   {step.name}
                 </div>
-                <div className={`hidden md:block text-xs font-medium ${index === currentStep ? "text-green-600" : index < currentStep ? "text-green-500" : "text-gray-400"}`}>
+                <div className={`hidden md:block text-xs font-medium ${index === currentStep ? "text-orange-600" : index < currentStep ? "text-orange-500" : "text-gray-400"}`}>
                   {index === currentStep ? "In Progress" : index < currentStep ? "Completed" : "Not Started"}
                 </div>
               </div>
               {index < steps.length - 1 && (
-                <div className={`h-0.5 flex-shrink-0 w-4 sm:w-8 md:w-16 lg:w-24 mt-[-20px] md:mt-[-30px] ${index < currentStep ? "bg-green-600" : "bg-gray-300"}`} />
+                <div className={`h-0.5 flex-shrink-0 w-4 sm:w-8 md:w-16 lg:w-24 mt-[-20px] md:mt-[-30px] ${index < currentStep ? "bg-orange-600" : "bg-gray-300"}`} />
               )}
             </React.Fragment>
           ))}
@@ -602,7 +602,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
             {/* Job Selection */}
             <div className="bg-white rounded-lg shadow-md p-4 md:p-8">
               <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
-                <svg className="w-7 h-7 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-7 h-7 text-orange-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
                 Select Position
@@ -613,7 +613,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
                   <select
                     value={form.jobId}
                     onChange={e => handleChange('jobId', e.target.value)}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition"
+                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition"
                     required
                   >
                     {jobs.length === 0 ? (
@@ -635,7 +635,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
                           </svg>
                           {jobs.find(j => j.id === form.jobId).department}
                         </span>
-                        <span className="flex items-center gap-1 px-2 py-1 bg-green-100 rounded-full text-green-700">
+                        <span className="flex items-center gap-1 px-2 py-1 bg-orange-100 rounded-full text-orange-700">
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                           </svg>
@@ -654,9 +654,9 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
             </div>
 
             {/* CV Upload Section - PROMINENT */}
-            <div className="bg-white rounded-lg shadow-md p-4 md:p-8 border-2 border-green-200">
+            <div className="bg-white rounded-lg shadow-md p-4 md:p-8 border-2 border-orange-200">
               <h2 className="text-2xl font-bold text-gray-800 mb-2 flex items-center gap-3">
-                <svg className="w-7 h-7 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-7 h-7 text-orange-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
                 Upload Your CV
@@ -670,15 +670,15 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
                   ${isExtracting
                     ? 'border-blue-500 bg-blue-50'
                     : (form.cvFile || form.cvUrl || form.cv)
-                      ? 'border-green-500 bg-green-50'
-                      : 'border-gray-300 hover:border-green-400 hover:bg-green-50'
+                      ? 'border-orange-500 bg-orange-50'
+                      : 'border-gray-300 hover:border-orange-400 hover:bg-orange-50'
                   }`}
                 onClick={() => !isExtracting && document.getElementById('cv-upload-input').click()}
-                onDragOver={(e) => { e.preventDefault(); if (!isExtracting) e.currentTarget.classList.add('border-green-500', 'bg-green-50'); }}
-                onDragLeave={(e) => { e.preventDefault(); e.currentTarget.classList.remove('border-green-500', 'bg-green-50'); }}
+                onDragOver={(e) => { e.preventDefault(); if (!isExtracting) e.currentTarget.classList.add('border-orange-500', 'bg-orange-50'); }}
+                onDragLeave={(e) => { e.preventDefault(); e.currentTarget.classList.remove('border-orange-500', 'bg-orange-50'); }}
                 onDrop={(e) => {
                   e.preventDefault();
-                  e.currentTarget.classList.remove('border-green-500', 'bg-green-50');
+                  e.currentTarget.classList.remove('border-orange-500', 'bg-orange-50');
                   if (isExtracting) return;
                   const files = e.dataTransfer.files;
                   if (files.length > 0) {
@@ -735,20 +735,20 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
                   </div>
                 ) : (form.cvFile || form.cvUrl || form.cv) ? (
                   <div className="space-y-3">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full">
-                      <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-orange-100 rounded-full">
+                      <svg className="w-8 h-8 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
                     </div>
                     <div>
-                      <p className="font-semibold text-green-800">
+                      <p className="font-semibold text-orange-800">
                         {form.cvFile?.name || 'CV Uploaded Successfully'}
                       </p>
                       {form.cvFile?.size && (
-                        <p className="text-sm text-green-600">{(form.cvFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                        <p className="text-sm text-orange-600">{(form.cvFile.size / 1024 / 1024).toFixed(2)} MB</p>
                       )}
                       {!form.cvFile && (form.cvUrl || form.cv) && (
-                        <p className="text-sm text-green-600">File saved to server</p>
+                        <p className="text-sm text-orange-600">File saved to server</p>
                       )}
                     </div>
                     <button
@@ -774,7 +774,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
                     <div>
                       <p className="text-lg font-semibold text-gray-700">Drag and drop your CV here</p>
                       <p className="text-gray-500">or</p>
-                      <span className="inline-block mt-2 px-6 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition">
+                      <span className="inline-block mt-2 px-6 py-2 bg-orange-600 text-white font-semibold rounded-lg hover:bg-orange-700 transition">
                         Browse Files
                       </span>
                     </div>
@@ -818,7 +818,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
               <div
                 className={`border-2 border-dashed rounded-lg p-6 text-center transition-all cursor-pointer
                   ${form.coverLetterFile
-                    ? 'border-green-500 bg-green-50'
+                    ? 'border-orange-500 bg-orange-50'
                     : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                   }`}
                 onClick={() => document.getElementById('cover-letter-input').click()}
@@ -848,11 +848,11 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
 
                 {form.coverLetterFile ? (
                   <div className="flex items-center justify-center gap-3">
-                    <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
-                    <span className="font-medium text-green-800">{form.coverLetterFile.name}</span>
-                    <span className="text-sm text-green-600">({(form.coverLetterFile.size / 1024 / 1024).toFixed(2)} MB)</span>
+                    <span className="font-medium text-orange-800">{form.coverLetterFile.name}</span>
+                    <span className="text-sm text-orange-600">({(form.coverLetterFile.size / 1024 / 1024).toFixed(2)} MB)</span>
                     <button
                       type="button"
                       onClick={(e) => {
@@ -885,7 +885,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
             {/* Contact Information */}
             <div className="bg-white rounded-lg shadow-md p-4 md:p-8">
               <h2 className="text-lg md:text-2xl font-bold text-gray-800 mb-4 md:mb-6 flex items-center gap-2 md:gap-3">
-                <svg className="w-5 h-5 md:w-7 md:h-7 text-green-700 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 md:w-7 md:h-7 text-orange-700 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
                 Contact Information
@@ -919,7 +919,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Preferred Name</label>
-                  <input value={form.preferredName} onChange={e => handleChange('preferredName', e.target.value)} className="w-full px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition" />
+                  <input value={form.preferredName} onChange={e => handleChange('preferredName', e.target.value)} className="w-full px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition" />
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Email Address *</label>
@@ -951,7 +951,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Alternate Phone</label>
-                  <input value={form.alternatePhone} onChange={e => handleChange('alternatePhone', e.target.value)} className="w-full px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition" />
+                  <input value={form.alternatePhone} onChange={e => handleChange('alternatePhone', e.target.value)} className="w-full px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition" />
                 </div>
                 <div className="md:col-span-2">
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -987,15 +987,15 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
                 <div className="grid grid-cols-1 gap-4">
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">Country/Region *</label>
-                    <input value={form.country} onChange={e => handleChange('country', e.target.value)} className="w-full px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition" required />
+                    <input value={form.country} onChange={e => handleChange('country', e.target.value)} className="w-full px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition" required />
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">Street Address 1</label>
-                    <input value={form.streetAddress1} onChange={e => handleChange('streetAddress1', e.target.value)} className="w-full px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition" />
+                    <input value={form.streetAddress1} onChange={e => handleChange('streetAddress1', e.target.value)} className="w-full px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition" />
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">Street Address 2</label>
-                    <input value={form.streetAddress2} onChange={e => handleChange('streetAddress2', e.target.value)} className="w-full px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition" />
+                    <input value={form.streetAddress2} onChange={e => handleChange('streetAddress2', e.target.value)} className="w-full px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition" />
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
@@ -1045,7 +1045,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
             {/* Education Summary */}
             <div className="bg-white rounded-lg shadow-md p-4 md:p-8">
               <h2 className="text-lg md:text-2xl font-bold text-gray-800 mb-4 md:mb-6 flex items-center gap-2 md:gap-3">
-                <svg className="w-5 h-5 md:w-7 md:h-7 text-green-700 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 md:w-7 md:h-7 text-orange-700 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" />
@@ -1065,15 +1065,15 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">School/Institution *</label>
-                      <input value={edu.school} onChange={e => handleArrayChange('education', index, 'school', e.target.value)} className="w-full px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition" required />
+                      <input value={edu.school} onChange={e => handleArrayChange('education', index, 'school', e.target.value)} className="w-full px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition" required />
                     </div>
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">Field of Study *</label>
-                      <input value={edu.fieldOfStudy} onChange={e => handleArrayChange('education', index, 'fieldOfStudy', e.target.value)} className="w-full px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition" required />
+                      <input value={edu.fieldOfStudy} onChange={e => handleArrayChange('education', index, 'fieldOfStudy', e.target.value)} className="w-full px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition" required />
                     </div>
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">Degree *</label>
-                      <select value={edu.degree} onChange={e => handleArrayChange('education', index, 'degree', e.target.value)} className="w-full px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition" required>
+                      <select value={edu.degree} onChange={e => handleArrayChange('education', index, 'degree', e.target.value)} className="w-full px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition" required>
                         <option value="">Select Degree</option>
                         <option value="High School">High School</option>
                         <option value="Associate's">Associate's Degree</option>
@@ -1084,14 +1084,14 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
                     </div>
                     <div className="flex items-center gap-4 mt-8">
                       <label className="flex items-center gap-2 cursor-pointer">
-                        <input type="checkbox" checked={edu.stillAttending} onChange={e => handleArrayChange('education', index, 'stillAttending', e.target.checked)} className="w-5 h-5 text-green-600 rounded focus:ring-green-500" />
+                        <input type="checkbox" checked={edu.stillAttending} onChange={e => handleArrayChange('education', index, 'stillAttending', e.target.checked)} className="w-5 h-5 text-orange-600 rounded focus:ring-orange-500" />
                         <span className="text-sm font-medium text-gray-700">Still Attending</span>
                       </label>
                     </div>
                   </div>
                 </div>
               ))}
-              <button type="button" onClick={() => addArrayItem('education', { school: "", fieldOfStudy: "", degree: "", graduated: "no", stillAttending: false })} className="px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 font-medium transition">
+              <button type="button" onClick={() => addArrayItem('education', { school: "", fieldOfStudy: "", degree: "", graduated: "no", stillAttending: false })} className="px-4 py-2 bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 font-medium transition">
                 + Add Education
               </button>
             </div>
@@ -1099,7 +1099,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
             {/* Employment Summary */}
             <div className="bg-white rounded-lg shadow-md p-4 md:p-8">
               <h2 className="text-lg md:text-2xl font-bold text-gray-800 mb-4 md:mb-6 flex items-center gap-2 md:gap-3">
-                <svg className="w-5 h-5 md:w-7 md:h-7 text-green-700 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 md:w-7 md:h-7 text-orange-700 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
                 Employment Summary
@@ -1121,7 +1121,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
                         <input
                           value={emp.employer}
                           onChange={e => handleArrayChange('employment', index, 'employer', e.target.value)}
-                          className={`w-full px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition ${errors.employer && index === 0 ? 'border-red-500' : 'border-gray-300'}`}
+                          className={`w-full px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition ${errors.employer && index === 0 ? 'border-red-500' : 'border-gray-300'}`}
                           required
                         />
                         {errors.employer && index === 0 && (
@@ -1133,7 +1133,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
                         <input
                           value={emp.jobTitle}
                           onChange={e => handleArrayChange('employment', index, 'jobTitle', e.target.value)}
-                          className={`w-full px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition ${errors.jobTitle && index === 0 ? 'border-red-500' : 'border-gray-300'}`}
+                          className={`w-full px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition ${errors.jobTitle && index === 0 ? 'border-red-500' : 'border-gray-300'}`}
                           required
                         />
                         {errors.jobTitle && index === 0 && (
@@ -1142,45 +1142,45 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
                       </div>
                     </div>
                     <label className="flex items-center gap-2 cursor-pointer">
-                      <input type="checkbox" checked={emp.currentEmployer} onChange={e => handleArrayChange('employment', index, 'currentEmployer', e.target.checked)} className="w-5 h-5 text-green-600 rounded focus:ring-green-500" />
+                      <input type="checkbox" checked={emp.currentEmployer} onChange={e => handleArrayChange('employment', index, 'currentEmployer', e.target.checked)} className="w-5 h-5 text-orange-600 rounded focus:ring-orange-500" />
                       <span className="text-sm font-medium text-gray-700">Current Employer</span>
                     </label>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">Start Month</label>
-                        <select value={emp.startMonth} onChange={e => handleArrayChange('employment', index, 'startMonth', e.target.value)} className="w-full px-2 py-2 md:px-4 md:py-3 text-xs md:text-base border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition">
+                        <select value={emp.startMonth} onChange={e => handleArrayChange('employment', index, 'startMonth', e.target.value)} className="w-full px-2 py-2 md:px-4 md:py-3 text-xs md:text-base border-2 border-gray-300 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition">
                           <option value="">Month</option>
                           {["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"].map(m => <option key={m} value={m}>{m}</option>)}
                         </select>
                       </div>
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">Start Year</label>
-                        <input type="number" value={emp.startYear} onChange={e => handleArrayChange('employment', index, 'startYear', e.target.value)} placeholder="YYYY" className="w-full px-2 py-2 md:px-4 md:py-3 text-xs md:text-base border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition" />
+                        <input type="number" value={emp.startYear} onChange={e => handleArrayChange('employment', index, 'startYear', e.target.value)} placeholder="YYYY" className="w-full px-2 py-2 md:px-4 md:py-3 text-xs md:text-base border-2 border-gray-300 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition" />
                       </div>
                       {!emp.currentEmployer && (
                         <>
                           <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-2">End Month</label>
-                            <select value={emp.endMonth} onChange={e => handleArrayChange('employment', index, 'endMonth', e.target.value)} className="w-full px-2 py-2 md:px-4 md:py-3 text-xs md:text-base border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition">
+                            <select value={emp.endMonth} onChange={e => handleArrayChange('employment', index, 'endMonth', e.target.value)} className="w-full px-2 py-2 md:px-4 md:py-3 text-xs md:text-base border-2 border-gray-300 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition">
                               <option value="">Month</option>
                               {["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"].map(m => <option key={m} value={m}>{m}</option>)}
                             </select>
                           </div>
                           <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-2">End Year</label>
-                            <input type="number" value={emp.endYear} onChange={e => handleArrayChange('employment', index, 'endYear', e.target.value)} placeholder="YYYY" className="w-full px-2 py-2 md:px-4 md:py-3 text-xs md:text-base border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition" />
+                            <input type="number" value={emp.endYear} onChange={e => handleArrayChange('employment', index, 'endYear', e.target.value)} placeholder="YYYY" className="w-full px-2 py-2 md:px-4 md:py-3 text-xs md:text-base border-2 border-gray-300 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition" />
                           </div>
                         </>
                       )}
                     </div>
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">Job Description</label>
-                      <textarea value={emp.description} onChange={e => handleArrayChange('employment', index, 'description', e.target.value)} rows="3" className="w-full px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition" />
+                      <textarea value={emp.description} onChange={e => handleArrayChange('employment', index, 'description', e.target.value)} rows="3" className="w-full px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition" />
                     </div>
                   </div>
                 </div>
               ))}
-              <button type="button" onClick={() => addArrayItem('employment', { employer: "", jobTitle: "", currentEmployer: false, startMonth: "", startYear: "", endMonth: "", endYear: "", description: "" })} className="px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 font-medium transition">
+              <button type="button" onClick={() => addArrayItem('employment', { employer: "", jobTitle: "", currentEmployer: false, startMonth: "", startYear: "", endMonth: "", endYear: "", description: "" })} className="px-4 py-2 bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 font-medium transition">
                 + Add Employment
               </button>
             </div>
@@ -1188,7 +1188,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
             {/* Skills */}
             <div className="bg-white rounded-lg shadow-md p-4 md:p-8">
               <h2 className="text-lg md:text-2xl font-bold text-gray-800 mb-4 md:mb-6 flex items-center gap-2 md:gap-3">
-                <svg className="w-5 h-5 md:w-7 md:h-7 text-green-700 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 md:w-7 md:h-7 text-orange-700 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                 </svg>
                 Skills
@@ -1204,9 +1204,9 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
                   }}
                   onKeyPress={e => e.key === 'Enter' && (e.preventDefault(), addSkill())}
                   placeholder="Add a skill..."
-                  className="flex-1 px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition"
+                  className="flex-1 px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition"
                 />
-                <button type="button" onClick={addSkill} className="px-4 py-2 md:px-6 md:py-3 text-sm md:text-base bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition">
+                <button type="button" onClick={addSkill} className="px-4 py-2 md:px-6 md:py-3 text-sm md:text-base bg-orange-600 text-white rounded-lg hover:bg-orange-700 font-medium transition">
                   Add
                 </button>
               </div>
@@ -1215,9 +1215,9 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
               )}
               <div className="flex flex-wrap gap-2">
                 {form.skills.map((skill, index) => (
-                  <span key={index} className="inline-flex items-center gap-2 px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+                  <span key={index} className="inline-flex items-center gap-2 px-4 py-2 bg-orange-100 text-orange-800 rounded-full text-sm font-medium">
                     {skill}
-                    <button type="button" onClick={() => removeSkill(index)} className="text-green-600 hover:text-green-800 font-bold">
+                    <button type="button" onClick={() => removeSkill(index)} className="text-orange-600 hover:text-orange-800 font-bold">
                       ×
                     </button>
                   </span>
@@ -1228,7 +1228,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
             {/* Languages */}
             <div className="bg-white rounded-lg shadow-md p-4 md:p-8">
               <h2 className="text-lg md:text-2xl font-bold text-gray-800 mb-4 md:mb-6 flex items-center gap-2 md:gap-3">
-                <svg className="w-5 h-5 md:w-7 md:h-7 text-green-700 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 md:w-7 md:h-7 text-orange-700 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
                 </svg>
                 Languages Spoken
@@ -1238,7 +1238,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
                   <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">Language</label>
-                      <select value={lang.language} onChange={e => handleArrayChange('languages', index, 'language', e.target.value)} className="w-full px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition">
+                      <select value={lang.language} onChange={e => handleArrayChange('languages', index, 'language', e.target.value)} className="w-full px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition">
                         <option value="">Select Language</option>
                         {LANGUAGE_OPTIONS.map(langOpt => (
                           <option key={langOpt} value={langOpt}>{langOpt}</option>
@@ -1247,7 +1247,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
                     </div>
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">Proficiency</label>
-                      <select value={lang.proficiency} onChange={e => handleArrayChange('languages', index, 'proficiency', e.target.value)} className="w-full px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition">
+                      <select value={lang.proficiency} onChange={e => handleArrayChange('languages', index, 'proficiency', e.target.value)} className="w-full px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition">
                         <option value="Basic">Basic</option>
                         <option value="Conversational">Conversational</option>
                         <option value="Fluent">Fluent</option>
@@ -1262,7 +1262,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
                   )}
                 </div>
               ))}
-              <button type="button" onClick={() => addArrayItem('languages', { language: "", proficiency: "Fluent" })} className="px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 font-medium transition">
+              <button type="button" onClick={() => addArrayItem('languages', { language: "", proficiency: "Fluent" })} className="px-4 py-2 bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 font-medium transition">
                 + Add Language
               </button>
             </div>
@@ -1273,7 +1273,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
         {currentStep === 2 && (
           <div className="bg-white rounded-lg shadow-md p-4 md:p-8">
             <h2 className="text-lg md:text-2xl font-bold text-gray-800 mb-4 md:mb-6 flex items-center gap-2 md:gap-3">
-              <svg className="w-5 h-5 md:w-7 md:h-7 text-green-700 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 md:w-7 md:h-7 text-orange-700 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
               Self-Disclosure (Optional)
@@ -1321,15 +1321,15 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
         {currentStep === 3 && (
           <div className="bg-white rounded-lg shadow-md p-4 md:p-8">
             <h2 className="text-lg md:text-2xl font-bold text-gray-800 mb-4 md:mb-6 flex items-center gap-2 md:gap-3">
-              <svg className="w-5 h-5 md:w-7 md:h-7 text-green-700 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 md:w-7 md:h-7 text-orange-700 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               Review Your Application
             </h2>
             <div className="space-y-4 md:space-y-6">
-              <div className="p-4 md:p-6 bg-green-50 border-2 border-green-200 rounded-lg">
-                <h3 className="font-bold text-base md:text-lg text-green-900 mb-2 md:mb-4">Position</h3>
-                <p className="text-green-700 text-sm md:text-base">{jobs.find(j => j.id === form.jobId)?.title}</p>
+              <div className="p-4 md:p-6 bg-orange-50 border-2 border-orange-200 rounded-lg">
+                <h3 className="font-bold text-base md:text-lg text-orange-900 mb-2 md:mb-4">Position</h3>
+                <p className="text-orange-700 text-sm md:text-base">{jobs.find(j => j.id === form.jobId)?.title}</p>
               </div>
               <div className="p-4 md:p-6 bg-blue-50 border-2 border-blue-200 rounded-lg">
                 <h3 className="font-bold text-base md:text-lg text-blue-900 mb-2 md:mb-4">Contact</h3>
@@ -1380,7 +1380,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
               type="button"
               onClick={nextStep}
               disabled={isExtracting}
-              className={`px-3 py-2 md:px-6 md:py-3 text-sm md:text-base bg-green-600 text-white rounded-lg font-medium transition ${isExtracting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-green-700'}`}
+              className={`px-3 py-2 md:px-6 md:py-3 text-sm md:text-base bg-orange-600 text-white rounded-lg font-medium transition ${isExtracting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-orange-700'}`}
             >
               {isExtracting ? 'Analyzing...' : 'Next →'}
             </button>
@@ -1388,7 +1388,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
             <button
               type="button"
               onClick={handleSubmitClick}
-              className="px-4 py-2 md:px-8 md:py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-bold text-sm md:text-lg transition shadow-lg hover:shadow-xl flex items-center justify-center gap-1 md:gap-2"
+              className="px-4 py-2 md:px-8 md:py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 font-bold text-sm md:text-lg transition shadow-lg hover:shadow-xl flex items-center justify-center gap-1 md:gap-2"
             >
               <svg className="w-4 h-4 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -1421,7 +1421,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
             </ul>
             <button
               onClick={() => setShowValidationPopup(false)}
-              className="w-full px-4 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition"
+              className="w-full px-4 py-2 bg-orange-600 text-white font-medium rounded-lg hover:bg-orange-700 transition"
             >
               Got it
             </button>
@@ -1459,8 +1459,8 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setShowSubmitConfirm(false)}>
           <div className="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 p-6" onClick={e => e.stopPropagation()}>
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
@@ -1478,7 +1478,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
               </button>
               <button
                 onClick={confirmSubmit}
-                className="flex-1 px-4 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition"
+                className="flex-1 px-4 py-2 bg-orange-600 text-white font-medium rounded-lg hover:bg-orange-700 transition"
               >
                 Yes, Submit
               </button>

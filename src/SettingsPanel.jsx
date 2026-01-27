@@ -13,34 +13,34 @@ export default function SettingsPanel({ settings: initialSettings, onUpdateSetti
     smtpUser: '',
     smtpPassword: '',
     fromEmail: '',
-    fromName: 'PVARA Recruitment',
+    fromName: 'Argaam Recruitment',
     enabled: true,
   });
 
   const [emailTemplates, setEmailTemplates] = useState({
     applicationReceived: {
       subject: 'Application Received - {jobTitle}',
-      body: 'Dear {candidateName},\n\nThank you for applying to {jobTitle}. We have received your application and will review it shortly. You will be notified of the next steps.\n\nBest regards,\nPVARA Recruitment Team'
+      body: 'Dear {candidateName},\n\nThank you for applying to {jobTitle}. We have received your application and will review it shortly. You will be notified of the next steps.\n\nBest regards,\nArgaam Recruitment Team'
     },
     shortlisted: {
       subject: 'Congratulations! You\'ve been shortlisted',
-      body: 'Dear {candidateName},\n\nGreat news! You have been shortlisted for the {jobTitle} position. Our team will contact you soon to schedule an interview.\n\nBest regards,\nPVARA Recruitment Team'
+      body: 'Dear {candidateName},\n\nGreat news! You have been shortlisted for the {jobTitle} position. Our team will contact you soon to schedule an interview.\n\nBest regards,\nArgaam Recruitment Team'
     },
     testInvitation: {
       subject: 'Assessment Test - {jobTitle}',
-      body: 'Dear {candidateName},\n\nYou have been invited to complete an assessment test for {jobTitle}. Please access the test using the link below within 48 hours.\n\nTest Link: {testLink}\n\nBest regards,\nPVARA Recruitment Team'
+      body: 'Dear {candidateName},\n\nYou have been invited to complete an assessment test for {jobTitle}. Please access the test using the link below within 48 hours.\n\nTest Link: {testLink}\n\nBest regards,\nArgaam Recruitment Team'
     },
     interviewScheduled: {
       subject: 'Interview Scheduled - {jobTitle}',
-      body: 'Dear {candidateName},\n\nYour interview for {jobTitle} has been scheduled.\n\nDate: {date}\nTime: {time}\nLocation: {location}\n\nPlease confirm your availability.\n\nBest regards,\nPVARA Recruitment Team'
+      body: 'Dear {candidateName},\n\nYour interview for {jobTitle} has been scheduled.\n\nDate: {date}\nTime: {time}\nLocation: {location}\n\nPlease confirm your availability.\n\nBest regards,\nArgaam Recruitment Team'
     },
     offerExtended: {
       subject: 'Job Offer - {jobTitle}',
-      body: 'Dear {candidateName},\n\nCongratulations! We are pleased to extend a job offer for {jobTitle}.\n\nSalary: {salary}\nStart Date: {startDate}\n\nPlease review the attached offer letter and respond within 7 days.\n\nBest regards,\nPVARA Recruitment Team'
+      body: 'Dear {candidateName},\n\nCongratulations! We are pleased to extend a job offer for {jobTitle}.\n\nSalary: {salary}\nStart Date: {startDate}\n\nPlease review the attached offer letter and respond within 7 days.\n\nBest regards,\nArgaam Recruitment Team'
     },
     rejection: {
       subject: 'Application Status Update',
-      body: 'Dear {candidateName},\n\nThank you for your interest in {jobTitle}. After careful consideration, we have decided to move forward with other candidates whose qualifications more closely match our requirements.\n\nWe encourage you to apply for future openings that match your profile.\n\nBest regards,\nPVARA Recruitment Team'
+      body: 'Dear {candidateName},\n\nThank you for your interest in {jobTitle}. After careful consideration, we have decided to move forward with other candidates whose qualifications more closely match our requirements.\n\nWe encourage you to apply for future openings that match your profile.\n\nBest regards,\nArgaam Recruitment Team'
     }
   });
 
@@ -97,7 +97,7 @@ export default function SettingsPanel({ settings: initialSettings, onUpdateSetti
               smtpUser: s.email.smtpUser || '',
               smtpPassword: s.email.smtpPassword || '',
               fromEmail: s.email.fromEmail || '',
-              fromName: s.email.fromName || 'PVARA Recruitment',
+              fromName: s.email.fromName || 'Argaam Recruitment',
               enabled: s.email.enabled !== false,
             });
           }
@@ -311,7 +311,7 @@ export default function SettingsPanel({ settings: initialSettings, onUpdateSetti
   const getRoleBadgeColor = (role) => {
     switch (role) {
       case 'admin': return 'bg-red-100 text-red-700';
-      case 'hr': return 'bg-green-100 text-green-700';
+      case 'hr': return 'bg-orange-100 text-orange-700';
       case 'recruiter': return 'bg-blue-100 text-blue-700';
       default: return 'bg-gray-100 text-gray-700';
     }
@@ -321,7 +321,7 @@ export default function SettingsPanel({ settings: initialSettings, onUpdateSetti
   const getAvatarColor = (role) => {
     switch (role) {
       case 'admin': return 'bg-red-600';
-      case 'hr': return 'bg-green-600';
+      case 'hr': return 'bg-orange-600';
       case 'recruiter': return 'bg-blue-600';
       default: return 'bg-gray-600';
     }
@@ -383,9 +383,9 @@ export default function SettingsPanel({ settings: initialSettings, onUpdateSetti
       {activeTab === 'email' && (
         <div className="space-y-6">
           {/* Email Service Status */}
-          <div className={`glass-card p-6 rounded-lg border-l-4 ${emailConfig.enabled ? 'border-green-500' : 'border-yellow-500'}`}>
+          <div className={`glass-card p-6 rounded-lg border-l-4 ${emailConfig.enabled ? 'border-orange-500' : 'border-yellow-500'}`}>
             <div className="flex items-start gap-3">
-              <div className={`mt-1 ${emailConfig.enabled ? 'text-green-600' : 'text-yellow-600'}`}>
+              <div className={`mt-1 ${emailConfig.enabled ? 'text-orange-600' : 'text-yellow-600'}`}>
                 {emailConfig.enabled ? '✅' : '⚠️'}
               </div>
               <div className="flex-1">
@@ -503,7 +503,7 @@ export default function SettingsPanel({ settings: initialSettings, onUpdateSetti
                     type="email"
                     value={emailConfig.fromEmail}
                     onChange={(e) => setEmailConfig({ ...emailConfig, fromEmail: e.target.value })}
-                    placeholder="recruitment@pvara.com"
+                    placeholder="recruitment@argaam.com"
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
@@ -515,7 +515,7 @@ export default function SettingsPanel({ settings: initialSettings, onUpdateSetti
                     type="text"
                     value={emailConfig.fromName}
                     onChange={(e) => setEmailConfig({ ...emailConfig, fromName: e.target.value })}
-                    placeholder="PVARA Recruitment"
+                    placeholder="Argaam Recruitment"
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
@@ -548,7 +548,7 @@ export default function SettingsPanel({ settings: initialSettings, onUpdateSetti
               <button
                 onClick={handleSaveEmailSettings}
                 disabled={saving}
-                className="px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium"
+                className="px-8 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium"
               >
                 {saving ? 'Saving...' : 'Save Email Settings'}
               </button>
@@ -605,7 +605,7 @@ export default function SettingsPanel({ settings: initialSettings, onUpdateSetti
               <div>
                 <div className="flex justify-between items-center mb-2">
                   <label className="text-sm font-medium text-gray-700">Interview Weight</label>
-                  <span className="text-sm font-semibold text-green-600">{scoringConfig.interview}%</span>
+                  <span className="text-sm font-semibold text-orange-600">{scoringConfig.interview}%</span>
                 </div>
                 <input
                   type="range"
@@ -613,16 +613,16 @@ export default function SettingsPanel({ settings: initialSettings, onUpdateSetti
                   max="100"
                   value={scoringConfig.interview}
                   onChange={(e) => setScoringConfig({ ...scoringConfig, interview: parseInt(e.target.value) })}
-                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-green-600"
+                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-orange-600"
                 />
                 <p className="text-xs text-gray-500 mt-1">Weight given to interview performance scores</p>
               </div>
 
               {/* Total Indicator */}
-              <div className={`p-4 rounded-lg ${scoringConfig.education + scoringConfig.experience + scoringConfig.interview === 100 ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
+              <div className={`p-4 rounded-lg ${scoringConfig.education + scoringConfig.experience + scoringConfig.interview === 100 ? 'bg-orange-50 border border-orange-200' : 'bg-red-50 border border-red-200'}`}>
                 <div className="flex items-center justify-between">
                   <span className="font-medium text-gray-900">Total Weight:</span>
-                  <span className={`text-lg font-bold ${scoringConfig.education + scoringConfig.experience + scoringConfig.interview === 100 ? 'text-green-600' : 'text-red-600'}`}>
+                  <span className={`text-lg font-bold ${scoringConfig.education + scoringConfig.experience + scoringConfig.interview === 100 ? 'text-orange-600' : 'text-red-600'}`}>
                     {scoringConfig.education + scoringConfig.experience + scoringConfig.interview}%
                   </span>
                 </div>
@@ -636,7 +636,7 @@ export default function SettingsPanel({ settings: initialSettings, onUpdateSetti
               <button
                 onClick={handleSaveScoringSettings}
                 disabled={saving || (scoringConfig.education + scoringConfig.experience + scoringConfig.interview !== 100)}
-                className="px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium"
+                className="px-8 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium"
               >
                 {saving ? 'Saving...' : 'Save Scoring Settings'}
               </button>
@@ -730,7 +730,7 @@ export default function SettingsPanel({ settings: initialSettings, onUpdateSetti
                     <p className="text-xs text-gray-500 mt-1">Sent when candidate is shortlisted after screening</p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">Auto-sent</span>
+                    <span className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded">Auto-sent</span>
                     <button
                       onClick={() => setEditingTemplate('shortlisted')}
                       className="text-blue-600 hover:text-blue-700 text-sm font-medium"
@@ -928,7 +928,7 @@ export default function SettingsPanel({ settings: initialSettings, onUpdateSetti
                     <p className="text-xs text-gray-500 mt-1">Sent when job offer is extended to candidate</p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">Auto-sent</span>
+                    <span className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded">Auto-sent</span>
                     <button
                       onClick={() => setEditingTemplate('offerExtended')}
                       className="text-blue-600 hover:text-blue-700 text-sm font-medium"
@@ -1103,7 +1103,7 @@ export default function SettingsPanel({ settings: initialSettings, onUpdateSetti
                       <span className={`px-3 py-1 ${getRoleBadgeColor(user.role)} text-sm rounded-full font-medium capitalize`}>
                         {user.role}
                       </span>
-                      <span className={`text-xs ${user.isActive ? 'text-green-600' : 'text-red-600'}`}>
+                      <span className={`text-xs ${user.isActive ? 'text-orange-600' : 'text-red-600'}`}>
                         {user.isActive ? 'Active' : 'Inactive'}
                       </span>
                       {user.role !== 'admin' && (
@@ -1136,7 +1136,7 @@ export default function SettingsPanel({ settings: initialSettings, onUpdateSetti
                   </ul>
                 </div>
                 <div>
-                  <strong className="text-green-700">HR Manager</strong>
+                  <strong className="text-orange-700">HR Manager</strong>
                   <ul className="mt-2 space-y-1 text-gray-600">
                     <li>✓ Review applications</li>
                     <li>✓ Manage interviews</li>
@@ -1383,7 +1383,7 @@ export default function SettingsPanel({ settings: initialSettings, onUpdateSetti
               <button
                 onClick={handleSaveSystemSettings}
                 disabled={saving}
-                className="px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium"
+                className="px-8 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium"
               >
                 {saving ? 'Saving...' : 'Save System Settings'}
               </button>

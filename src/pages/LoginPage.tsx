@@ -15,14 +15,14 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    
+
     if (!username || !password) {
       setError('Please enter both username and password');
       return;
     }
 
     setIsLoading(true);
-    
+
     try {
       await onLogin(username, password);
     } catch (err) {
@@ -36,17 +36,17 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
     <div className="login-container">
       <div className="login-background">
         <div className="gradient-orb orb-1"></div>
-        <div className="gradient-orb orb-2"></div>
+        <h2 className="text-3xl font-bold text-gray-800 mb-2">Argaam Job Portal</h2>
         <div className="gradient-orb orb-3"></div>
       </div>
-      
+
       <div className="login-card">
         <div className="login-header">
           <div className="logo-container">
             <div className="logo-icon">
-              <img 
-                src="/pvara-logo.png" 
-                alt="PVARA" 
+              <img
+                src="/logo.png"
+                alt="Argaam"
                 onError={(e) => {
                   (e.target as HTMLImageElement).style.display = 'none';
                   (e.target as HTMLImageElement).parentElement!.innerHTML = '<span style="font-size: 40px;">🛡️</span>';
@@ -54,8 +54,9 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
               />
             </div>
           </div>
-          <h1>PVARA AI Platform</h1>
-          <p>AI-Powered Licensing & No Objection Certificate Evaluation</p>
+          <h1>Argaam <span style={{ direction: 'rtl', display: 'inline-block' }}>أرقام</span></h1>
+          <p className="text-gray-500 mb-8">Argaam - Connecting Talent with Opportunity</p>
+          <p className="text-gray-500 mb-8" style={{ direction: 'rtl', fontSize: '0.9rem' }}>أرقام - ربط المواهب بالفرص</p>
         </div>
 
         <form onSubmit={handleSubmit} className="login-form">
@@ -103,8 +104,8 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
             </label>
           </div>
 
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className="login-button"
             disabled={isLoading}
           >
@@ -123,12 +124,13 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
         </form>
 
         <div className="login-footer">
-          <p>Pakistan Virtual Assets Regulatory Authority</p>
+          <p>Argaam - Connecting Talent with Opportunity</p>
+          <p style={{ marginTop: '0.5rem', fontSize: '0.9rem' }}>أرقام - ربط المواهب بالفرص</p>
         </div>
       </div>
 
       <div className="login-info">
-        <p>© 2025 PVARA. AI-Powered Licensing & Compliance Evaluation Platform.</p>
+        <p>© 2025 Argaam. AI-Powered Licensing & Compliance Evaluation Platform.</p>
       </div>
     </div>
   );

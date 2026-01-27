@@ -21,114 +21,114 @@ interface DocumentHistory {
   [key: string]: DocumentVersion[];
 }
 
-// PVARA-specific document categories
-const DOCUMENT_CATEGORIES: Record<string, { label: string; color: string; icon: string; description: string }> = {
-  'pvara-regulations': { 
-    label: 'PVARA Ordinance & Regulations', 
-    color: '#dc2626', 
+// Argaam-specific document categories
+const DOCUMENT_CATEGORIES: Record<string, { label: string; labelAr?: string; color: string; icon: string; description: string; descriptionAr?: string }> = {
+  'company-documents': {
+    label: 'Company Documents',
+    labelAr: 'وثائق الشركة',
+    color: '#dc2626',
     icon: '📜',
-    description: 'PVARA Act, NOC Regulations, AML Guidelines'
+    description: 'Company policies and documents',
+    descriptionAr: 'سياسات ووثائق الشركة'
   },
-  'noc-application-forms': { 
-    label: 'NOC Application Forms', 
-    color: '#2563eb', 
+  'application-forms': {
+    label: 'Application Forms',
+    color: '#2563eb',
     icon: '📋',
-    description: 'Form A1, A2, A3, A5 - Official application documents'
+    description: 'Job application forms and documents'
   },
-  'applicant-corporate': { 
-    label: 'Applicant Corporate Documents', 
-    color: '#7c3aed', 
+  'candidate-documents': {
+    label: 'Candidate Documents',
+    color: '#7c3aed',
     icon: '🏢',
-    description: 'Certificate of Incorporation, Board Resolutions, MOA'
+    description: 'CV, Resume, Certificates, Portfolio'
   },
-  'applicant-compliance': { 
-    label: 'Applicant Compliance Policies', 
-    color: '#059669', 
+  'reference-documents': {
+    label: 'Reference Documents',
+    color: '#FF6B35',
     icon: '✅',
-    description: 'AML/KYC/KYB Policies, Sanctions, MLRO Procedures'
+    description: 'References, Recommendations, Testimonials'
   },
-  'applicant-financial': { 
-    label: 'Applicant Financial Documents', 
-    color: '#d97706', 
+  'portfolio': {
+    label: 'Portfolio & Work Samples',
+    color: '#d97706',
     icon: '💰',
-    description: 'Financial Statements, Projections, Audit Reports'
+    description: 'Portfolio, Work Samples, Projects'
   },
-  'applicant-technical': { 
-    label: 'Applicant Technical & Risk', 
-    color: '#0891b2', 
+  'certifications': {
+    label: 'Certifications & Training',
+    color: '#0891b2',
     icon: '⚙️',
-    description: 'Technical Architecture, Risk Assessment, BCP'
+    description: 'Professional Certifications, Training Certificates'
   },
-  'applicant-personnel': { 
-    label: 'Key Personnel Documents', 
-    color: '#be185d', 
+  'identification': {
+    label: 'Identification Documents',
+    color: '#be185d',
     icon: '👤',
-    description: 'Director Forms, MLRO, CFO Documentation'
+    description: 'ID, Passport, Work Permits'
   },
-  'regulatory-responses': { 
-    label: 'Regulatory Correspondence', 
-    color: '#4b5563', 
+  'correspondence': {
+    label: 'Correspondence',
+    color: '#4b5563',
     icon: '📨',
-    description: 'SECP, SBP Comments and Responses'
+    description: 'Email and written correspondence'
   }
 };
 
-// Enhanced categorization for PVARA documents
+// Enhanced categorization for Argaam documents
 function categorizeDocument(filename: string): string {
   const lower = filename.toLowerCase();
-  
-  // PVARA Ordinance & Regulations
-  if (lower.includes('ordinance') || lower.includes('pvara') || lower.includes('moit') || 
-      (lower.includes('aml') && lower.includes('.pdf') && !lower.includes('policy'))) {
-    return 'pvara-regulations';
+
+  // Company Documents
+  if (lower.includes('policy') || lower.includes('company') || lower.includes('handbook')) {
+    return 'company-documents';
   }
-  
-  // Regulatory Responses (SECP, SBP)
-  if (lower.includes('secp') || lower.includes('sbp') || lower.includes('comments on')) {
-    return 'regulatory-responses';
+
+  // Correspondence
+  if (lower.includes('email') || lower.includes('correspondence') || lower.includes('letter')) {
+    return 'correspondence';
   }
-  
-  // NOC Application Forms (Form A1, A2, A3, A5)
-  if (lower.includes('form a1') || lower.includes('form a2') || lower.includes('form a5') || 
-      lower.includes('form_a') || lower.includes('application for no objection') ||
-      lower.includes('outsourcing declaration')) {
-    return 'noc-application-forms';
+
+  // Application Forms
+  if (lower.includes('application form') || lower.includes('job application') ||
+    lower.includes('cv') || lower.includes('resume') || lower.includes('cover letter')) {
+    return 'application-forms';
   }
-  
+
   // Key Personnel Documents (Form A3, individual docs)
-  if (lower.includes('form a3') || lower.includes('a3 forms') || 
-      lower.includes('director') || lower.includes('cfo') || lower.includes('mlro') ||
-      lower.match(/chen ling|jimmy su|kaiser|richard teng|wilson|heidi|ryan|sunny|ying pok/)) {
+  if (lower.includes('form a3') || lower.includes('a3 forms') ||
+    lower.includes('director') || lower.includes('cfo') || lower.includes('mlro') ||
+    lower.match(/chen ling|jimmy su|kaiser|richard teng|wilson|heidi|ryan|sunny|ying pok/)) {
     return 'applicant-personnel';
   }
-  
+
   // Corporate Documents
   if (lower.includes('certificate') || lower.includes('apostille') || lower.includes('incorporation') ||
-      lower.includes('board_resolution') || lower.includes('moa') || lower.includes('rom') || 
-      lower.includes('robo') || lower.includes('notarial') || lower.includes('constitutive')) {
+    lower.includes('board_resolution') || lower.includes('moa') || lower.includes('rom') ||
+    lower.includes('robo') || lower.includes('notarial') || lower.includes('constitutive')) {
     return 'applicant-corporate';
   }
-  
+
   // Compliance Policies
-  if (lower.includes('aml') || lower.includes('kyc') || lower.includes('kyb') || 
-      lower.includes('compliance') || lower.includes('sanctions') || lower.includes('edd') ||
-      lower.includes('transaction monitoring') || lower.includes('record keeping') ||
-      lower.includes('training policy')) {
+  if (lower.includes('aml') || lower.includes('kyc') || lower.includes('kyb') ||
+    lower.includes('compliance') || lower.includes('sanctions') || lower.includes('edd') ||
+    lower.includes('transaction monitoring') || lower.includes('record keeping') ||
+    lower.includes('training policy')) {
     return 'applicant-compliance';
   }
-  
+
   // Financial Documents
   if (lower.includes('financial') || lower.includes('statement')) {
     return 'applicant-financial';
   }
-  
+
   // Technical & Risk Documents
-  if (lower.includes('technical') || lower.includes('outsourcing') || lower.includes('bcms') || 
-      lower.includes('continuity') || lower.includes('risk') || lower.includes('bcp')) {
+  if (lower.includes('technical') || lower.includes('outsourcing') || lower.includes('bcms') ||
+    lower.includes('continuity') || lower.includes('risk') || lower.includes('bcp')) {
     return 'applicant-technical';
   }
-  
-  return 'noc-application-forms'; // Default to application forms
+
+  return 'application-forms'; // Default to application forms
 }
 
 // Build folder tree from document paths
@@ -142,15 +142,15 @@ interface FolderNode {
 
 function buildDocumentTree(documents: string[]): FolderNode {
   const root: FolderNode = { name: 'Documents', path: '', isFolder: true, children: [] };
-  
+
   documents.forEach(docPath => {
     const parts = docPath.split('/');
     let current = root;
-    
+
     parts.forEach((part, index) => {
       const isLast = index === parts.length - 1;
       const existing = current.children.find(c => c.name === part);
-      
+
       if (existing) {
         current = existing;
       } else {
@@ -166,7 +166,7 @@ function buildDocumentTree(documents: string[]): FolderNode {
       }
     });
   });
-  
+
   return root;
 }
 
@@ -190,7 +190,8 @@ export const DocumentManagementPanel: React.FC<DocumentManagementPanelProps> = (
     const fetchDocLibrary = async () => {
       try {
         setLoadingLibrary(true);
-        const response = await fetch('http://localhost:3001/api/applications/documents/library');
+        const apiUrl = process.env.REACT_APP_API_URL || 'https://argaam-be.fortanixor.com';
+        const response = await fetch(`${apiUrl}/api/applications/documents/library`);
         const data = await response.json();
         if (data.success) {
           setDocLibrary(data.documentLibrary);
@@ -231,7 +232,7 @@ export const DocumentManagementPanel: React.FC<DocumentManagementPanelProps> = (
 
   // Build document tree
   const documentTree = useMemo(() => buildDocumentTree(realDocuments), [realDocuments]);
-  
+
   // Group documents by category
   const documentsByCategory = useMemo(() => {
     const groups: Record<string, string[]> = {};
@@ -267,7 +268,7 @@ export const DocumentManagementPanel: React.FC<DocumentManagementPanelProps> = (
   const handleReplaceDocument = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !selectedFile) return;
-    
+
     // Track changes (in real app, would compare document contents)
     const changes = [
       'Document replaced with new version',
@@ -275,7 +276,7 @@ export const DocumentManagementPanel: React.FC<DocumentManagementPanelProps> = (
       `Size: ${(file.size / 1024).toFixed(1)} KB`,
       `Uploaded: ${new Date().toLocaleString()}`
     ];
-    
+
     // Update history
     const currentHistory = documentHistory[selectedFile] || [];
     const newVersion: DocumentVersion = {
@@ -285,12 +286,12 @@ export const DocumentManagementPanel: React.FC<DocumentManagementPanelProps> = (
       uploadedBy: 'Current User',
       changes
     };
-    
+
     setDocumentHistory(prev => ({
       ...prev,
       [selectedFile]: [...(prev[selectedFile] || []), newVersion]
     }));
-    
+
     setShowReplaceModal(false);
     alert(`Document "${selectedFile.split('/').pop()}" replaced with "${file.name}"\n\nVersion ${newVersion.version} created with change trail.`);
   };
@@ -345,15 +346,15 @@ export const DocumentManagementPanel: React.FC<DocumentManagementPanelProps> = (
             <h3 style={{ fontSize: '0.95rem', fontWeight: '600', marginBottom: '0.5rem' }}>✨ OpenAI Categorized Documents</h3>
             <p style={{ fontSize: '0.8rem', color: '#999' }}>Documents analyzed and categorized by OpenAI gpt-5.2 (with full content analysis)</p>
           </div>
-          
+
           {loadingLibrary ? (
             <p style={{ fontSize: '0.8rem', color: '#999' }}>Loading AI categories...</p>
           ) : docLibrary[companyName] ? (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 'var(--space-sm)' }}>
-              {Object.entries(docLibrary[companyName]).map(([pvaraCategory, docs]: [string, any]) => {
+              {Object.entries(docLibrary[companyName]).map(([argaamCategory, docs]: [string, any]) => {
                 const count = Array.isArray(docs) ? docs.length : 0;
                 if (count === 0) return null;
-                
+
                 const categoryLabels: Record<string, string> = {
                   'ordinance': '📜 Ordinance',
                   'regulations': '📋 Regulations',
@@ -361,11 +362,11 @@ export const DocumentManagementPanel: React.FC<DocumentManagementPanelProps> = (
                   'submitted-application': '✅ Submitted Applications',
                   'supporting-document': '📎 Supporting Documents'
                 };
-                
+
                 return (
-                  <div key={pvaraCategory} style={{ padding: '0.75rem', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', background: 'rgba(0,0,0,0.2)' }}>
+                  <div key={argaamCategory} style={{ padding: '0.75rem', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', background: 'rgba(0,0,0,0.2)' }}>
                     <div style={{ fontWeight: '600', fontSize: '0.9rem', marginBottom: '0.5rem' }}>
-                      {categoryLabels[pvaraCategory] || pvaraCategory}
+                      {categoryLabels[argaamCategory] || argaamCategory}
                     </div>
                     <div style={{ fontSize: '0.85rem', color: '#4ade80' }}>
                       {count} document{count !== 1 ? 's' : ''}
@@ -413,18 +414,18 @@ export const DocumentManagementPanel: React.FC<DocumentManagementPanelProps> = (
               {Object.entries(DOCUMENT_CATEGORIES).map(([catKey, catInfo]) => {
                 const docs = documentsByCategory[catKey] || [];
                 if (docs.length === 0) return null;
-                
+
                 const isExpanded = expandedFolders.has(catKey);
-                
+
                 return (
                   <div key={catKey} className="category-section card-glass" style={{ padding: 'var(--space-md)', borderLeft: `4px solid ${catInfo.color}` }}>
-                    <div 
-                      className="category-header" 
+                    <div
+                      className="category-header"
                       onClick={() => toggleFolder(catKey)}
-                      style={{ 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        gap: 'var(--space-sm)', 
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 'var(--space-sm)',
                         cursor: 'pointer',
                         marginBottom: isExpanded ? 'var(--space-sm)' : 0
                       }}
@@ -436,16 +437,16 @@ export const DocumentManagementPanel: React.FC<DocumentManagementPanelProps> = (
                       </span>
                       {isExpanded ? <FiChevronUp /> : <FiChevronDown />}
                     </div>
-                    
+
                     {isExpanded && (
                       <div className="category-files" style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: 'var(--space-sm)' }}>
                         {docs.map((docPath, idx) => {
                           const fileName = docPath.split('/').pop() || docPath;
                           const fileExt = fileName.split('.').pop()?.toLowerCase() || '';
                           const isSelected = selectedFile === docPath;
-                          
+
                           return (
-                            <div 
+                            <div
                               key={idx}
                               onClick={() => setSelectedFile(docPath)}
                               className={`file-item ${isSelected ? 'selected' : ''}`}
@@ -462,18 +463,18 @@ export const DocumentManagementPanel: React.FC<DocumentManagementPanelProps> = (
                               }}
                             >
                               <FiFile size={14} style={{ color: catInfo.color, flexShrink: 0 }} />
-                              <span style={{ 
-                                fontSize: '0.8rem', 
-                                color: 'var(--text-primary)', 
-                                overflow: 'hidden', 
-                                textOverflow: 'ellipsis', 
+                              <span style={{
+                                fontSize: '0.8rem',
+                                color: 'var(--text-primary)',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
                                 whiteSpace: 'nowrap',
                                 flex: 1
                               }}>
                                 {fileName}
                               </span>
-                              <span className="badge" style={{ 
-                                fontSize: '0.65rem', 
+                              <span className="badge" style={{
+                                fontSize: '0.65rem',
                                 padding: '2px 6px',
                                 background: fileExt === 'pdf' ? '#ef4444' : fileExt === 'docx' ? '#3b82f6' : fileExt === 'xlsx' ? '#10b981' : '#6b7280',
                                 color: 'white',
@@ -527,7 +528,7 @@ export const DocumentManagementPanel: React.FC<DocumentManagementPanelProps> = (
                 </div>
                 <div className="info-row" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                   <span className="label" style={{ fontSize: '0.7rem', color: 'var(--text-tertiary)', textTransform: 'uppercase' }}>Format</span>
-                  <span className="badge" style={{ 
+                  <span className="badge" style={{
                     fontSize: '0.7rem',
                     padding: '4px 8px',
                     background: selectedFile.endsWith('.pdf') ? '#ef4444' : selectedFile.endsWith('.docx') ? '#3b82f6' : '#10b981',
@@ -584,10 +585,10 @@ export const DocumentManagementPanel: React.FC<DocumentManagementPanelProps> = (
                 </h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '200px', overflow: 'auto' }}>
                   {[...documentHistory[selectedFile]].reverse().map((ver, idx) => (
-                    <div 
-                      key={idx} 
-                      style={{ 
-                        padding: '8px', 
+                    <div
+                      key={idx}
+                      style={{
+                        padding: '8px',
                         background: idx === 0 ? 'rgba(59, 130, 246, 0.1)' : 'rgba(255,255,255,0.03)',
                         borderRadius: '6px',
                         borderLeft: idx === 0 ? '3px solid #3b82f6' : '3px solid transparent'
@@ -623,7 +624,7 @@ export const DocumentManagementPanel: React.FC<DocumentManagementPanelProps> = (
 
       {/* Replace Document Modal */}
       {showReplaceModal && selectedFile && (
-        <div 
+        <div
           style={{
             position: 'fixed',
             top: 0,
@@ -638,11 +639,11 @@ export const DocumentManagementPanel: React.FC<DocumentManagementPanelProps> = (
           }}
           onClick={() => setShowReplaceModal(false)}
         >
-          <div 
+          <div
             className="card-glass"
-            style={{ 
-              padding: 'var(--space-xl)', 
-              maxWidth: '500px', 
+            style={{
+              padding: 'var(--space-xl)',
+              maxWidth: '500px',
               width: '90%',
               background: 'var(--bg-secondary)'
             }}
@@ -651,9 +652,9 @@ export const DocumentManagementPanel: React.FC<DocumentManagementPanelProps> = (
             <h3 style={{ marginBottom: 'var(--space-md)', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <FiRefreshCw /> Replace Document
             </h3>
-            <div style={{ 
-              padding: 'var(--space-md)', 
-              background: 'rgba(251, 191, 36, 0.1)', 
+            <div style={{
+              padding: 'var(--space-md)',
+              background: 'rgba(251, 191, 36, 0.1)',
               borderRadius: '8px',
               borderLeft: '4px solid #fbbf24',
               marginBottom: 'var(--space-md)'
@@ -676,14 +677,14 @@ export const DocumentManagementPanel: React.FC<DocumentManagementPanelProps> = (
               style={{ display: 'none' }}
             />
             <div style={{ display: 'flex', gap: 'var(--space-sm)' }}>
-              <button 
+              <button
                 className="btn btn-primary"
                 onClick={() => fileInputRef.current?.click()}
                 style={{ flex: 1 }}
               >
                 <FiUpload size={16} /> Select New File
               </button>
-              <button 
+              <button
                 className="btn btn-secondary"
                 onClick={() => setShowReplaceModal(false)}
               >
@@ -695,7 +696,7 @@ export const DocumentManagementPanel: React.FC<DocumentManagementPanelProps> = (
       )}
     </div>
   );
-  
+
   // Helper function to render folder tree recursively
   function renderFolderTree(nodes: FolderNode[], depth: number): React.ReactNode {
     return nodes.map((node, idx) => {
@@ -703,12 +704,12 @@ export const DocumentManagementPanel: React.FC<DocumentManagementPanelProps> = (
         const isExpanded = expandedFolders.has(node.path);
         return (
           <div key={idx} style={{ marginLeft: depth * 16 }}>
-            <div 
+            <div
               onClick={() => toggleFolder(node.path)}
-              style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: '6px', 
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
                 padding: '6px 8px',
                 cursor: 'pointer',
                 borderRadius: '4px',
@@ -728,16 +729,16 @@ export const DocumentManagementPanel: React.FC<DocumentManagementPanelProps> = (
         const catInfo = DOCUMENT_CATEGORIES[node.category || 'other'];
         const isSelected = selectedFile === node.path;
         const fileExt = node.name.split('.').pop()?.toLowerCase() || '';
-        
+
         return (
-          <div 
+          <div
             key={idx}
             onClick={() => setSelectedFile(node.path)}
-            style={{ 
+            style={{
               marginLeft: depth * 16,
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '6px', 
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
               padding: '6px 8px',
               cursor: 'pointer',
               borderRadius: '4px',
@@ -749,8 +750,8 @@ export const DocumentManagementPanel: React.FC<DocumentManagementPanelProps> = (
             <span style={{ fontSize: '0.8rem', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {node.name}
             </span>
-            <span style={{ 
-              fontSize: '0.6rem', 
+            <span style={{
+              fontSize: '0.6rem',
               padding: '2px 5px',
               background: fileExt === 'pdf' ? '#ef4444' : fileExt === 'docx' ? '#3b82f6' : '#10b981',
               color: 'white',

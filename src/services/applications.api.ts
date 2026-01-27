@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://argaam-be.fortanixor.com/api';
 const API_KEY = process.env.REACT_APP_API_KEY || 'dev-key-12345';
 
 const api = axios.create({

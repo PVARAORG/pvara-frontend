@@ -17,11 +17,11 @@ const MyCandidateApplications = ({ applications, candidateProfile, jobs }) => {
     <div className="max-w-4xl mx-auto">
       {/* Candidate Profile Header */}
       {candidateProfile && (
-        <div className="bg-gradient-to-r from-green-700 to-green-600 text-white rounded-lg shadow-md p-6 mb-6">
+        <div className="bg-gradient-to-r from-orange-700 to-orange-600 text-white rounded-lg shadow-md p-6 mb-6">
           <div className="flex items-start justify-between">
             <div>
               <h2 className="text-2xl font-bold mb-2">{candidateProfile.name}</h2>
-              <div className="space-y-1 text-green-50">
+              <div className="space-y-1 text-orange-50">
                 <p className="flex items-center gap-2">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
@@ -46,7 +46,7 @@ const MyCandidateApplications = ({ applications, candidateProfile, jobs }) => {
             </div>
             <div className="text-right">
               <div className="text-3xl font-bold">{myApplications.length}</div>
-              <div className="text-sm text-green-100">Total Applications</div>
+              <div className="text-sm text-orange-100">Total Applications</div>
             </div>
           </div>
         </div>
@@ -89,7 +89,7 @@ const MyCandidateApplications = ({ applications, candidateProfile, jobs }) => {
                 </div>
                 <div className="text-right">
                   <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
-                    app.status === 'offer' ? 'bg-green-100 text-green-700' :
+                    app.status === 'offer' ? 'bg-orange-100 text-orange-700' :
                     app.status === 'interview' || app.status === 'phone-interview' ? 'bg-blue-100 text-blue-700' :
                     app.status === 'screening' ? 'bg-yellow-100 text-yellow-700' :
                     app.status === 'rejected' ? 'bg-red-100 text-red-700' :
@@ -134,7 +134,7 @@ const MyCandidateApplications = ({ applications, candidateProfile, jobs }) => {
                       <p className="text-xs text-gray-500">AI Compatibility Score</p>
                       <div className="flex items-center gap-2">
                         <div className={`text-2xl font-bold ${
-                          app.aiScore >= 75 ? 'text-green-600' : 
+                          app.aiScore >= 75 ? 'text-orange-600' : 
                           app.aiScore >= 60 ? 'text-yellow-600' : 
                           'text-red-600'
                         }`}>
@@ -160,14 +160,14 @@ const MyCandidateApplications = ({ applications, candidateProfile, jobs }) => {
                   </div>
                 </div>
               ) : app.status === 'offer' ? (
-                <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                <div className="mt-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
                   <div className="flex items-start gap-2">
-                    <svg className="w-5 h-5 text-green-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 text-orange-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <div>
-                      <p className="text-sm font-semibold text-green-800">Congratulations!</p>
-                      <p className="text-xs text-green-700 mt-1">You've received an offer. Check your email for details and next steps.</p>
+                      <p className="text-sm font-semibold text-orange-800">Congratulations!</p>
+                      <p className="text-xs text-orange-700 mt-1">You've received an offer. Check your email for details and next steps.</p>
                     </div>
                   </div>
                 </div>

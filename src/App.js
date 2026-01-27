@@ -1,6 +1,6 @@
 import React from "react";
-import PvaraPhase2 from "./PvaraPhase2";
+import ArgaamPhase2 from "./ArgaamPhase2";
 
 export default function App() {
-  return <PvaraPhase2 />;
+  return <ArgaamPhase2 />;
 }
