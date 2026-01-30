@@ -286,12 +286,6 @@ export default function SettingsPanel({ settings: initialSettings, onUpdateSetti
 
   // Handle delete user
   const handleDeleteUser = async (userId, userRole) => {
-    // Prevent deleting admin users
-    if (userRole === 'admin') {
-      setError('Admin users cannot be deleted');
-      return;
-    }
-
     if (!window.confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
       return;
     }
