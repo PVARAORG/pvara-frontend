@@ -1165,7 +1165,9 @@ function PvaraPhase2() {
         max: parseFloat(newJob.salary?.max) || 0,
       },
       status: newJob.status || 'open',
-      screeningCriteria: newJob.screeningCriteria || null
+      screeningCriteria: newJob.screeningCriteria || null,
+      education: newJob.education || null,
+      termsAndConditions: newJob.termsAndConditions || null
     };
 
     try {
@@ -1226,7 +1228,9 @@ function PvaraPhase2() {
         max: parseFloat(jobData.salary?.max) || 0,
       },
       status: jobData.status || 'open',
-      screeningCriteria: jobData.screeningCriteria || null
+      screeningCriteria: jobData.screeningCriteria || null,
+      education: jobData.education || null,
+      termsAndConditions: jobData.termsAndConditions || null
     };
 
     try {
