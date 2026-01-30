@@ -1461,8 +1461,7 @@ function PvaraPhase2() {
             setView("my-apps");
           }, 1500);
 
-          // Send confirmation email
-          sendConfirmationEmail(data, job);
+          // Note: Confirmation email is already sent by the backend in create_application endpoint
         } else {
           console.error('Failed to save to database:', result);
           addToast("Application saved locally but backend sync failed", { type: "warning" });
