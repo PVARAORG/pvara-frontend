@@ -75,6 +75,7 @@ export default function SettingsPanel({ settings: initialSettings, onUpdateSetti
     role: 'viewer',
     phone: '',
     department: '',
+    otpEnabled: false,
   });
   const [addUserError, setAddUserError] = useState(null);
   const [addingUser, setAddingUser] = useState(false);
@@ -269,6 +270,7 @@ export default function SettingsPanel({ settings: initialSettings, onUpdateSetti
           role: 'viewer',
           phone: '',
           department: '',
+          otpEnabled: false,
         });
         setShowAddUserModal(false);
         // Refresh users list
@@ -1106,6 +1108,11 @@ export default function SettingsPanel({ settings: initialSettings, onUpdateSetti
                       <span className={`text-xs ${user.isActive ? 'text-green-600' : 'text-red-600'}`}>
                         {user.isActive ? 'Active' : 'Inactive'}
                       </span>
+                      {(user.role === 'admin' || user.role === 'hr') && (
+                        <span className={`text-xs px-2 py-0.5 rounded ${user.otpEnabled ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-500'}`}>
+                          {user.otpEnabled ? '🔐 OTP' : '🔓 No OTP'}
+                        </span>
+                      )}
                       {user.role !== 'admin' && (
                         <button
                           onClick={() => handleDeleteUser(user.id || user._id, user.role)}
@@ -1268,6 +1275,25 @@ export default function SettingsPanel({ settings: initialSettings, onUpdateSetti
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   </div>
+
+                  {/* OTP Toggle - Only show for admin/hr roles */}
+                  {(addUserForm.role === 'admin' || addUserForm.role === 'hr') && (
+                    <div className="flex items-center justify-between p-3 bg-purple-50 border border-purple-200 rounded-lg">
+                      <div>
+                        <label className="block text-sm font-medium text-purple-800">🔐 Require Email OTP on Login</label>
+                        <p className="text-xs text-purple-600 mt-0.5">Send verification code to email when this user logs in</p>
+                      </div>
+                      <label className="flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={addUserForm.otpEnabled}
+                          onChange={(e) => setAddUserForm({ ...addUserForm, otpEnabled: e.target.checked })}
+                          className="sr-only peer"
+                        />
+                        <div className="relative w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                      </label>
+                    </div>
+                  )}
 
                   <div className="flex gap-3 pt-4">
                     <button
