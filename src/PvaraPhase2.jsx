@@ -2525,7 +2525,7 @@ function PvaraPhase2() {
                   </span>
                   About the Role
                 </h2>
-                <p className="text-gray-600 leading-relaxed text-lg">{job.description}</p>
+                <p className="text-gray-600 leading-relaxed text-lg whitespace-pre-line">{job.description}</p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -2570,6 +2570,37 @@ function PvaraPhase2() {
                   </p>
                 </div>
               </div>
+
+              {/* Education Requirements Section */}
+              {job.education && (
+                <div className="p-6 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl border border-indigo-100">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-10 h-10 bg-indigo-500 rounded-lg flex items-center justify-center">
+                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+                      </svg>
+                    </div>
+                    <h3 className="font-bold text-gray-800 text-lg">Education Requirements</h3>
+                  </div>
+                  <p className="text-gray-700 leading-relaxed whitespace-pre-line">{job.education}</p>
+                </div>
+              )}
+
+              {/* Terms and Conditions Section */}
+              {job.termsAndConditions && (
+                <div className="p-6 bg-gradient-to-br from-amber-50 to-yellow-50 rounded-xl border border-amber-200">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-10 h-10 bg-amber-500 rounded-lg flex items-center justify-center">
+                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </div>
+                    <h3 className="font-bold text-gray-800 text-lg">Terms & Conditions</h3>
+                  </div>
+                  <p className="text-gray-700 leading-relaxed whitespace-pre-line">{job.termsAndConditions}</p>
+                </div>
+              )}
 
               <div className="pt-6 border-t border-gray-100 flex flex-col sm:flex-row gap-4">
                 <button
@@ -2775,6 +2806,22 @@ function PvaraPhase2() {
                         <svg className="w-3.5 h-3.5 md:w-4 md:h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z" /><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clipRule="evenodd" /></svg>
                         ₨{job.salary.min.toLocaleString()} - ₨{job.salary.max.toLocaleString()}
                       </div>
+                      {job.education && (
+                        <div className="flex items-center gap-1 md:gap-1.5 text-xs md:text-sm text-indigo-600">
+                          <svg className="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5z" />
+                          </svg>
+                          <span className="truncate max-w-[80px] md:max-w-[120px]" title={job.education}>Education Req.</span>
+                        </div>
+                      )}
+                      {job.termsAndConditions && (
+                        <div className="flex items-center gap-1 text-xs text-amber-600">
+                          <svg className="w-3 h-3 md:w-3.5 md:h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                          <span>T&C</span>
+                        </div>
+                      )}
                     </div>
 
                     <div className="flex items-center gap-2 md:gap-3">
