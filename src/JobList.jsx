@@ -42,6 +42,8 @@ const JobList = ({ jobs, onCreate, onEdit, onDelete, onUpdateScreeningCriteria }
     ageBracket: { minAge: "", maxAge: "" },
     salary: { min: "", max: "" },
     fields: {},
+    education: "",
+    termsAndConditions: "",
   });
 
   const [hasSubmitted, setHasSubmitted] = React.useState(false);
@@ -107,6 +109,8 @@ const JobList = ({ jobs, onCreate, onEdit, onDelete, onUpdateScreeningCriteria }
       ageBracket: { minAge: "", maxAge: "" },
       salary: { min: "", max: "" },
       fields: {},
+      education: "",
+      termsAndConditions: "",
     });
     setEditingJobId(null);
     setHasSubmitted(false);
@@ -133,6 +137,8 @@ const JobList = ({ jobs, onCreate, onEdit, onDelete, onUpdateScreeningCriteria }
         min: job.salary?.min !== undefined && job.salary?.min !== null ? String(job.salary.min) : "",
         max: job.salary?.max !== undefined && job.salary?.max !== null ? String(job.salary.max) : "",
       },
+      education: job.education || "",
+      termsAndConditions: job.termsAndConditions || "",
     });
     setEditingJobId(job.id);
     setShowModal(true);
@@ -380,7 +386,21 @@ const JobList = ({ jobs, onCreate, onEdit, onDelete, onUpdateScreeningCriteria }
                           </svg>
                           {job.openings || 1} opening{(job.openings || 1) > 1 ? 's' : ''}
                         </span>
+                        {job.education && (
+                          <span className="flex items-center gap-1.5">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+                            </svg>
+                            <span className="truncate max-w-[200px]" title={job.education}>{job.education}</span>
+                          </span>
+                        )}
                       </div>
+                      {job.termsAndConditions && (
+                        <div className="mt-2 p-2 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800">
+                          <span className="font-medium">📋 T&C:</span> <span className="line-clamp-1">{job.termsAndConditions}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -624,6 +644,34 @@ const JobList = ({ jobs, onCreate, onEdit, onDelete, onUpdateScreeningCriteria }
                   onChange={(e) => handleLocalChange('description', e.target.value)}
                   placeholder="Describe the role, responsibilities, and what you're looking for..."
                   rows={4}
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition text-sm resize-none"
+                />
+              </div>
+
+              {/* Education Requirements */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Education Requirements <span className="text-gray-400">(Optional)</span>
+                </label>
+                <textarea
+                  value={localForm.education}
+                  onChange={(e) => handleLocalChange('education', e.target.value)}
+                  placeholder="e.g., Bachelor's degree in Computer Science or related field, Master's preferred..."
+                  rows={3}
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition text-sm resize-none"
+                />
+              </div>
+
+              {/* Terms and Conditions */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Terms & Conditions <span className="text-gray-400">(Optional)</span>
+                </label>
+                <textarea
+                  value={localForm.termsAndConditions}
+                  onChange={(e) => handleLocalChange('termsAndConditions', e.target.value)}
+                  placeholder="e.g., Probation period, working hours, travel requirements, bond terms..."
+                  rows={3}
                   className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition text-sm resize-none"
                 />
               </div>
