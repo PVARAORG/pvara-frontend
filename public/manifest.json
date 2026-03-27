@@ -1,6 +1,6 @@
 {
   "short_name": "PVARA",
-  "name": "PVARA - Enterprise Recruitment Portal",
+  "name": "PVARA Recruitment Portal",
   "icons": [
     {
       "src": "favicon-32.png",
@@ -20,6 +20,6 @@
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#3b82f6",
+  "theme_color": "#047857",
   "background_color": "#ffffff"
 }

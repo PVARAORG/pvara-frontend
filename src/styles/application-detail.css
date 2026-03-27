@@ -16,8 +16,8 @@
 }
 
 .doc-chip:hover {
-  border-color: #0066FF;
-  box-shadow: 0 2px 8px rgba(0, 102, 255, 0.1);
+  border-color: #047857;
+  box-shadow: 0 2px 8px rgba(4, 120, 87, 0.1);
   transform: translateY(-2px);
 }
 

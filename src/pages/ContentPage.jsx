@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import DOMPurify from 'dompurify';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
@@ -100,7 +101,7 @@ export default function ContentPage({ slug, onBack }) {
             prose-li:mb-2
             prose-a:text-green-700 prose-a:hover:text-green-800 prose-a:underline
             prose-strong:text-gray-900"
-                    dangerouslySetInnerHTML={{ __html: page.content }}
+                    dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(page.content) }}
                 />
 
                 {/* Last Updated */}

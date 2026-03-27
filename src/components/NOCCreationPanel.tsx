@@ -570,9 +570,9 @@ export const NOCCreationPanel: React.FC<NOCCreationPanelProps> = ({
           <div style={{ 
             marginTop: 'var(--space-md)',
             padding: 'var(--space-md)',
-            background: 'rgba(59, 130, 246, 0.1)',
+            background: 'rgba(4, 120, 87, 0.1)',
             borderRadius: 'var(--radius-md)',
-            border: '1px solid rgba(59, 130, 246, 0.2)',
+            border: '1px solid rgba(4, 120, 87, 0.2)',
             display: 'flex',
             gap: 'var(--space-md)',
             alignItems: 'center'
@@ -625,12 +625,12 @@ export const NOCCreationPanel: React.FC<NOCCreationPanelProps> = ({
           }}>
             <div style={{ 
               padding: 'var(--space-md)', 
-              background: 'rgba(59, 130, 246, 0.1)', 
+              background: 'rgba(4, 120, 87, 0.1)', 
               borderRadius: 'var(--radius-md)',
-              border: '1px solid rgba(59, 130, 246, 0.3)'
+              border: '1px solid rgba(4, 120, 87, 0.3)'
             }}>
               <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>Overall Score</div>
-              <div style={{ fontSize: '1.5rem', fontWeight: '700', color: 'rgb(59, 130, 246)' }}>
+              <div style={{ fontSize: '1.5rem', fontWeight: '700', color: 'rgb(4, 120, 87)' }}>
                 {evaluation.overallScore}/100
               </div>
             </div>
@@ -659,11 +659,11 @@ export const NOCCreationPanel: React.FC<NOCCreationPanelProps> = ({
             <div style={{ 
               padding: 'var(--space-md)', 
               background: evaluation.recommendation === 'approve' ? 'rgba(16, 185, 129, 0.1)' : 
-                         evaluation.recommendation === 'conditional-approval' ? 'rgba(59, 130, 246, 0.1)' :
+                         evaluation.recommendation === 'conditional-approval' ? 'rgba(4, 120, 87, 0.1)' :
                          'rgba(239, 68, 68, 0.1)',
               borderRadius: 'var(--radius-md)',
               border: `1px solid ${evaluation.recommendation === 'approve' ? 'rgba(16, 185, 129, 0.3)' : 
-                                   evaluation.recommendation === 'conditional-approval' ? 'rgba(59, 130, 246, 0.3)' :
+                                   evaluation.recommendation === 'conditional-approval' ? 'rgba(4, 120, 87, 0.3)' :
                                    'rgba(239, 68, 68, 0.3)'}`
             }}>
               <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>Recommendation</div>
@@ -671,7 +671,7 @@ export const NOCCreationPanel: React.FC<NOCCreationPanelProps> = ({
                 fontSize: '0.75rem', 
                 fontWeight: '700',
                 color: evaluation.recommendation === 'approve' ? 'rgb(16, 185, 129)' : 
-                       evaluation.recommendation === 'conditional-approval' ? 'rgb(59, 130, 246)' :
+                       evaluation.recommendation === 'conditional-approval' ? 'rgb(4, 120, 87)' :
                        'rgb(239, 68, 68)'
               }}>
                 {evaluation.recommendation.replace('-', ' ').toUpperCase()}

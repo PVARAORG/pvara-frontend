@@ -2,11 +2,11 @@
 
 :root {
   /* Premium Color Palette */
-  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --primary-gradient: linear-gradient(135deg, #064E3B 0%, #047857 100%);
   --success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
   --danger-gradient: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);
   --warning-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-  --premium-gradient: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #06b6d4 100%);
+  --premium-gradient: linear-gradient(135deg, #064E3B 0%, #047857 50%, #10B981 100%);
   --dark-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
   
   /* Glassmorphism */
@@ -19,11 +19,11 @@
   --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
   --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.12);
   --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.15);
-  --shadow-premium: 0 25px 80px rgba(102, 126, 234, 0.25);
+  --shadow-premium: 0 25px 80px rgba(4, 120, 87, 0.25);
   
   /* Premium Colors */
-  --premium-blue: #3b82f6;
-  --premium-purple: #8b5cf6;
+  --premium-blue: #047857;
+  --premium-purple: #059669;
   --premium-pink: #ec4899;
   --premium-teal: #14b8a6;
   --premium-emerald: #10b981;
@@ -93,9 +93,9 @@ body {
   left: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(circle at 20% 50%, rgba(102, 126, 234, 0.15) 0%, transparent 50%),
-              radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
-              radial-gradient(circle at 40% 20%, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
+  background: radial-gradient(circle at 20% 50%, rgba(4, 120, 87, 0.15) 0%, transparent 50%),
+              radial-gradient(circle at 80% 80%, rgba(5, 150, 105, 0.15) 0%, transparent 50%),
+              radial-gradient(circle at 40% 20%, rgba(4, 120, 87, 0.1) 0%, transparent 50%);
   animation: backgroundFloat 20s ease-in-out infinite;
   pointer-events: none;
   z-index: 0;
@@ -265,7 +265,7 @@ body {
 .app-card:hover {
   transform: translateY(-8px);
   box-shadow: var(--shadow-premium);
-  border-color: rgba(102, 126, 234, 0.4);
+  border-color: rgba(4, 120, 87, 0.4);
 }
 
 .app-card:hover::before {
@@ -357,9 +357,9 @@ body {
 }
 
 .status-badge.processing {
-  background: rgba(59, 130, 246, 0.2);
-  color: #3b82f6;
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  background: rgba(4, 120, 87, 0.2);
+  color: #047857;
+  border: 1px solid rgba(4, 120, 87, 0.3);
 }
 
 /* Metrics Row */
@@ -407,10 +407,10 @@ body {
   align-items: center;
   gap: var(--space-sm);
   padding: var(--space-md);
-  background: rgba(59, 130, 246, 0.1);
+  background: rgba(4, 120, 87, 0.1);
   border-radius: var(--radius-md);
   margin-top: var(--space-md);
-  border: 1px solid rgba(59, 130, 246, 0.2);
+  border: 1px solid rgba(4, 120, 87, 0.2);
 }
 
 .app-documents-icon {

@@ -36,7 +36,7 @@ const getSeverityColor = (severity: string) => {
     critical: '#ef4444',
     high: '#f97316',
     medium: '#eab308',
-    low: '#3b82f6',
+    low: '#047857',
   };
   return colors[severity] || '#6b7280';
 };

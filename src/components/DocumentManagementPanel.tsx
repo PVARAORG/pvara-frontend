@@ -31,13 +31,13 @@ const DOCUMENT_CATEGORIES: Record<string, { label: string; color: string; icon: 
   },
   'noc-application-forms': { 
     label: 'NOC Application Forms', 
-    color: '#2563eb', 
+    color: '#047857',
     icon: '📋',
     description: 'Form A1, A2, A3, A5 - Official application documents'
   },
   'applicant-corporate': { 
     label: 'Applicant Corporate Documents', 
-    color: '#7c3aed', 
+    color: '#059669',
     icon: '🏢',
     description: 'Certificate of Incorporation, Board Resolutions, MOA'
   },
@@ -340,7 +340,7 @@ export const DocumentManagementPanel: React.FC<DocumentManagementPanelProps> = (
 
       {/* OpenAI Categorized Documents Section */}
       {docLibrary && companyName && (
-        <div className="ai-categorized-docs card-glass" style={{ padding: 'var(--space-md)', marginBottom: 'var(--space-md)', borderLeft: '4px solid #8b5cf6', background: 'rgba(139, 92, 246, 0.05)' }}>
+        <div className="ai-categorized-docs card-glass" style={{ padding: 'var(--space-md)', marginBottom: 'var(--space-md)', borderLeft: '4px solid #059669', background: 'rgba(5, 150, 105, 0.05)' }}>
           <div style={{ marginBottom: 'var(--space-md)' }}>
             <h3 style={{ fontSize: '0.95rem', fontWeight: '600', marginBottom: '0.5rem' }}>✨ OpenAI Categorized Documents</h3>
             <p style={{ fontSize: '0.8rem', color: '#999' }}>Documents analyzed and categorized by OpenAI gpt-5.2 (with full content analysis)</p>
@@ -454,11 +454,11 @@ export const DocumentManagementPanel: React.FC<DocumentManagementPanelProps> = (
                                 alignItems: 'center',
                                 gap: 'var(--space-sm)',
                                 padding: '8px 12px',
-                                background: isSelected ? 'rgba(59, 130, 246, 0.2)' : 'rgba(255,255,255,0.05)',
+                                background: isSelected ? 'rgba(4, 120, 87, 0.2)' : 'rgba(255,255,255,0.05)',
                                 borderRadius: '6px',
                                 cursor: 'pointer',
                                 transition: 'all 0.2s ease',
-                                border: isSelected ? '1px solid rgba(59, 130, 246, 0.5)' : '1px solid transparent'
+                                border: isSelected ? '1px solid rgba(4, 120, 87, 0.5)' : '1px solid transparent'
                               }}
                             >
                               <FiFile size={14} style={{ color: catInfo.color, flexShrink: 0 }} />
@@ -475,7 +475,7 @@ export const DocumentManagementPanel: React.FC<DocumentManagementPanelProps> = (
                               <span className="badge" style={{ 
                                 fontSize: '0.65rem', 
                                 padding: '2px 6px',
-                                background: fileExt === 'pdf' ? '#ef4444' : fileExt === 'docx' ? '#3b82f6' : fileExt === 'xlsx' ? '#10b981' : '#6b7280',
+                                background: fileExt === 'pdf' ? '#ef4444' : fileExt === 'docx' ? '#047857' : fileExt === 'xlsx' ? '#10b981' : '#6b7280',
                                 color: 'white',
                                 borderRadius: '4px',
                                 textTransform: 'uppercase'
@@ -530,7 +530,7 @@ export const DocumentManagementPanel: React.FC<DocumentManagementPanelProps> = (
                   <span className="badge" style={{ 
                     fontSize: '0.7rem',
                     padding: '4px 8px',
-                    background: selectedFile.endsWith('.pdf') ? '#ef4444' : selectedFile.endsWith('.docx') ? '#3b82f6' : '#10b981',
+                    background: selectedFile.endsWith('.pdf') ? '#ef4444' : selectedFile.endsWith('.docx') ? '#047857' : '#10b981',
                     color: 'white',
                     borderRadius: '4px',
                     width: 'fit-content',
@@ -588,9 +588,9 @@ export const DocumentManagementPanel: React.FC<DocumentManagementPanelProps> = (
                       key={idx} 
                       style={{ 
                         padding: '8px', 
-                        background: idx === 0 ? 'rgba(59, 130, 246, 0.1)' : 'rgba(255,255,255,0.03)',
+                        background: idx === 0 ? 'rgba(4, 120, 87, 0.1)' : 'rgba(255,255,255,0.03)',
                         borderRadius: '6px',
-                        borderLeft: idx === 0 ? '3px solid #3b82f6' : '3px solid transparent'
+                        borderLeft: idx === 0 ? '3px solid #047857' : '3px solid transparent'
                       }}
                     >
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
@@ -741,8 +741,8 @@ export const DocumentManagementPanel: React.FC<DocumentManagementPanelProps> = (
               padding: '6px 8px',
               cursor: 'pointer',
               borderRadius: '4px',
-              background: isSelected ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
-              border: isSelected ? '1px solid rgba(59, 130, 246, 0.5)' : '1px solid transparent'
+              background: isSelected ? 'rgba(4, 120, 87, 0.2)' : 'transparent',
+              border: isSelected ? '1px solid rgba(4, 120, 87, 0.5)' : '1px solid transparent'
             }}
           >
             <FiFile size={14} style={{ color: catInfo.color }} />
@@ -752,7 +752,7 @@ export const DocumentManagementPanel: React.FC<DocumentManagementPanelProps> = (
             <span style={{ 
               fontSize: '0.6rem', 
               padding: '2px 5px',
-              background: fileExt === 'pdf' ? '#ef4444' : fileExt === 'docx' ? '#3b82f6' : '#10b981',
+              background: fileExt === 'pdf' ? '#ef4444' : fileExt === 'docx' ? '#047857' : '#10b981',
               color: 'white',
               borderRadius: '3px',
               textTransform: 'uppercase'

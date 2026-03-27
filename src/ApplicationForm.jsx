@@ -171,8 +171,9 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
       const jobTitle = selectedJob?.title || '';
 
       const apiUrl = process.env.REACT_APP_API_URL || 'https://portal-be.paicc.tech';
-      console.log('DEBUG uploadCVWithCNIC - posting with cnic:', cleanCnic, 'job_title:', jobTitle);
-      const response = await fetch(`${apiUrl}/api/upload/cv?cnic=${cleanCnic}&job_title=${encodeURIComponent(jobTitle)}`, {
+      formData.append('cnic', cleanCnic);
+      formData.append('job_title', jobTitle);
+      const response = await fetch(`${apiUrl}/api/upload/cv`, {
         method: 'POST',
         body: formData,
       });

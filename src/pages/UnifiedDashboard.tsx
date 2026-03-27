@@ -208,7 +208,7 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ onLogout }) 
           <span className="stat-label">Pending Review</span>
         </div>
         <div className="stat-item">
-          <span className="stat-value" style={{ background: 'linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+          <span className="stat-value" style={{ background: 'linear-gradient(135deg, #047857 0%, #10B981 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
             {stats.processing}
           </span>
           <span className="stat-label">Processing</span>
@@ -323,7 +323,7 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ onLogout }) 
                 <div style={{ 
                   width: '36px', height: '36px', 
                   borderRadius: '8px', 
-                  background: 'linear-gradient(135deg, #3b82f6, #06b6d4)', 
+                  background: 'linear-gradient(135deg, #047857, #10B981)', 
                   display: 'flex', alignItems: 'center', justifyContent: 'center'
                 }}>
                   <FiFolder size={18} color="white" />
@@ -367,7 +367,7 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ onLogout }) 
                 
                 const categories = [
                   { label: 'PVARA/Regs', count: getPVARACount(), color: '#dc2626', icon: '📜' },
-                  { label: 'NOC Forms', count: getNOCFormsCount(), color: '#2563eb', icon: '📋' },
+                  { label: 'NOC Forms', count: getNOCFormsCount(), color: '#047857', icon: '📋' },
                   { label: 'Personnel', count: getPersonnelCount(), color: '#be185d', icon: '👤' },
                   { label: 'Compliance', count: getComplianceCount(), color: '#059669', icon: '✅' },
                 ].filter(c => c.count > 0);
@@ -455,9 +455,9 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ onLogout }) 
                   const catColors: Record<string, string> = {
                     'PVARA Regulations': '#dc2626',
                     'Regulatory Correspondence': '#4b5563',
-                    'NOC Application Forms': '#2563eb',
+                    'NOC Application Forms': '#047857',
                     'Key Personnel': '#be185d',
-                    'Corporate Documents': '#7c3aed',
+                    'Corporate Documents': '#059669',
                     'Compliance Policies': '#059669',
                     'Financial Documents': '#d97706',
                     'Technical Documents': '#0891b2',
@@ -508,7 +508,7 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ onLogout }) 
                             <span style={{ 
                               fontSize: '0.55rem', 
                               padding: '1px 4px',
-                              background: fileExt === 'pdf' ? '#ef4444' : fileExt === 'docx' ? '#3b82f6' : '#10b981',
+                              background: fileExt === 'pdf' ? '#ef4444' : fileExt === 'docx' ? '#047857' : '#10b981',
                               color: 'white',
                               borderRadius: '3px',
                               textTransform: 'uppercase'
@@ -537,9 +537,9 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ onLogout }) 
                     marginTop: '8px',
                     padding: '10px',
                     fontSize: '0.75rem',
-                    background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(6, 182, 212, 0.2))',
-                    color: '#3b82f6',
-                    border: '1px solid rgba(59, 130, 246, 0.3)',
+                    background: 'linear-gradient(135deg, rgba(4, 120, 87, 0.2), rgba(16, 185, 129, 0.2))',
+                    color: '#047857',
+                    border: '1px solid rgba(4, 120, 87, 0.3)',
                     borderRadius: '6px',
                     cursor: 'pointer'
                   }}

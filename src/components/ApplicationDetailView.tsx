@@ -95,7 +95,7 @@ export const ApplicationDetailView: React.FC<Props> = ({ application, evaluation
         <div className="score-card card-glass">
           <p className="text-xs text-secondary">Overall Score</p>
           <div className="score-circle" style={{
-            background: `conic-gradient(#0066FF ${evaluation.overallScore}%, #E5E7EB ${evaluation.overallScore}%)`
+            background: `conic-gradient(#047857 ${evaluation.overallScore}%, #E5E7EB ${evaluation.overallScore}%)`
           }}>
             <div className="score-inner">
               <span className="text-xl font-bold">{evaluation.overallScore}</span>

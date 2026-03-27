@@ -8,10 +8,10 @@
 }
 
 :root {
-  /* Primary Palette - Pvara Brand */
-  --primary-gradient: linear-gradient(135deg, #0066FF 0%, #00D4FF 100%);
-  --primary-dark: #0052CC;
-  --primary-light: #3399FF;
+  /* Primary Palette - Pvara Brand (aligned with pvara.gov.pk) */
+  --primary-gradient: linear-gradient(135deg, #064E3B 0%, #065F46 35%, #047857 100%);
+  --primary-dark: #064E3B;
+  --primary-light: #059669;
   
   /* Neutral Palette */
   --background: #F5F7FA;
@@ -33,10 +33,10 @@
   --success: #10B981;
   --warning: #F59E0B;
   --error: #EF4444;
-  --info: #3B82F6;
+  --info: #047857;
   
   /* Typography - Apple SF Pro inspired */
-  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  --font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
   --font-size-xs: 0.6875rem;    /* 11px */
   --font-size-sm: 0.8125rem;    /* 13px */
   --font-size-base: 0.9375rem;   /* 15px */
@@ -146,12 +146,12 @@ body {
 .btn-primary {
   background: var(--primary-gradient);
   color: white;
-  box-shadow: 0 2px 8px rgba(0, 102, 255, 0.25);
+  box-shadow: 0 2px 8px rgba(4, 120, 87, 0.25);
 }
 
 .btn-primary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 102, 255, 0.35);
+  box-shadow: 0 4px 12px rgba(4, 120, 87, 0.35);
 }
 
 .btn-primary:active {
@@ -203,7 +203,7 @@ body {
 .card-glass:hover {
   transform: translateY(-2px);
   box-shadow: var(--glass-shadow-lg);
-  border-color: rgba(0, 102, 255, 0.2);
+  border-color: rgba(4, 120, 87, 0.2);
 }
 
 /* Badges */
@@ -238,9 +238,9 @@ body {
 }
 
 .badge-info {
-  background: rgba(59, 130, 246, 0.1);
+  background: rgba(4, 120, 87, 0.1);
   color: var(--info);
-  border: 1px solid rgba(59, 130, 246, 0.2);
+  border: 1px solid rgba(4, 120, 87, 0.2);
 }
 
 /* Forms */
@@ -258,7 +258,7 @@ input, textarea, select {
 input:focus, textarea:focus, select:focus {
   outline: none;
   border-color: var(--primary-light);
-  box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
+  box-shadow: 0 0 0 3px rgba(4, 120, 87, 0.1);
 }
 
 /* Animations */

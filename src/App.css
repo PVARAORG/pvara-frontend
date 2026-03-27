@@ -1,6 +1,6 @@
 body {
   margin: 0;
-  font-family: 'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+  font-family: 'Plus Jakarta Sans', 'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
   font-size: 18px;
   background: #f8fafc;
   color: #222;
@@ -9,13 +9,13 @@ body {
 }
 
 h1, h2, h3, h4 {
-  font-family: 'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+  font-family: 'Plus Jakarta Sans', 'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
   font-weight: 700;
   color: #1a202c;
 }
 
 a {
-  color: #2563eb;
+  color: #047857;
   text-decoration: none;
 }
 

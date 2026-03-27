@@ -94,9 +94,9 @@
 }
 
 .phase-tab.active {
-  background: rgba(59, 130, 246, 0.8);
+  background: rgba(4, 120, 87, 0.8);
   color: #fff;
-  border-bottom: 2px solid rgba(59, 130, 246, 1);
+  border-bottom: 2px solid rgba(4, 120, 87, 1);
 }
 
 .phase-tab.locked {
@@ -137,7 +137,7 @@
   font-size: 1.125rem;
   color: #fff;
   padding: 0 0 0.5rem 0;
-  border-bottom: 1px solid rgba(59, 130, 246, 0.3);
+  border-bottom: 1px solid rgba(4, 120, 87, 0.3);
 }
 
 /* Applications Grid */
@@ -163,15 +163,15 @@
 
 .application-card-modern:hover {
   background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(59, 130, 246, 0.5);
+  border-color: rgba(4, 120, 87, 0.5);
   transform: translateY(-2px);
-  box-shadow: 0 8px 32px rgba(59, 130, 246, 0.2);
+  box-shadow: 0 8px 32px rgba(4, 120, 87, 0.2);
 }
 
 .application-card-modern.selected {
-  background: rgba(59, 130, 246, 0.15);
-  border-color: rgba(59, 130, 246, 0.5);
-  box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+  background: rgba(4, 120, 87, 0.15);
+  border-color: rgba(4, 120, 87, 0.5);
+  box-shadow: 0 0 20px rgba(4, 120, 87, 0.3);
 }
 
 .card-header-row {
@@ -232,7 +232,7 @@
   padding: 2rem;
   text-align: center;
   background: rgba(255, 255, 255, 0.05);
-  border: 1px dashed rgba(59, 130, 246, 0.3);
+  border: 1px dashed rgba(4, 120, 87, 0.3);
   border-radius: 0.75rem;
 }
 
@@ -310,7 +310,7 @@
   text-align: center;
   min-height: 300px;
   background: rgba(255, 255, 255, 0.05);
-  border: 1px dashed rgba(59, 130, 246, 0.3);
+  border: 1px dashed rgba(4, 120, 87, 0.3);
 }
 
 .empty-state p {
@@ -339,7 +339,7 @@
 }
 
 .locked-message svg {
-  color: rgba(59, 130, 246, 0.6);
+  color: rgba(4, 120, 87, 0.6);
 }
 
 .locked-message h2 {
@@ -374,7 +374,7 @@
   width: 3rem;
   height: 3rem;
   border: 3px solid rgba(255, 255, 255, 0.2);
-  border-top-color: rgba(59, 130, 246, 0.8);
+  border-top-color: rgba(4, 120, 87, 0.8);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -411,8 +411,8 @@
 }
 
 .badge-info {
-  background: rgba(59, 130, 246, 0.2);
-  color: rgb(59, 130, 246);
+  background: rgba(4, 120, 87, 0.2);
+  color: rgb(4, 120, 87);
 }
 
 /* Buttons */
@@ -432,13 +432,13 @@
 }
 
 .btn-primary {
-  background: rgba(59, 130, 246, 0.8);
+  background: rgba(4, 120, 87, 0.8);
   color: white;
 }
 
 .btn-primary:hover {
-  background: rgba(59, 130, 246, 1);
-  box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+  background: rgba(4, 120, 87, 1);
+  box-shadow: 0 0 20px rgba(4, 120, 87, 0.3);
   transform: translateY(-2px);
 }
 
