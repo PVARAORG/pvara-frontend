@@ -59,7 +59,7 @@ test('public applicant can review JD details, submit, and recover the saved appl
     });
 
     await context.route('**/api/applications/**', async (route) => {
-      if (route.request().url().includes('/candidate-lookup/')) {
+      if (route.request().url().includes('/candidate-lookup')) {
         await route.fallback();
         return;
       }
@@ -94,7 +94,7 @@ test('public applicant can review JD details, submit, and recover the saved appl
       });
     });
 
-    await context.route('**/api/applications/candidate-lookup/**', async (route) => {
+    await context.route('**/api/applications/candidate-lookup*', async (route) => {
       const requestBody = JSON.parse(route.request().postData() || '{}');
       const matchesSavedRecord = (
         savedApplication &&

@@ -1165,7 +1165,7 @@ function PvaraPhase2() {
   // Handle candidate login (CNIC + phone/email verification)
   const handleCandidateLogin = useCallback(async (credentials) => {
     try {
-      const response = await apiClient.post('/applications/candidate-lookup/', credentials);
+      const response = await apiClient.post('/applications/candidate-lookup', credentials);
       const candidateApplications = (response.data?.applications || []).map((application) => normalizeApplicationRecord(application));
       const candidateProfile = buildCandidateProfileFromApplications(
         candidateApplications,
