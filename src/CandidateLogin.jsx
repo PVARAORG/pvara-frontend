@@ -6,6 +6,7 @@ export default function CandidateLogin({ onLogin, onCancel }) {
   const [verificationMethod, setVerificationMethod] = useState("phone");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
 
@@ -55,7 +56,7 @@ export default function CandidateLogin({ onLogin, onCancel }) {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Validate CNIC
@@ -80,10 +81,15 @@ export default function CandidateLogin({ onLogin, onCancel }) {
       return;
     }
 
-    onLogin({
-      cnic,
-      [verificationMethod]: verificationValue
-    });
+    try {
+      setIsSubmitting(true);
+      await Promise.resolve(onLogin({
+        cnic,
+        [verificationMethod]: verificationValue
+      }));
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const isValid = !errors.cnic &&
@@ -145,6 +151,7 @@ export default function CandidateLogin({ onLogin, onCancel }) {
                   setErrors(prev => ({ ...prev, email: null }));
                   setTouched(prev => ({ ...prev, email: false }));
                 }}
+                disabled={isSubmitting}
                 className={`flex-1 px-4 py-2 rounded-lg font-medium transition ${verificationMethod === "phone"
                     ? "bg-green-700 text-white"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
@@ -159,6 +166,7 @@ export default function CandidateLogin({ onLogin, onCancel }) {
                   setErrors(prev => ({ ...prev, phone: null }));
                   setTouched(prev => ({ ...prev, phone: false }));
                 }}
+                disabled={isSubmitting}
                 className={`flex-1 px-4 py-2 rounded-lg font-medium transition ${verificationMethod === "email"
                     ? "bg-green-700 text-white"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
@@ -211,8 +219,8 @@ export default function CandidateLogin({ onLogin, onCancel }) {
           {/* Submit Button */}
           <button
             type="submit"
-            disabled={!isValid}
-            className={`w-full py-3 rounded-lg font-semibold transition flex items-center justify-center gap-2 ${isValid
+            disabled={!isValid || isSubmitting}
+            className={`w-full py-3 rounded-lg font-semibold transition flex items-center justify-center gap-2 ${isValid && !isSubmitting
                 ? 'bg-green-700 text-white hover:bg-green-800'
                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'
               }`}
@@ -220,7 +228,7 @@ export default function CandidateLogin({ onLogin, onCancel }) {
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            Access My Applications
+            {isSubmitting ? "Checking..." : "Access My Applications"}
           </button>
 
           {/* Cancel Button */}
@@ -228,6 +236,7 @@ export default function CandidateLogin({ onLogin, onCancel }) {
             <button
               type="button"
               onClick={onCancel}
+              disabled={isSubmitting}
               className="w-full bg-gray-100 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-200 transition"
             >
               Back to Jobs
@@ -249,4 +258,3 @@ export default function CandidateLogin({ onLogin, onCancel }) {
     </div>
   );
 }
-

@@ -49,11 +49,13 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
   const [errors, setErrors] = React.useState({});
   const [touched, setTouched] = React.useState({});
   const [isExtracting, setIsExtracting] = React.useState(false);
+  const [isAdvancing, setIsAdvancing] = React.useState(false);
   const [extractedData, setExtractedData] = React.useState(null);
   const [showAutoInfoModal, setShowAutoInfoModal] = React.useState(false);
   const [showValidationPopup, setShowValidationPopup] = React.useState(false);
   const [validationPopupErrors, setValidationPopupErrors] = React.useState([]);
   const [showSubmitConfirm, setShowSubmitConfirm] = React.useState(false);
+  const advancingRef = React.useRef(false);
 
   // Language options for dropdown
   const LANGUAGE_OPTIONS = [
@@ -353,11 +355,11 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
     return validation.isValid;
   }
 
-  function validateCurrentStep() {
+  function validateCurrentStep(stepIndex = currentStep) {
     const stepErrors = {};
     let isValid = true;
 
-    if (currentStep === 0) {
+    if (stepIndex === 0) {
       // Job selection and CV upload validation
       if (!form.jobId && jobs.length > 0) {
         stepErrors.jobId = 'Please select a position';
@@ -368,7 +370,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
         stepErrors.cvFile = 'Please upload your CV to continue';
         isValid = false;
       }
-    } else if (currentStep === 1) {
+    } else if (stepIndex === 1) {
       // Profile Information - collect all validation errors synchronously
       const fieldConfigs = {
         firstName: { validator: () => validateAlphabetic(form.firstName, true, 'First name'), label: 'First name' },
@@ -417,7 +419,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
       if (form.education[0]?.school && form.education[0]?.fieldOfStudy && form.education[0]?.degree) {
         delete stepErrors.education;
       }
-    } else if (currentStep === 2) {
+    } else if (stepIndex === 2) {
       // Self-Disclosure (optional but validate format if provided)
       if (form.coverLetter) {
         const validation = validateTextLength(form.coverLetter, { max: 2000, fieldName: 'Cover letter' });
@@ -518,39 +520,53 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
   }
 
   async function nextStep() {
-    const result = validateCurrentStep();
-    if (result.isValid) {
-      if (currentStep < steps.length - 1) {
-        // Show popup if moving from Step 0 to Step 1 and data was extracted
-        if (currentStep === 0 && (form.cvFile || form.cvUrl) && extractedData) {
-          setShowAutoInfoModal(true);
-        }
+    if (advancingRef.current) return;
 
-        // Upload CV with CNIC when moving from Step 1 to Step 2
-        if (currentStep === 1 && form.cvFile && form.cnic && !form.cvUploaded) {
-          const uploaded = await uploadCVWithCNIC();
-          if (!uploaded) {
-            console.warn('CV upload failed, but continuing with application');
-            // Don't block the user - CV might be uploaded later or manually handled
-          }
-        }
-
-        setCurrentStep(currentStep + 1);
-      }
-    } else {
-      // Collect all errors for popup - merge existing field errors with step errors
+    const stepIndex = currentStep;
+    const result = validateCurrentStep(stepIndex);
+    if (!result.isValid) {
       const allFieldErrors = Object.values(errors).filter(e => e);
       const allStepErrors = Object.values(result.stepErrors).filter(e => e);
-      const allErrors = [...new Set([...allFieldErrors, ...allStepErrors])]; // Remove duplicates
+      const allErrors = [...new Set([...allFieldErrors, ...allStepErrors])];
       if (allErrors.length > 0) {
         setValidationPopupErrors(allErrors);
         setShowValidationPopup(true);
       }
+      return;
+    }
+
+    if (stepIndex >= steps.length - 1) return;
+
+    advancingRef.current = true;
+    setIsAdvancing(true);
+
+    try {
+      // Show popup if moving from Step 0 to Step 1 and data was extracted
+      if (stepIndex === 0 && (form.cvFile || form.cvUrl) && extractedData) {
+        setShowAutoInfoModal(true);
+      }
+
+      // Upload CV with CNIC when moving from Step 1 to Step 2
+      if (stepIndex === 1 && form.cvFile && form.cnic && !form.cvUploaded) {
+        const uploaded = await uploadCVWithCNIC();
+        if (!uploaded) {
+          console.warn('CV upload failed, but continuing with application');
+        }
+      }
+
+      setCurrentStep((previousStep) => (
+        previousStep === stepIndex
+          ? Math.min(previousStep + 1, steps.length - 1)
+          : previousStep
+      ));
+    } finally {
+      advancingRef.current = false;
+      setIsAdvancing(false);
     }
   }
 
   function prevStep() {
-    if (currentStep > 0) setCurrentStep(currentStep - 1);
+    if (currentStep > 0 && !isAdvancing) setCurrentStep(currentStep - 1);
   }
 
   // Helper function to get input className with validation states
@@ -1367,7 +1383,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
           <button
             type="button"
             onClick={prevStep}
-            disabled={currentStep === 0}
+            disabled={currentStep === 0 || isAdvancing}
             className="px-3 py-2 md:px-6 md:py-3 text-sm md:text-base border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
             ← Previous
@@ -1379,10 +1395,10 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
             <button
               type="button"
               onClick={nextStep}
-              disabled={isExtracting}
-              className={`px-3 py-2 md:px-6 md:py-3 text-sm md:text-base bg-green-600 text-white rounded-lg font-medium transition ${isExtracting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-green-700'}`}
+              disabled={isExtracting || isAdvancing}
+              className={`px-3 py-2 md:px-6 md:py-3 text-sm md:text-base bg-green-600 text-white rounded-lg font-medium transition ${(isExtracting || isAdvancing) ? 'opacity-50 cursor-not-allowed' : 'hover:bg-green-700'}`}
             >
-              {isExtracting ? 'Analyzing...' : 'Next →'}
+              {isExtracting ? 'Analyzing...' : isAdvancing ? 'Continuing...' : 'Next →'}
             </button>
           ) : (
             <button

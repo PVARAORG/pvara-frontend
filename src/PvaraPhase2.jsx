@@ -41,6 +41,188 @@ function arrayToCSV(rows) {
   return rows.map((r) => r.map((c) => '"' + ("" + c).replace(/"/g, '""') + '"').join(",")).join("\n");
 }
 
+function getApplicationTimestamp(application) {
+  const rawValue = application?.updatedAt || application?.submittedAt || application?.createdAt;
+  const timestamp = rawValue ? new Date(rawValue).getTime() : 0;
+  return Number.isFinite(timestamp) ? timestamp : 0;
+}
+
+function normalizeApplicant(applicant = {}) {
+  return {
+    ...applicant,
+    experienceYears: applicant.experienceYears ?? applicant.experience_years ?? 0,
+    coverLetter: applicant.coverLetter ?? applicant.cover_letter ?? null,
+    preferredName: applicant.preferredName ?? applicant.preferred_name ?? null,
+    alternatePhone: applicant.alternatePhone ?? applicant.alternate_phone ?? null,
+    streetAddress1: applicant.streetAddress1 ?? applicant.street_address1 ?? null,
+    streetAddress2: applicant.streetAddress2 ?? applicant.street_address2 ?? null,
+    postalCode: applicant.postalCode ?? applicant.postal_code ?? null,
+    portfolioLink: applicant.portfolioLink ?? applicant.portfolio_link ?? applicant.linkedin ?? null,
+    education: Array.isArray(applicant.education) ? applicant.education : [],
+    employment: Array.isArray(applicant.employment) ? applicant.employment : [],
+    skills: Array.isArray(applicant.skills) ? applicant.skills : [],
+    languages: Array.isArray(applicant.languages) ? applicant.languages : [],
+  };
+}
+
+function normalizeApplicationRecord(application = {}) {
+  const applicant = normalizeApplicant(application.applicant || {});
+  return {
+    ...application,
+    id: application._id || application.id,
+    jobId: application.job_id || application.jobId,
+    applicant,
+    status: application.status || "submitted",
+    aiScore: application.ai_score ?? application.aiScore,
+    aiEvaluation: application.ai_evaluation || application.aiEvaluation,
+    testScores: application.test_scores || application.testScores,
+    submittedAt: application.submittedAt || application.submitted_at || application.createdAt || application.created_at,
+    createdAt: application.createdAt || application.created_at || application.submittedAt || application.submitted_at || new Date().toISOString(),
+    updatedAt: application.updatedAt || application.updated_at || application.submittedAt || application.submitted_at || application.createdAt || application.created_at || new Date().toISOString(),
+    screeningErrors: application.screeningErrors || [],
+  };
+}
+
+function mergeApplications(existingApplications = [], incomingApplications = []) {
+  const merged = new Map();
+
+  [...existingApplications, ...incomingApplications]
+    .map((application) => normalizeApplicationRecord(application))
+    .forEach((application) => {
+      if (!application.id) return;
+
+      const previous = merged.get(application.id);
+      merged.set(
+        application.id,
+        previous
+          ? {
+            ...previous,
+            ...application,
+            applicant: { ...(previous.applicant || {}), ...(application.applicant || {}) },
+            files: application.files || previous.files || [],
+            screeningErrors: application.screeningErrors || previous.screeningErrors || [],
+          }
+          : application
+      );
+    });
+
+  return Array.from(merged.values()).sort(
+    (left, right) => getApplicationTimestamp(right) - getApplicationTimestamp(left)
+  );
+}
+
+function buildCandidateProfileFromApplications(applications = [], seed = {}) {
+  const sortedApplications = [...applications].sort(
+    (left, right) => getApplicationTimestamp(right) - getApplicationTimestamp(left)
+  );
+  const latestApplicant = sortedApplications[0]?.applicant || {};
+  const emailSet = new Set((seed.emails || []).filter(Boolean));
+
+  sortedApplications.forEach((application) => {
+    if (application.applicant?.email) {
+      emailSet.add(application.applicant.email);
+    }
+  });
+  if (seed.primaryEmail) {
+    emailSet.add(seed.primaryEmail);
+  }
+
+  const createdAtValues = sortedApplications
+    .map((application) => application.createdAt || application.submittedAt)
+    .filter(Boolean)
+    .sort();
+  const updatedAtValues = sortedApplications
+    .map((application) => application.updatedAt || application.submittedAt || application.createdAt)
+    .filter(Boolean)
+    .sort();
+
+  return {
+    ...seed,
+    cnic: seed.cnic || latestApplicant.cnic || "",
+    name: latestApplicant.name || seed.name || "",
+    phone: latestApplicant.phone || seed.phone || "",
+    primaryEmail: seed.primaryEmail || latestApplicant.email || Array.from(emailSet)[0] || "",
+    emails: Array.from(emailSet),
+    applications: sortedApplications.map((application) => application.id),
+    address: latestApplicant.address || seed.address || "",
+    linkedin: latestApplicant.linkedin || latestApplicant.portfolioLink || seed.linkedin || "",
+    createdAt: seed.createdAt || createdAtValues[0] || new Date().toISOString(),
+    updatedAt: updatedAtValues[updatedAtValues.length - 1] || seed.updatedAt || new Date().toISOString(),
+  };
+}
+
+function upsertCandidateProfile(existingCandidates = [], candidateProfile) {
+  if (!candidateProfile?.cnic) {
+    return existingCandidates;
+  }
+
+  return [
+    candidateProfile,
+    ...existingCandidates.filter((candidate) => candidate.cnic !== candidateProfile.cnic),
+  ];
+}
+
+function buildApplicantPayload(data = {}) {
+  const addressParts = [
+    data.streetAddress1,
+    data.streetAddress2,
+    [data.city, data.state, data.postalCode].filter(Boolean).join(", "),
+    data.country,
+  ].filter(Boolean);
+
+  return {
+    name: data.name || "",
+    email: data.email || "",
+    phone: data.phone || "",
+    alternatePhone: data.alternatePhone || null,
+    cnic: data.cnic || "N/A",
+    degree: data.degree || "Not specified",
+    experienceYears: parseInt(data.experienceYears, 10) || 0,
+    cv: data.cvUrl || data.cv || "/uploads/default.pdf",
+    coverLetter: data.coverLetter || null,
+    preferredName: data.preferredName || null,
+    country: data.country || null,
+    streetAddress1: data.streetAddress1 || null,
+    streetAddress2: data.streetAddress2 || null,
+    city: data.city || null,
+    state: data.state || null,
+    postalCode: data.postalCode || null,
+    address: data.address || addressParts.join(", ") || null,
+    linkedin: data.linkedin || data.portfolioLink || null,
+    portfolioLink: data.portfolioLink || data.linkedin || null,
+    education: Array.isArray(data.education)
+      ? data.education.map((item) => ({
+        school: item.school || "",
+        fieldOfStudy: item.fieldOfStudy || "",
+        degree: item.degree || "",
+        graduated: item.graduated || null,
+        stillAttending: !!item.stillAttending,
+      }))
+      : [],
+    employment: Array.isArray(data.employment)
+      ? data.employment.map((item) => ({
+        employer: item.employer || "",
+        jobTitle: item.jobTitle || "",
+        currentEmployer: !!item.currentEmployer,
+        startMonth: item.startMonth || "",
+        startYear: item.startYear || "",
+        endMonth: item.endMonth || "",
+        endYear: item.endYear || "",
+        description: item.description || "",
+      }))
+      : [],
+    skills: Array.isArray(data.skills) ? data.skills.filter(Boolean) : [],
+    languages: Array.isArray(data.languages)
+      ? data.languages
+        .filter((item) => item?.language)
+        .map((item) => ({
+          language: item.language,
+          proficiency: item.proficiency || "Fluent",
+        }))
+      : [],
+  };
+}
+
 // ---------- Small UI primitives ----------
 function ConfirmModal({ open, title, message, onConfirm, onCancel }) {
   if (!open) return null;
@@ -921,18 +1103,6 @@ function PvaraPhase2() {
   // Save to localStorage for offline/backup purposes
   useEffect(() => saveState(state), [state]);
 
-  // Fetch data from backend API on mount
-  useEffect(() => {
-    const fetchBackendData = async () => {
-      setIsLoading(true);
-      await refreshJobs();
-      await refreshApplications();
-      setIsLoading(false);
-    };
-
-    fetchBackendData();
-  }, []);
-
   // Helper function to refresh jobs from backend
   const refreshJobs = useCallback(async () => {
     try {
@@ -954,19 +1124,7 @@ function PvaraPhase2() {
       const backendApps = appsResponse.data?.applications || appsResponse.data || [];
       setState(prev => ({
         ...prev,
-        applications: backendApps.map(app => ({
-          id: app._id || app.id,
-          jobId: app.job_id || app.jobId,
-          applicant: app.applicant || {},
-          status: app.status || 'submitted',
-          aiScore: app.ai_score || app.aiScore,
-          aiEvaluation: app.ai_evaluation || app.aiEvaluation,
-          testScores: app.test_scores || app.testScores,
-          interview: app.interview,
-          offer: app.offer,
-          submittedAt: app.submitted_at || app.submittedAt || app.createdAt,
-          ...app
-        }))
+        applications: backendApps.map((app) => normalizeApplicationRecord(app))
       }));
       console.log(`📥 Loaded ${backendApps.length} applications from backend`);
       return backendApps;
@@ -976,45 +1134,60 @@ function PvaraPhase2() {
     }
   }, []);
 
+  // Fetch data from backend API on mount
+  useEffect(() => {
+    const fetchBackendData = async () => {
+      setIsLoading(true);
+      await refreshJobs();
+      if (localStorage.getItem("token")) {
+        await refreshApplications();
+      }
+      setIsLoading(false);
+    };
+
+    fetchBackendData();
+  }, [refreshJobs, refreshApplications]);
+
   const auth = useAuth();
   const user = auth?.user ?? null;
   const { addToast } = useToast();
+
+  useEffect(() => {
+    if (user && localStorage.getItem("token")) {
+      refreshApplications();
+    }
+  }, [user, refreshApplications]);
 
   // Candidate session (CNIC-based login)
   const [candidateSession, setCandidateSession] = useState(null);
   const [selectedCandidate, setSelectedCandidate] = useState(null);
 
   // Handle candidate login (CNIC + phone/email verification)
-  const handleCandidateLogin = useCallback((credentials) => {
-    const { cnic, phone, email } = credentials;
+  const handleCandidateLogin = useCallback(async (credentials) => {
+    try {
+      const response = await apiClient.post('/applications/candidate-lookup/', credentials);
+      const candidateApplications = (response.data?.applications || []).map((application) => normalizeApplicationRecord(application));
+      const candidateProfile = buildCandidateProfileFromApplications(
+        candidateApplications,
+        response.data?.candidate || { cnic: credentials.cnic }
+      );
 
-    // Find candidate profile by CNIC
-    const candidate = (state.candidates || []).find(c => c.cnic === cnic);
-
-    if (!candidate) {
-      addToast("No applications found with this CNIC. Please apply first.", { type: "error" });
-      return;
+      setState((prev) => ({
+        ...prev,
+        applications: mergeApplications(prev.applications || [], candidateApplications),
+        candidates: upsertCandidateProfile(prev.candidates || [], candidateProfile),
+      }));
+      setCandidateSession(candidateProfile);
+      setView("my-apps");
+      addToast(`Welcome back, ${candidateProfile.name || "Candidate"}!`, { type: "success" });
+    } catch (error) {
+      const message =
+        error.response?.data?.detail?.message ||
+        error.response?.data?.message ||
+        "We could not verify your application record.";
+      addToast(message, { type: "error" });
     }
-
-    // Verify phone or email
-    const verificationValue = phone || email;
-    const verificationField = phone ? 'phone' : 'email';
-
-    if (verificationField === 'phone' && candidate.phone !== verificationValue) {
-      addToast("Phone number does not match our records.", { type: "error" });
-      return;
-    }
-
-    if (verificationField === 'email' && !candidate.emails.includes(verificationValue)) {
-      addToast("Email does not match our records.", { type: "error" });
-      return;
-    }
-
-    // Login successful
-    setCandidateSession(candidate);
-    setView("my-apps");
-    addToast(`Welcome back, ${candidate.name}!`, { type: "success" });
-  }, [state.candidates, addToast]);
+  }, [addToast]);
 
   // Generate test applications
   const handleGenerateTestData = useCallback(() => {
@@ -1340,8 +1513,15 @@ function PvaraPhase2() {
     if (applicantData.firstName || applicantData.education) {
       const primaryEducation = applicantData.education?.[0] || {};
       const primaryEmployment = applicantData.employment?.[0] || {};
+      const computedAddress = [
+        applicantData.streetAddress1,
+        applicantData.streetAddress2,
+        [applicantData.city, applicantData.state, applicantData.postalCode].filter(Boolean).join(', '),
+        applicantData.country,
+      ].filter(Boolean).join(', ');
 
       applicantData = {
+        ...applicantData,
         jobId: applicantData.jobId,
         name: `${applicantData.firstName || ''} ${applicantData.lastName || ''}`.trim() || applicantData.name,
         email: applicantData.email,
@@ -1350,18 +1530,8 @@ function PvaraPhase2() {
         degree: primaryEducation.degree || applicantData.degree || 'Not specified',
         experienceYears: applicantData.experienceYears ||
           (primaryEmployment.startYear ? new Date().getFullYear() - parseInt(primaryEmployment.startYear) : 0),
-        address: applicantData.streetAddress1 || applicantData.address || `${applicantData.city}, ${applicantData.state}`.trim(),
+        address: applicantData.address || computedAddress || `${applicantData.city || ''}, ${applicantData.state || ''}`.trim(),
         linkedin: applicantData.portfolioLink || applicantData.linkedin || '',
-        // Keep CV data - THIS IS CRITICAL
-        cvFile: applicantData.cvFile,
-        cvUrl: applicantData.cvUrl,
-        cv: applicantData.cv,
-        // Keep additional data
-        education: applicantData.education,
-        employment: applicantData.employment,
-        skills: applicantData.skills,
-        languages: applicantData.languages,
-        coverLetter: applicantData.coverLetter,
       };
     }
 
@@ -1397,13 +1567,14 @@ function PvaraPhase2() {
     finalizeApplication(job, files, false, applicantData);
   }
 
-  function finalizeApplication(job, files, manual, applicantData) {
+  async function finalizeApplication(job, files, manual, applicantData) {
     const data = applicantData || appForm;
     const filesNames = (files || []).map((f) => f.name);
+    const serializedApplicant = buildApplicantPayload(data);
 
     // Check if candidate profile exists by CNIC
     const cnic = data.cnic || 'N/A';
-    let candidate = (state.candidates || []).find(c => c.cnic === cnic);
+    const candidate = (state.candidates || []).find(c => c.cnic === cnic);
 
     // Check for duplicate application to same job
     if (candidate) {
@@ -1419,129 +1590,80 @@ function PvaraPhase2() {
     // Prepare application data for backend
     const applicationPayload = {
       jobId: job.id,
-      applicant: {
-        name: data.name,
-        email: data.email,
-        phone: data.phone,
-        cnic: cnic,
-        degree: data.degree || 'Not specified',
-        experienceYears: parseInt(data.experienceYears) || 0,
-        cv: data.cvUrl || data.cv || '/uploads/default.pdf',
-        coverLetter: data.coverLetter || null,
-      }
+      applicant: serializedApplicant,
     };
 
-    // POST to backend API to save to MongoDB
-    const apiUrl = process.env.REACT_APP_API_URL || "https://portal-be.paicc.tech";
-    fetch(`${apiUrl}/api/applications/`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(applicationPayload),
-    })
-      .then((res) => res.json())
-      .then((result) => {
-        if (result.success) {
-          console.log(`✅ Application saved to database: ${result.application?.id || 'OK'}`);
+    try {
+      const response = await apiClient.post('/applications/', applicationPayload);
+      const backendApp = normalizeApplicationRecord(response.data?.application || {});
+      const app = {
+        ...backendApp,
+        jobId: backendApp.jobId || job.id,
+        applicant: { ...serializedApplicant, ...(backendApp.applicant || {}) },
+        files: filesNames,
+        status: backendApp.status || (manual ? "manual-review" : "submitted"),
+        screeningErrors: manual ? ["failed mandatory checks"] : [],
+      };
 
-          // Create local app object with backend ID
-          const backendApp = result.application || {};
-          const app = {
-            id: backendApp.id || backendApp._id || `app-${Date.now()}`,
-            jobId: job.id,
-            applicant: { ...data },
-            files: filesNames,
-            status: backendApp.status || (manual ? "manual-review" : "submitted"),
-            createdAt: backendApp.createdAt || new Date().toISOString(),
-            screeningErrors: manual ? ["failed mandatory checks"] : [],
-          };
+      updateLocalState(app, cnic, candidate);
+      console.log(`✅ Application saved to database: ${app.id || 'OK'}`);
+      setSuccessModal({ open: true, title: "Application Submitted!", message: `Your application for "${job.title}" has been submitted successfully.` });
+      setTimeout(() => {
+        setView("my-apps");
+      }, 1500);
+    } catch (err) {
+      const responseMessage =
+        err.response?.data?.detail?.message ||
+        err.response?.data?.message ||
+        err.message;
 
-          // Update local state with the saved application
-          updateLocalState(app, data, cnic, candidate);
+      if (err.response) {
+        console.error('Application submission rejected:', err.response.data);
+        addToast(responseMessage || "Unable to submit this application.", { type: "error" });
+        return;
+      }
 
-          setSuccessModal({ open: true, title: "Application Submitted!", message: `Your application for "${job.title}" has been submitted successfully.` });
-
-          // Redirect to My Applications page after 1 second
-          setTimeout(() => {
-            setView("my-apps");
-          }, 1500);
-
-          // Note: Confirmation email is already sent by the backend in create_application endpoint
-        } else {
-          console.error('Failed to save to database:', result);
-          addToast("Application saved locally but backend sync failed", { type: "warning" });
-          // Still save locally as fallback
-          const app = {
-            id: `app-${Date.now()}`,
-            jobId: job.id,
-            applicant: { ...data },
-            files: filesNames,
-            status: manual ? "manual-review" : "submitted",
-            createdAt: new Date().toISOString(),
-            screeningErrors: manual ? ["failed mandatory checks"] : [],
-          };
-          updateLocalState(app, data, cnic, candidate);
-          setSuccessModal({ open: true, title: "Application Submitted!", message: `Your application for "${job.title}" has been submitted.` });
-        }
-      })
-      .catch((err) => {
-        console.error('Backend sync error:', err);
-        addToast("Saved locally, backend unavailable", { type: "warning" });
-        // Fallback: save locally only
-        const app = {
-          id: `app-${Date.now()}`,
-          jobId: job.id,
-          applicant: { ...data },
-          files: filesNames,
-          status: manual ? "manual-review" : "submitted",
-          createdAt: new Date().toISOString(),
-          screeningErrors: manual ? ["failed mandatory checks"] : [],
-        };
-        updateLocalState(app, data, cnic, candidate);
-        setSuccessModal({ open: true, title: "Application Submitted!", message: `Your application for "${job.title}" has been saved locally.` });
+      console.error('Backend sync error:', err);
+      addToast("Backend unavailable. Your application has been kept locally on this device only.", { type: "warning" });
+      const app = normalizeApplicationRecord({
+        id: `app-${Date.now()}`,
+        jobId: job.id,
+        applicant: serializedApplicant,
+        files: filesNames,
+        status: manual ? "manual-review" : "submitted",
+        createdAt: new Date().toISOString(),
+        screeningErrors: manual ? ["failed mandatory checks"] : [],
       });
+      updateLocalState(app, cnic, candidate);
+      setSuccessModal({ open: true, title: "Application Saved Locally", message: `We could not reach the server, but your application for "${job.title}" is still available in this browser.` });
+      setTimeout(() => {
+        setView("my-apps");
+      }, 1500);
+    }
 
     // Reset form
     setAppForm({ jobId: state.jobs[0]?.id || "", name: "", email: "", cnic: "", phone: "", degree: "", experienceYears: "", address: "", linkedin: "" });
     if (fileRef.current) fileRef.current.value = null;
   }
 
-  function updateLocalState(app, data, cnic, existingCandidate) {
-    let candidate = existingCandidate;
+  function updateLocalState(app, cnic, existingCandidate) {
+    const normalizedApp = normalizeApplicationRecord(app);
+    const mergedApplications = mergeApplications(state.applications || [], [normalizedApp]);
+    const candidateApplications = mergedApplications.filter(
+      (application) => application.applicant?.cnic === cnic
+    );
+    const candidateProfile = buildCandidateProfileFromApplications(
+      candidateApplications,
+      existingCandidate ? { ...existingCandidate, cnic } : { cnic }
+    );
 
-    // Create or update candidate profile
-    if (!candidate) {
-      candidate = {
-        cnic: cnic,
-        name: data.name,
-        phone: data.phone,
-        primaryEmail: data.email,
-        emails: [data.email],
-        applications: [app.id],
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-      setState((s) => ({ ...s, candidates: [...(s.candidates || []), candidate] }));
-    } else {
-      // Update existing candidate profile
-      setState((s) => ({
-        ...s,
-        candidates: (s.candidates || []).map(c => {
-          if (c.cnic === cnic) {
-            return {
-              ...c,
-              name: data.name,
-              phone: data.phone,
-              emails: c.emails.includes(data.email) ? c.emails : [...c.emails, data.email],
-              applications: [...c.applications, app.id],
-              updatedAt: new Date().toISOString(),
-            };
-          }
-          return c;
-        })
-      }));
-    }
-    setState((s) => ({ ...s, applications: [app, ...(s.applications || [])] }));
-    audit("submit-app", { appId: app.id, jobId: app.jobId, status: app.status });
+    setState((currentState) => ({
+      ...currentState,
+      applications: mergeApplications(currentState.applications || [], [normalizedApp]),
+      candidates: upsertCandidateProfile(currentState.candidates || [], candidateProfile),
+    }));
+    setCandidateSession(candidateProfile);
+    audit("submit-app", { appId: normalizedApp.id, jobId: normalizedApp.jobId, status: normalizedApp.status });
   }
 
   function sendConfirmationEmail(data, job) {
