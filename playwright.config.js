@@ -8,7 +8,7 @@ module.exports = defineConfig({
   reporter: [['list'], ['html', { outputFolder: 'playwright-report' }]],
   use: {
     headless: true,
-    baseURL: 'http://localhost:3000',
+    baseURL: 'http://127.0.0.1:3101',
     viewport: { width: 1280, height: 800 },
     actionTimeout: 5000,
     ignoreHTTPSErrors: true,
@@ -17,9 +17,9 @@ module.exports = defineConfig({
     { name: 'chromium', use: { browserName: 'chromium' } },
   ],
   webServer: {
-    command: 'npm start',
-    url: 'http://localhost:3000',
+    command: 'HOST=127.0.0.1 PORT=3101 BROWSER=none npm start',
+    url: 'http://127.0.0.1:3101',
     timeout: 120_000,
-    reuseExistingServer: true,
+    reuseExistingServer: false,
   },
 });
