@@ -21,6 +21,7 @@ import SettingsPanel from "./SettingsPanel";
 import ContentPage from "./pages/ContentPage";
 import ContentManagementPanel from "./ContentManagementPanel";
 import { OfferManagementPanel, InterviewSchedulingPanel, InterviewFeedbackModal, ExtendOfferModal } from "./AdvancedFeaturesUI";
+import { ThemeProvider, useTheme } from "./ThemeContext";
 
 // ---------- Storage utilities ----------
 const STORAGE_KEY = "pvara_v3";
@@ -1934,13 +1935,31 @@ function PvaraPhase2() {
   // ---------- UI components ----------
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  function DarkModeToggleIcon() {
+    const { dark, toggleTheme } = useTheme();
+    return (
+      <button
+        onClick={toggleTheme}
+        className="p-2 rounded-lg transition-all hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"
+        aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
+        title={dark ? "Switch to light mode" : "Switch to dark mode"}
+      >
+        {dark ? (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+        ) : (
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+        )}
+      </button>
+    );
+  }
+
   function Sidebar() {
     return (
       <>
         {/* Mobile Menu Button */}
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="lg:hidden fixed top-4 left-4 z-50 bg-white text-gray-800 p-2 rounded-xl shadow-lg hover:shadow-xl transition-all border border-gray-100"
+          className="lg:hidden fixed top-4 left-4 z-50 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 p-2 rounded-xl shadow-lg hover:shadow-xl transition-all border border-gray-100 dark:border-gray-700"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
             {mobileMenuOpen ? (
@@ -1961,12 +1980,15 @@ function PvaraPhase2() {
 
         {/* Sidebar */}
         <div className={`fixed lg:static w-72 glass-sidebar text-gray-800 h-screen lg:h-auto lg:min-h-screen flex flex-col z-40 transition-transform duration-300 shadow-2xl overflow-y-auto pt-14 px-4 pb-6 lg:pt-6 lg:px-6 lg:pb-6 ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
-          <div className="flex items-center gap-3 mb-6">
-            <img src={logo} alt="PVARA" className="h-10" />
-            <div>
-              <div className="font-display font-bold text-2xl text-green-700">PVARA</div>
-              <div className="text-xs text-gray-600 font-medium tracking-wide">RECRUITMENT</div>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <img src={logo} alt="PVARA" className="h-10" />
+              <div>
+                <div className="font-display font-bold text-2xl text-green-700">PVARA</div>
+                <div className="text-xs text-gray-600 font-medium tracking-wide">RECRUITMENT</div>
+              </div>
             </div>
+            <DarkModeToggleIcon />
           </div>
 
           <nav className="flex-1 space-y-1">
@@ -2589,6 +2611,57 @@ function PvaraPhase2() {
       if (e?.preventDefault) e.preventDefault();
     }, []);
 
+    // Skeleton loading state
+    if (isLoading) {
+      return (
+        <div>
+          {/* Hero skeleton */}
+          <div className="bg-gradient-to-br from-green-600 to-green-800 rounded-2xl p-8 md:p-12 mb-8 animate-pulse">
+            <div className="max-w-3xl mx-auto text-center space-y-4">
+              <div className="h-4 w-24 bg-white/20 rounded-full mx-auto" />
+              <div className="h-10 w-96 bg-white/20 rounded-lg mx-auto" />
+              <div className="h-5 w-80 bg-white/15 rounded-lg mx-auto" />
+              <div className="h-12 w-full max-w-xl bg-white/10 rounded-xl mx-auto mt-6" />
+            </div>
+          </div>
+          {/* Stats skeleton */}
+          <div className="flex justify-center gap-6 mb-8">
+            {[1, 2].map(i => (
+              <div key={i} className="bg-white rounded-xl border border-gray-100 p-6 w-40 animate-pulse">
+                <div className="h-8 w-12 bg-gray-200 rounded mx-auto mb-2" />
+                <div className="h-4 w-24 bg-gray-100 rounded mx-auto" />
+              </div>
+            ))}
+          </div>
+          {/* Job cards skeleton */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+            {[1, 2, 3, 4].map(i => (
+              <div key={i} className="bg-white rounded-xl border border-gray-100 p-6 animate-pulse">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="h-5 w-20 bg-green-100 rounded-full" />
+                  <div className="h-5 w-16 bg-gray-100 rounded-full" />
+                </div>
+                <div className="h-6 w-3/4 bg-gray-200 rounded mb-2" />
+                <div className="h-4 w-1/2 bg-gray-100 rounded mb-4" />
+                <div className="space-y-2 mb-4">
+                  <div className="h-3 w-full bg-gray-100 rounded" />
+                  <div className="h-3 w-5/6 bg-gray-100 rounded" />
+                </div>
+                <div className="flex gap-2 mb-4">
+                  <div className="h-4 w-28 bg-gray-100 rounded" />
+                  <div className="h-4 w-32 bg-gray-100 rounded" />
+                </div>
+                <div className="flex gap-3">
+                  <div className="h-10 flex-1 bg-green-100 rounded-lg" />
+                  <div className="h-10 flex-1 bg-gray-100 rounded-lg" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
     // Job Detail View
     if (selectedJobId) {
       const job = openJobs.find((j) => j.id === selectedJobId);
@@ -3045,9 +3118,9 @@ function PvaraPhase2() {
 
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen dark:bg-gray-900 transition-colors">
       <Sidebar />
-      <div className="flex-1 flex flex-col min-h-screen p-4 md:p-6 lg:ml-0 pt-16 lg:pt-6">
+      <div className="flex-1 flex flex-col min-h-screen p-4 md:p-6 lg:ml-0 pt-16 lg:pt-6 dark:text-gray-100">
         <div className="flex-1">
           {/* Modularized views for maintainability */}
           {view === "jobs" && <JobBoardView />}
@@ -3549,6 +3622,24 @@ function PvaraPhase2() {
           {view === "faq" && <ContentPage slug="faq" onBack={() => setView("jobs")} />}
           {view === "privacy-policy" && <ContentPage slug="privacy-policy" onBack={() => setView("jobs")} />}
           {view === "terms-of-service" && <ContentPage slug="terms-of-service" onBack={() => setView("jobs")} />}
+
+          {/* 404 Not Found fallback */}
+          {!["jobs","dashboard","apply","candidate-login","my-apps","admin","hr","ai-screening","test-management","interview-management","offer-management","analytics","shortlists","audit","settings","content-admin","about-us","faq","privacy-policy","terms-of-service"].includes(view) && (
+            <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
+              <div className="text-8xl font-bold text-green-600/20 mb-2">404</div>
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-3">Page Not Found</h1>
+              <p className="text-gray-500 mb-6 max-w-md">
+                The page you're looking for doesn't exist or has been moved.
+              </p>
+              <button
+                onClick={() => setView("jobs")}
+                className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-xl font-medium hover:bg-green-700 transition-all shadow-md hover:shadow-lg"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0h4" /></svg>
+                Back to Jobs
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Toast notifications */}
@@ -3792,10 +3883,12 @@ function PvaraPhase2() {
 // Wrap with AuthProvider and ToastProvider for standalone mounting
 export default function PvaraPhase2Wrapper() {
   return (
-    <AuthProvider>
-      <ToastProvider>
-        <PvaraPhase2 />
-      </ToastProvider>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <ToastProvider>
+          <PvaraPhase2 />
+        </ToastProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
