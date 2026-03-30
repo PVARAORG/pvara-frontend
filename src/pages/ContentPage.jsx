@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+const API_URL = process.env.REACT_APP_API_URL || 'https://backend.recruitment.team';
 
 /**
  * ContentPage - Generic component to display content pages (About Us, FAQ, Privacy Policy, Terms of Service)

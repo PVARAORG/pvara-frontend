@@ -7,7 +7,7 @@ export default function DebugAPI() {
   useEffect(() => {
     const testAPI = async () => {
       try {
-        const url = process.env.REACT_APP_API_URL || 'https://portal-be.paicc.tech';
+        const url = process.env.REACT_APP_API_URL || 'https://backend.recruitment.team';
         setApiUrl(url);
 
         console.log('🔍 Debug: Testing API at:', url + '/api/jobs');

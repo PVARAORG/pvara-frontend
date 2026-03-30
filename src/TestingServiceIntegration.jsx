@@ -64,7 +64,7 @@ function TestingServiceIntegration({ applications = [], jobs = [], onUpdateAppli
     setLoading(true);
     try {
       // Mock API call to send test
-      const apiUrl = process.env.REACT_APP_API_URL || 'https://portal-be.paicc.tech';
+      const apiUrl = process.env.REACT_APP_API_URL || 'https://backend.recruitment.team';
 
       for (const candidateId of selectedCandidates) {
         const candidate = applications.find(app => app.id === candidateId);
