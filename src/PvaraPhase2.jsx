@@ -73,6 +73,10 @@ function normalizeApplicationRecord(application = {}) {
     ...application,
     id: application._id || application.id,
     jobId: application.job_id || application.jobId,
+    job: application.job || null,
+    jobTitle: application.jobTitle || application.job?.title || null,
+    jobDepartment: application.jobDepartment || application.job?.department || null,
+    jobEmploymentType: application.jobEmploymentType || application.job?.employmentType || null,
     applicant,
     status: application.status || "submitted",
     aiScore: application.ai_score ?? application.aiScore,
@@ -1230,7 +1234,11 @@ function PvaraPhase2() {
     setSuccessModal({ open: true, title: "AI Evaluation Complete!", message: `Successfully evaluated ${unevaluatedCount} application(s).` });
   }, [state.applications, state.jobs, user, addToast]);
 
-  const [view, setView] = useState("jobs");
+  const [view, setView] = useState(() => {
+    const hash = window.location.hash.replace('#', '');
+    if (hash === 'staff') return 'staff-login';
+    return 'jobs';
+  });
   const [selectedJobId, setSelectedJobId] = useState(null);
   const [editingJobId, setEditingJobId] = useState(null);
   const [jobForm, setJobForm] = useState(emptyJobForm);
@@ -1502,7 +1510,7 @@ function PvaraPhase2() {
   }, [addToast, audit]); // eslint-disable-line react-hooks/exhaustive-deps
 
 
-  function submitApplication(formData) {
+  async function submitApplication(formData) {
     // Handle both event (from internal form) and form data (from ApplicationForm component)
     if (formData && typeof formData.preventDefault === 'function') {
       formData.preventDefault();
@@ -1540,7 +1548,7 @@ function PvaraPhase2() {
     const job = (state.jobs || []).find((j) => j.id === applicantData.jobId);
     if (!job) {
       addToast("Select job", { type: "error" });
-      return;
+      return false;
     }
 
     const errs = [];
@@ -1558,21 +1566,22 @@ function PvaraPhase2() {
         open: true,
         title: "Validation",
         message: errs.join("\n") + "\nSubmit anyway?",
-        onConfirm: () => {
-          finalizeApplication(job, files, true, applicantData);
+        onConfirm: async () => {
+          await finalizeApplication(job, files, true, applicantData);
           setConfirm({ open: false, title: "", message: "", onConfirm: null });
         },
       });
-      return;
+      return false;
     }
 
-    finalizeApplication(job, files, false, applicantData);
+    return finalizeApplication(job, files, false, applicantData);
   }
 
   async function finalizeApplication(job, files, manual, applicantData) {
     const data = applicantData || appForm;
     const filesNames = (files || []).map((f) => f.name);
     const serializedApplicant = buildApplicantPayload(data);
+    let submissionSucceeded = false;
 
     // Check if candidate profile exists by CNIC
     const cnic = data.cnic || 'N/A';
@@ -1585,7 +1594,7 @@ function PvaraPhase2() {
       );
       if (existingApp) {
         addToast(`You have already applied to ${job.title}`, { type: "warning" });
-        return;
+        return false;
       }
     }
 
@@ -1596,7 +1605,10 @@ function PvaraPhase2() {
     };
 
     try {
-      const response = await apiClient.post('/applications/', applicationPayload);
+      const requestConfig = data.turnstileToken
+        ? { headers: { 'X-Turnstile-Token': data.turnstileToken } }
+        : undefined;
+      const response = await apiClient.post('/applications/', applicationPayload, requestConfig);
       const backendApp = normalizeApplicationRecord(response.data?.application || {});
       const app = {
         ...backendApp,
@@ -1613,6 +1625,7 @@ function PvaraPhase2() {
       setTimeout(() => {
         setView("my-apps");
       }, 1500);
+      submissionSucceeded = true;
     } catch (err) {
       const responseMessage =
         err.response?.data?.detail?.message ||
@@ -1622,7 +1635,7 @@ function PvaraPhase2() {
       if (err.response) {
         console.error('Application submission rejected:', err.response.data);
         addToast(responseMessage || "Unable to submit this application.", { type: "error" });
-        return;
+        return false;
       }
 
       console.error('Backend sync error:', err);
@@ -1641,11 +1654,13 @@ function PvaraPhase2() {
       setTimeout(() => {
         setView("my-apps");
       }, 1500);
+      submissionSucceeded = true;
     }
 
     // Reset form
     setAppForm({ jobId: state.jobs[0]?.id || "", name: "", email: "", cnic: "", phone: "", degree: "", experienceYears: "", address: "", linkedin: "" });
     if (fileRef.current) fileRef.current.value = null;
+    return submissionSucceeded;
   }
 
   function updateLocalState(app, cnic, existingCandidate) {
@@ -2121,17 +2136,7 @@ function PvaraPhase2() {
                   Logout
                 </button>
               </div>
-            ) : (
-              <div className="mt-auto">
-                <LoginInline
-                  onLogin={async (cred) => {
-                    const res = await auth.login(cred);
-                    if (!res.ok) addToast(res.message || "Login failed", { type: 'error' });
-                    else setView("dashboard");
-                  }}
-                />
-              </div>
-            )}
+            ) : null}
           </div>
         </div>
       </>
@@ -3629,6 +3634,29 @@ function PvaraPhase2() {
           {view === "privacy-policy" && <ContentPage slug="privacy-policy" onBack={() => setView("jobs")} />}
           {view === "terms-of-service" && <ContentPage slug="terms-of-service" onBack={() => setView("jobs")} />}
 
+          {/* Staff Login - separate page at /staff */}
+          {view === "staff-login" && !user && (
+            <div className="max-w-md mx-auto mt-8 md:mt-16">
+              <div className="bg-white rounded-2xl shadow-xl p-6 md:p-10 border border-gray-100">
+                <div className="text-center mb-6 md:mb-8">
+                  <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-2xl mb-4">
+                    <svg className="w-8 h-8 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                  </div>
+                  <h1 className="text-2xl font-bold text-gray-800">Staff Portal</h1>
+                  <p className="text-sm text-gray-500 mt-1">Authorized personnel only</p>
+                </div>
+                <LoginInline
+                  onLogin={async (cred) => {
+                    const res = await auth.login(cred);
+                    if (!res.ok) addToast(res.message || "Login failed", { type: 'error' });
+                    else setView("dashboard");
+                  }}
+                />
+              </div>
+            </div>
+          )}
+          {view === "staff-login" && user && (() => { setView("dashboard"); return null; })()}
+
           {/* 404 Not Found fallback */}
           {!["jobs","dashboard","apply","candidate-login","my-apps","admin","hr","ai-screening","test-management","interview-management","offer-management","analytics","shortlists","audit","settings","operations","content-admin","about-us","faq","privacy-policy","terms-of-service","staff-login"].includes(view) && (
             <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
@@ -3700,20 +3728,27 @@ function PvaraPhase2() {
                 <h3 className="font-semibold text-gray-800 mb-2 md:mb-4 text-sm md:text-base">Quick Links</h3>
                 <ul className="space-y-1.5 md:space-y-2 text-xs md:text-sm">
                   <li><button type="button" onClick={() => setView("jobs")} className="text-gray-600 hover:text-green-700 transition">Browse Jobs</button></li>
-                  <li><button type="button" onClick={() => setView("about-us")} className="text-gray-600 hover:text-green-700 transition">About Us</button></li>
-                  <li><button type="button" onClick={() => setView("jobs")} className="text-gray-600 hover:text-green-700 transition">Careers</button></li>
                   <li><button type="button" onClick={() => setView("apply")} className="text-gray-600 hover:text-green-700 transition">Apply Now</button></li>
+                  <li><button type="button" onClick={() => setView("candidate-login")} className="text-gray-600 hover:text-green-700 transition">Track My Applications</button></li>
                 </ul>
               </div>
 
-              {/* Support */}
+              {/* Contact */}
               <div>
-                <h3 className="font-semibold text-gray-800 mb-2 md:mb-4 text-sm md:text-base">Support</h3>
+                <h3 className="font-semibold text-gray-800 mb-2 md:mb-4 text-sm md:text-base">Contact</h3>
                 <ul className="space-y-1.5 md:space-y-2 text-xs md:text-sm">
-                  <li><button type="button" onClick={() => setView("faq")} className="text-gray-600 hover:text-green-700 transition">FAQ</button></li>
-                  <li><button type="button" onClick={() => setView("privacy-policy")} className="text-gray-600 hover:text-green-700 transition">Privacy Policy</button></li>
-                  <li><button type="button" onClick={() => setView("terms-of-service")} className="text-gray-600 hover:text-green-700 transition">Terms of Service</button></li>
-                  <li><button type="button" onClick={() => setView("about-us")} className="text-gray-600 hover:text-green-700 transition">Contact Us</button></li>
+                  <li className="text-gray-600 flex items-start gap-1.5">
+                    <svg className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                    <span>Office No. 12, Ground Floor, Evacuee Trust Complex, F-5/1, Aga Khan Road, Islamabad</span>
+                  </li>
+                  <li className="text-gray-600 flex items-center gap-1.5">
+                    <svg className="w-3.5 h-3.5 flex-shrink-0 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+                    <span>051-9037100</span>
+                  </li>
+                  <li className="text-gray-600 flex items-center gap-1.5">
+                    <svg className="w-3.5 h-3.5 flex-shrink-0 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064" /></svg>
+                    <a href="https://pvara.gov.pk" target="_blank" rel="noopener noreferrer" className="hover:text-green-700 transition">pvara.gov.pk</a>
+                  </li>
                 </ul>
               </div>
             </div>
