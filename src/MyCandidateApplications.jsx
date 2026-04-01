@@ -68,16 +68,20 @@ const MyCandidateApplications = ({ applications, candidateProfile, jobs }) => {
       ) : (
         <div className="space-y-4">
           {myApplications.map((app) => {
-            const job = (jobs || []).find(j => j.id === app.jobId);
+            const job = app.job || (jobs || []).find(j => j.id === app.jobId);
+            const jobTitle = app.jobTitle || job?.title || `Job #${app.jobId?.substring(0, 8)}`;
+            const jobMeta = [app.jobDepartment || job?.department, app.jobEmploymentType || job?.employmentType]
+              .filter(Boolean)
+              .join(" • ");
             return (
             <div key={app.id} className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition">
               <div className="flex justify-between items-start mb-4">
                 <div>
                   <h3 className="text-lg font-semibold text-gray-800">
-                    {job ? job.title : `Job #${app.jobId?.substring(0, 8)}`}
+                    {jobTitle}
                   </h3>
-                  {job && (
-                    <p className="text-sm text-gray-600 mt-1">{job.department} • {job.employmentType}</p>
+                  {jobMeta && (
+                    <p className="text-sm text-gray-600 mt-1">{jobMeta}</p>
                   )}
                   <p className="text-xs text-gray-500 mt-1">
                     Applied on {new Date(app.createdAt).toLocaleDateString('en-US', { 
