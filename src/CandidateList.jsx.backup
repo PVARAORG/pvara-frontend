@@ -1,0 +1,682 @@
+import React from "react";
+
+// TODO: Connect to /api/candidates for candidate data
+// Example: fetch('/api/candidates')
+
+const CandidateList = ({ candidates, onStatusChange, onAIEvaluate, onBulkAction, onAddNote, onExport, onCompare }) => {
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const [selectedIds, setSelectedIds] = React.useState([]);
+  const [showCompareModal, setShowCompareModal] = React.useState(false);
+  const [showNotesModal, setShowNotesModal] = React.useState(null);
+  const [noteText, setNoteText] = React.useState("");
+  const [statusFilter, setStatusFilter] = React.useState('all');
+  const [searchQuery, setSearchQuery] = React.useState('');
+  const [showRejected, setShowRejected] = React.useState(false);
+  const [isAIScreening, setIsAIScreening] = React.useState(false);
+  const itemsPerPage = 10;
+  
+  const totalPages = Math.ceil(filteredCandidates.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedCandidates = filteredCandidates.slice(startIndex, endIndex);
+  
+  // Reset to page 1 when filters change
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [statusFilter, searchQuery, showRejected]);
+    // Status filter
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter(c => {
+        const status = c.status || 'submitted';
+        if (statusFilter === 'new') return status === 'submitted';
+        if (statusFilter === 'screening') return status === 'screening';
+        if (statusFilter === 'interview') return status === 'interview' || status === 'phone-interview';
+        if (statusFilter === 'rejected') return status === 'rejected';
+        if (statusFilter === 'offer') return status === 'offer';
+        return true;
+      });
+    }
+    
+    // Hide rejected unless explicitly shown
+    if (!showRejected && statusFilter !== 'rejected') {
+      filtered = filtered.filter(c => (c.status || 'submitted') !== 'rejected');
+    }
+    
+    // Search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(c => {
+        const name = (c.applicant?.name || c.name || '').toLowerCase();
+        const email = (c.applicant?.email || c.email || '').toLowerCase();
+        const cnic = (c.applicant?.cnic || '').toLowerCase();
+        const degree = (c.applicant?.degree || c.degree || '').toLowerCase();
+        const phone = (c.applicant?.phone || '').toLowerCase();
+        
+        return name.includes(query) || 
+               email.includes(query) || 
+               cnic.includes(query) || 
+               degree.includes(query) ||
+               phone.includes(query);
+      });
+    }
+    
+  const handleAddNote = (candidateId) => {
+    if (!noteText.trim()) return;
+    onAddNote?.(candidateId, noteText);
+    setNoteText("");
+    setShowNotesModal(null);
+  };
+  
+  return (
+    <div>
+      {/* Search and Filters Bar */}
+      <div className="bg-white rounded-lg shadow-sm border p-4 mb-4">
+        <div className="flex flex-col lg:flex-row gap-4">
+          {/* Search Box */}
+          <div className="flex-1">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search by name, email, CNIC, degree, phone..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              />
+              <svg className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
+            </div>
+          </div>
+          
+          {/* Quick Actions */}
+          <div className="flex gap-2 flex-wrap">
+            {onAIEvaluate && unevaluatedCount > 0 && (
+              <button
+                onClick={handleAIScreenAll}
+                disabled={isAIScreening}
+                className="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition flex items-center gap-2 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isAIScreening ? (
+                  <>
+                    <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Screening...
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    AI Screen All ({unevaluatedCount})
+                  </>
+                )}
+              </button>
+            )}
+            <button
+              onClick={handleExport}
+              className="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 transition flex items-center gap-2"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              Export
+            </button>
+          </div>
+        </div>
+        
+        {/* Status Filter Tabs */}
+        <div className="flex gap-2 mt-4 overflow-x-auto pb-2">
+          <button
+            onClick={() => setStatusFilter('all')}
+            className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition ${
+              statusFilter === 'all'
+                ? 'bg-green-700 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            All ({statusCounts.all})
+          </button>
+          <button
+            onClick={() => setStatusFilter('new')}
+            className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition ${
+              statusFilter === 'new'
+                ? 'bg-gray-700 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            🆕 New ({statusCounts.new})
+          </button>
+          <button
+            onClick={() => setStatusFilter('screening')}
+            className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition ${
+              statusFilter === 'screening'
+                ? 'bg-yellow-600 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            🔍 AI Screened ({statusCounts.screening})
+          </button>
+          <button
+            onClick={() => setStatusFilter('interview')}
+            className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition ${
+              statusFilter === 'interview'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            💼 Interview ({statusCounts.interview})
+          </button>
+          <button
+            onClick={() => setStatusFilter('offer')}
+            className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition ${
+              statusFilter === 'offer'
+                ? 'bg-green-600 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            ✅ Offer ({statusCounts.offer})
+          </button>
+          <button
+            onClick={() => {
+              if (statusFilter === 'rejected') {
+                setStatusFilter('all');
+                setShowRejected(false);
+              } else {
+                setStatusFilter('rejected');
+                setShowRejected(true);
+              }
+            }}
+            className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition ${
+              statusFilter === 'rejected'
+                ? 'bg-red-600 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            ❌ Rejected ({statusCounts.rejected})
+          </button>
+        </div>
+        
+        {/* Results Summary */}
+        <div className="mt-3 pt-3 border-t text-sm text-gray-600">
+          Showing {filteredCandidates.length === 0 ? 0 : startIndex + 1}-{Math.min(endIndex, filteredCandidates.length)} of {filteredCandidates.length} applications
+          {searchQuery && <span className="ml-2 text-green-600 font-medium">(filtered by search)</span>}
+          {selectedIds.length > 0 && <span className="ml-2 text-green-600 font-medium">• {selectedIds.length} selected</span>}
+        </div>
+      </div>
+
+      {/* Bulk Action Toolbar */}
+      {selectedIds.length > 0 && (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4 flex items-center justify-between">
+          <div className="font-semibold text-green-900">
+            {selectedIds.length} candidate{selectedIds.length > 1 ? 's' : ''} selected
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => handleBulkAction('interview')}
+              className="px-3 py-1.5 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"
+            >
+              Move to Interview
+            </button>
+            <button
+              onClick={() => handleBulkAction('screening')}
+              className="px-3 py-1.5 bg-yellow-600 text-white rounded text-sm hover:bg-yellow-700"
+            >
+              Move to Screening
+            </button>
+            <button
+              onClick={() => handleBulkAction('rejected')}
+              className="px-3 py-1.5 bg-red-600 text-white rounded text-sm hover:bg-red-700"
+            >
+              Reject
+            </button>
+            <button
+              onClick={handleCompare}
+              className="px-3 py-1.5 bg-gray-700 text-white rounded text-sm hover:bg-gray-800"
+            >
+              Compare
+            </button>
+            <button
+              onClick={() => setSelectedIds([])}
+              className="px-3 py-1.5 border border-gray-300 rounded text-sm hover:bg-gray-50"
+            >
+              Clear
+            </button>
+          </div>
+        </div>
+      )}
+      {filteredCandidates.length === 0 ? (
+        <div className="text-center py-12 text-gray-500">
+          <svg className="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          <p className="font-medium">No applications found</p>
+          {(searchQuery || statusFilter !== 'all') && (
+            <button
+              onClick={() => {
+                setSearchQuery('');
+                setStatusFilter('all');
+              }}
+              className="mt-3 text-green-600 hover:underline"
+            >
+              Clear filters
+            </button>
+          )}
+        </div>
+      ) : (
+            ❌ Rejected ({statusCounts.rejected})
+          </button>
+        </div>
+        
+        {/* Results Summary */}
+        <div className="mt-3 pt-3 border-t text-sm text-gray-600">
+          Showing {filteredCandidates.length === 0 ? 0 : startIndex + 1}-{Math.min(endIndex, filteredCandidates.length)} of {filteredCandidates.length} applications
+          {searchQuery && <span className="ml-2 text-green-600 font-medium">(filtered by search)</span>}
+          {selectedIds.length > 0 && <span className="ml-2 text-green-600 font-medium">• {selectedIds.length} selected</span>}
+        </div>
+      </div>leSelectAll = () => {
+    if (selectedIds.length === paginatedCandidates.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(paginatedCandidates.map(c => c.id));
+    }
+  };
+
+  const handleBulkAction = (action) => {
+    if (selectedIds.length === 0) return;
+    onBulkAction?.(selectedIds, action);
+    setSelectedIds([]);
+  };
+
+  const handleExport = () => {
+    const toExport = selectedIds.length > 0 
+      ? candidates.filter(c => selectedIds.includes(c.id))
+      : candidates;
+    onExport?.(toExport);
+  };
+
+  const handleCompare = () => {
+    if (selectedIds.length < 2) {
+      alert('Please select at least 2 candidates to compare');
+      return;
+    }
+    if (selectedIds.length > 4) {
+      alert('You can compare up to 4 candidates at a time');
+      return;
+    }
+    setShowCompareModal(true);
+  };
+
+  const handleAddNote = (candidateId) => {
+    if (!noteText.trim()) return;
+    onAddNote?.(candidateId, noteText);
+    setNoteText("");
+    setShowNotesModal(null);
+  };
+
+  return (
+    <div>
+      <div className="flex justify-between items-center mb-4">
+        <div>
+          <h3 className="font-semibold">Applications Management</h3>
+          <p className="text-xs text-gray-500 mt-1">
+            Showing {startIndex + 1}-{Math.min(endIndex, candidates?.length || 0)} of {candidates?.length || 0} applications
+            {selectedIds.length > 0 && ` • ${selectedIds.length} selected`}
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={handleExport}
+            className="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 transition flex items-center gap-2"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Export
+          </button>
+          {onAIEvaluate && unevaluatedCount > 0 && (
+            <button
+              onClick={onAIEvaluate}
+              className="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg hover:from-purple-700 hover:to-blue-700 transition flex items-center gap-2 shadow-lg"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              AI Evaluate ({unevaluatedCount})
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Bulk Action Toolbar */}
+      {selectedIds.length > 0 && (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4 flex items-center justify-between">
+          <div className="font-semibold text-green-900">
+            {selectedIds.length} candidate{selectedIds.length > 1 ? 's' : ''} selected
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => handleBulkAction('interview')}
+              className="px-3 py-1.5 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"
+            >
+              Move to Interview
+            </button>
+            <button
+              onClick={() => handleBulkAction('screening')}
+              className="px-3 py-1.5 bg-yellow-600 text-white rounded text-sm hover:bg-yellow-700"
+            >
+              Move to Screening
+            </button>
+            <button
+              onClick={() => handleBulkAction('rejected')}
+              className="px-3 py-1.5 bg-red-600 text-white rounded text-sm hover:bg-red-700"
+            >
+              Reject
+            </button>
+            <button
+              onClick={handleCompare}
+              className="px-3 py-1.5 bg-gray-700 text-white rounded text-sm hover:bg-gray-800"
+            >
+              Compare
+            </button>
+            <button
+              onClick={() => setSelectedIds([])}
+              className="px-3 py-1.5 border border-gray-300 rounded text-sm hover:bg-gray-50"
+            >
+              Clear
+            </button>
+          </div>
+        </div>
+      )}
+      {(candidates || []).length === 0 ? (
+        <div className="text-gray-500">No applications found.</div>
+      ) : (
+        <>
+        {/* Select All */}
+        <div className="bg-gray-50 border rounded-lg p-3 mb-3 flex items-center gap-3">
+          <input
+            type="checkbox"
+            checked={selectedIds.length === paginatedCandidates.length && paginatedCandidates.length > 0}
+            onChange={toggleSelectAll}
+            className="w-4 h-4 rounded border-gray-300"
+          />
+          <span className="text-sm font-medium text-gray-700">
+            {selectedIds.length === paginatedCandidates.length && paginatedCandidates.length > 0
+              ? 'Deselect all on this page'
+              : 'Select all on this page'}
+          </span>
+        </div>
+
+        <ul className="space-y-3">
+          {paginatedCandidates.map((c) => (
+            <li key={c.id} className={`bg-white p-4 rounded shadow flex gap-3 ${
+              selectedIds.includes(c.id) ? 'ring-2 ring-green-500' : ''
+            }`}>
+              {/* Checkbox */}
+              <div className="flex-shrink-0">
+                <input
+                  type="checkbox"
+                  checked={selectedIds.includes(c.id)}
+                  onChange={() => toggleSelect(c.id)}
+                  className="w-5 h-5 rounded border-gray-300 mt-1"
+                />
+              </div>
+              
+              {/* Content */}
+              <div className="flex-1 flex flex-col gap-2">
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <div className="font-semibold">{c.applicant?.name || c.name}</div>
+                    <div className="text-xs text-gray-500">
+                      {c.applicant?.email || c.email} • {c.applicant?.degree || c.degree} • {c.applicant?.experienceYears || c.experienceYears} yrs
+                    </div>
+                    {c.applicant?.cnic && (
+                      <div className="text-xs text-gray-400 mt-0.5">CNIC: {c.applicant.cnic}</div>
+                    )}
+                  </div>
+                  {c.aiScore && (
+                    <div className="text-center ml-4">
+                      <div className={`text-2xl font-bold ${
+                        c.aiScore >= 75 ? 'text-green-600' : c.aiScore >= 60 ? 'text-yellow-600' : 'text-red-600'
+                      }`}>
+                        {c.aiScore}
+                      </div>
+                      <div className="text-xs text-gray-500">AI Score</div>
+                    </div>
+                  )}
+                </div>
+                
+                <div className="flex items-center gap-2">
+                  <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {selectedIds.map(id => {
+                const candidate = (candidates || []).find(c => c.id === id);ellow-700' :
+                    c.status === 'rejected' ? 'bg-red-100 text-red-700' :
+                    'bg-gray-100 text-gray-700'
+                  }`}>
+                    {c.status || "submitted"}
+                  </span>
+                  
+                  {/* Notes Badge */}
+                  {c.notes && c.notes.length > 0 && (
+                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs">
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                      </svg>
+                      {c.notes.length} note{c.notes.length > 1 ? 's' : ''}
+                    </span>
+                  )}
+                </div>
+                
+                {c.aiRecommendation && (
+                  <div className="text-xs text-gray-600 italic bg-gray-50 p-2 rounded">
+                    💡 {c.aiRecommendation}
+                  </div>
+                )}
+                
+                {/* Latest Note */}
+                {c.notes && c.notes.length > 0 && (
+                  <div className="text-xs bg-purple-50 p-2 rounded border border-purple-100">
+                    <div className="font-medium text-purple-900">Latest Note:</div>
+                    <div className="text-purple-700 mt-1">{c.notes[c.notes.length - 1].text}</div>
+                    <div className="text-purple-500 text-xs mt-1">
+                      by {c.notes[c.notes.length - 1].author} • {new Date(c.notes[c.notes.length - 1].timestamp).toLocaleDateString()}
+                    </div>
+                  </div>
+                )}
+                
+                <div className="flex gap-2 flex-wrap">
+                  {onStatusChange && (
+                    <>
+                      <button className="px-2 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700" onClick={() => onStatusChange(c.id, "interview")}>Interview</button>
+                      <button className="px-2 py-1 bg-yellow-600 text-white rounded text-xs hover:bg-yellow-700" onClick={() => onStatusChange(c.id, "screening")}>Screen</button>
+                      <button className="px-2 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700" onClick={() => onStatusChange(c.id, "rejected")}>Reject</button>
+                    </>
+                  )}
+                  <button 
+                    className="px-2 py-1 bg-purple-600 text-white rounded text-xs hover:bg-purple-700"
+                    onClick={() => setShowNotesModal(c.id)}
+                  >
+                    Add Note
+                  </button>
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+        
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div className="mt-6 flex justify-center items-center gap-2">
+            <button
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="px-3 py-2 border rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              ← Previous
+            </button>
+            <div className="flex gap-1">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={`px-3 py-2 rounded ${
+                    currentPage === page
+                      ? 'bg-green-700 text-white'
+                      : 'border hover:bg-gray-50'
+                  }`}
+                >
+                  {page}
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              className="px-3 py-2 border rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Next →
+            </button>
+          </div>
+        )}
+        </>
+      )}
+
+      {/* Add Note Modal */}
+      {showNotesModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+            <h3 className="text-lg font-bold mb-4">Add Internal Note</h3>
+            <textarea
+              value={noteText}
+              onChange={(e) => setNoteText(e.target.value)}
+              placeholder="Add your note here..."
+              className="w-full border rounded p-3 h-32 resize-none"
+              autoFocus
+            />
+            <div className="flex gap-2 mt-4">
+              <button
+                onClick={() => handleAddNote(showNotesModal)}
+                className="flex-1 bg-green-600 text-white py-2 rounded hover:bg-green-700"
+              >
+                Save Note
+              </button>
+              <button
+                onClick={() => {
+                  setShowNotesModal(null);
+                  setNoteText("");
+                }}
+                className="flex-1 bg-gray-200 text-gray-700 py-2 rounded hover:bg-gray-300"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Comparison Modal */}
+      {showCompareModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+          <div className="bg-white rounded-lg shadow-xl max-w-6xl w-full p-6 my-8">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-bold">Candidate Comparison</h3>
+              <button
+                onClick={() => setShowCompareModal(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {selectedIds.map(id => {
+                const candidate = candidates.find(c => c.id === id);
+                if (!candidate) return null;
+                
+                return (
+                  <div key={id} className="border rounded-lg p-4 bg-gray-50">
+                    <div className="font-bold text-lg mb-2">{candidate.applicant?.name || candidate.name}</div>
+                    
+                    {candidate.aiScore && (
+                      <div className={`text-4xl font-bold mb-4 ${
+                        candidate.aiScore >= 75 ? 'text-green-600' : 
+                        candidate.aiScore >= 60 ? 'text-yellow-600' : 'text-red-600'
+                      }`}>
+                        {candidate.aiScore}
+                        <span className="text-sm text-gray-500 ml-1">/ 100</span>
+                      </div>
+                    )}
+                    
+                    <div className="space-y-2 text-sm">
+                      <div>
+                        <div className="text-gray-500 text-xs">Email</div>
+                        <div className="font-medium">{candidate.applicant?.email || candidate.email}</div>
+                      </div>
+                      <div>
+                        <div className="text-gray-500 text-xs">Education</div>
+                        <div className="font-medium">{candidate.applicant?.degree || candidate.degree}</div>
+                      </div>
+                      <div>
+                        <div className="text-gray-500 text-xs">Experience</div>
+                        <div className="font-medium">{candidate.applicant?.experienceYears || candidate.experienceYears} years</div>
+                      </div>
+                      <div>
+                        <div className="text-gray-500 text-xs">Status</div>
+                        <span className={`inline-block px-2 py-1 rounded text-xs ${
+                          candidate.status === 'offer' ? 'bg-green-100 text-green-700' :
+                          candidate.status === 'interview' ? 'bg-blue-100 text-blue-700' :
+                          candidate.status === 'screening' ? 'bg-yellow-100 text-yellow-700' :
+                          candidate.status === 'rejected' ? 'bg-red-100 text-red-700' :
+                          'bg-gray-100 text-gray-700'
+                        }`}>
+                          {candidate.status || 'submitted'}
+                        </span>
+                      </div>
+                      {candidate.notes && candidate.notes.length > 0 && (
+                        <div>
+                          <div className="text-gray-500 text-xs">Notes</div>
+                          <div className="font-medium">{candidate.notes.length} note{candidate.notes.length > 1 ? 's' : ''}</div>
+                        </div>
+                      )}
+                      {candidate.aiRecommendation && (
+                        <div>
+                          <div className="text-gray-500 text-xs">AI Recommendation</div>
+                          <div className="text-xs italic">{candidate.aiRecommendation}</div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            
+            <div className="mt-6 text-center">
+              <button
+                onClick={() => setShowCompareModal(false)}
+                className="px-6 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800"
+              >
+                Close Comparison
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default CandidateList;

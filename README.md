@@ -1,32 +1,113 @@
-# PVARA AI Licensing - Frontend
+# PVARA Frontend
 
-React-based frontend for the PVARA AI Licensing Evaluation Platform.
+This repository contains a small React demo for PVARA (enterprise recruitment demo).
 
-## Quick Start
+Features added in this branch:
+- Toast notifications (`src/ToastContext.jsx`)
+- Audit viewer with CSV export
+- Admin job create/edit/delete
+- Playwright E2E tests and configuration
+
+Quick start (development):
 
 ```bash
-npm install --legacy-peer-deps
+npm install
 npm start
+# open http://localhost:3000
 ```
 
-## Environment Variables
+Run unit tests:
 
-Create a `.env` file:
-```
-REACT_APP_API_URL=http://localhost:3001/api
-REACT_APP_API_KEY=dev-key-12345
+```bash
+CI=true npm test -- --watchAll=false
 ```
 
-For production, update `REACT_APP_API_URL` to your deployed backend URL.
+Run E2E tests (Playwright):
 
-## Deploy to Vercel
+```bash
+npx playwright install --with-deps
+npx playwright test
+```
 
-1. Push this repo to GitHub
-2. Import to Vercel
-3. Set environment variable: `REACT_APP_API_URL=https://your-backend.vercel.app/api`
-4. Deploy
+Docker (build + run):
 
-## Login Credentials
+```bash
+docker build -t pvara-frontend .
+docker run -p 8080:80 pvara-frontend
+# open http://localhost:8080
+```
 
-- **Username:** admin@pvara.gov.pk
-- **Password:** pvara@ai
+Deployment notes / next steps:
+- Add GitHub Actions (CI) to run unit & E2E tests on PRs (workflow added).
+- Add environment handling and secrets management for production.
+- Harden release pipeline (container image signing / scanning).
+# Getting Started with Create React App
+
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+
+## Available Scripts
+
+In the project directory, you can run:
+
+### `npm start`
+
+Runs the app in the development mode.\
+Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+
+The page will reload when you make changes.\
+You may also see any lint errors in the console.
+
+### `npm test`
+
+Launches the test runner in the interactive watch mode.\
+See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+
+### `npm run build`
+
+Builds the app for production to the `build` folder.\
+It correctly bundles React in production mode and optimizes the build for the best performance.
+
+The build is minified and the filenames include the hashes.\
+Your app is ready to be deployed!
+
+See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+
+### `npm run eject`
+
+**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+
+If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+
+Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+
+You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+
+## Learn More
+
+You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+
+To learn React, check out the [React documentation](https://reactjs.org/).
+
+### Code Splitting
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+
+### Analyzing the Bundle Size
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+
+### Making a Progressive Web App
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+
+### Advanced Configuration
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+
+### Deployment
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+
+### `npm run build` fails to minify
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)

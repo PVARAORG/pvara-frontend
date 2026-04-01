@@ -1,0 +1,13 @@
+.git
+node_modules
+npm-debug.log
+.env.local
+.env.*.local
+.next
+out
+*.pem
+test-results
+tests
+*.spec.js
+.playwright
+playwright-report

@@ -190,7 +190,7 @@ export const DocumentManagementPanel: React.FC<DocumentManagementPanelProps> = (
     const fetchDocLibrary = async () => {
       try {
         setLoadingLibrary(true);
-        const response = await fetch('http://localhost:3001/api/applications/documents/library');
+        const response = await fetch('https://backend.recruitment.team/api/applications/documents/library');
         const data = await response.json();
         if (data.success) {
           setDocLibrary(data.documentLibrary);
