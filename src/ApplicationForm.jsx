@@ -340,7 +340,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
         validation = validateTextLength(value, { min: 2, max: 100, required: true, fieldName: field === 'city' ? 'City' : 'State' });
         break;
       case 'postalCode':
-        validation = validatePostalCode(value, true);
+        validation = validatePostalCode(value, false);
         break;
       case 'coverLetter':
         validation = validateTextLength(value, { max: 2000, fieldName: 'Cover letter' });
@@ -381,7 +381,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
         cnic: { validator: () => validateCNIC(form.cnic), label: 'CNIC' },
         city: { validator: () => validateTextLength(form.city, { min: 2, max: 100, required: true, fieldName: 'City' }), label: 'City' },
         state: { validator: () => validateTextLength(form.state, { min: 2, max: 100, required: true, fieldName: 'State' }), label: 'State' },
-        postalCode: { validator: () => validatePostalCode(form.postalCode, true), label: 'Postal Code' },
+        postalCode: { validator: () => validatePostalCode(form.postalCode, false), label: 'Postal Code' },
       };
 
       Object.entries(fieldConfigs).forEach(([field, config]) => {
@@ -644,7 +644,21 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
                   {jobs.find(j => j.id === form.jobId) && (
                     <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                       <h3 className="font-semibold text-blue-900 mb-2">{jobs.find(j => j.id === form.jobId).title}</h3>
-                      <p className="text-sm text-blue-700">{jobs.find(j => j.id === form.jobId).description}</p>
+                      <div className="text-sm text-blue-700">
+                        {(() => {
+                          const text = jobs.find(j => j.id === form.jobId).description;
+                          if (!text) return null;
+                          const lines = text.split('\n').filter(l => l.trim().length > 0);
+                          if (lines.length > 1) {
+                            return <ul className="list-disc list-outside ml-4 space-y-1">{lines.map((l, i) => <li key={i}>{l.replace(/^-/, '').trim()}</li>)}</ul>;
+                          }
+                          const sentences = text.split('. ').filter(s => s.trim().length > 0);
+                          if (sentences.length > 1) {
+                            return <ul className="list-disc list-outside ml-4 space-y-1">{sentences.map((s, i) => <li key={i}>{s.trim() + (s.trim().endsWith('.') ? '' : '.')}</li>)}</ul>;
+                          }
+                          return <p>{text}</p>;
+                        })()}
+                      </div>
                       <div className="mt-3 flex flex-wrap gap-3 text-xs">
                         <span className="flex items-center gap-1 px-2 py-1 bg-blue-100 rounded-full text-blue-700">
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1042,13 +1056,12 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
                       )}
                     </div>
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">Zip/Postal Code *</label>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Zip/Postal Code</label>
                       <input
                         value={form.postalCode}
                         onChange={e => handleChange('postalCode', e.target.value)}
                         onBlur={() => handleBlur('postalCode')}
                         className={getInputClassName('postalCode')}
-                        required
                       />
                       {touched.postalCode && errors.postalCode && (
                         <p className="text-sm text-red-600 mt-1">{errors.postalCode}</p>
