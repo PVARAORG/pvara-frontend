@@ -1,457 +1,474 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 
-const SystemDashboard = () => {
-  const [systemStatus, setSystemStatus] = useState({
-    api: { status: 'checking', responseTime: 0 },
-    database: { status: 'checking', collections: 0 },
-    kafka: { status: 'checking', topics: 0 },
-    redis: { status: 'checking', keys: 0 },
-    worker: { status: 'checking', processed: 0 }
-  });
+import { useAuth } from "./AuthContext";
+import apiClient from "./api/client";
 
-  const [stats, setStats] = useState({
-    totalApplications: 0,
-    totalJobs: 0,
-    totalCandidates: 0,
-    processingQueue: 0,
-    avgResponseTime: 0,
-    uptime: '0h 0m'
-  });
+function formatBytes(value) {
+  if (value === null || value === undefined || Number.isNaN(value)) return "N/A";
+  const units = ["B", "KB", "MB", "GB", "TB"];
+  let size = value;
+  let unitIndex = 0;
+  while (size >= 1024 && unitIndex < units.length - 1) {
+    size /= 1024;
+    unitIndex += 1;
+  }
+  return `${size.toFixed(size >= 100 || unitIndex === 0 ? 0 : 1)} ${units[unitIndex]}`;
+}
 
-  const [performance, setPerformance] = useState({
-    requestsPerSecond: 0,
-    peakLoad: 2727,
-    capacity: '48x',
-    currentLoad: '2%'
-  });
+function formatHours(value) {
+  if (value === null || value === undefined || Number.isNaN(value)) return "N/A";
+  if (value < 1) return `${Math.round(value * 60)} min`;
+  return `${value.toFixed(value >= 10 ? 0 : 1)} h`;
+}
 
-  useEffect(() => {
-    checkSystemStatus();
-    fetchStats();
-    const interval = setInterval(() => {
-      checkSystemStatus();
-      fetchStats();
-    }, 30000); // Refresh every 30 seconds
+function formatDateTime(value) {
+  if (!value) return "N/A";
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return "N/A";
+  return parsed.toLocaleString();
+}
 
-    return () => clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+function formatRelativeTime(value) {
+  if (!value) return "N/A";
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return "N/A";
+
+  const diffMs = Date.now() - parsed.getTime();
+  const diffMinutes = Math.round(diffMs / 60000);
+  if (diffMinutes < 1) return "just now";
+  if (diffMinutes < 60) return `${diffMinutes} min ago`;
+
+  const diffHours = Math.round(diffMinutes / 60);
+  if (diffHours < 24) return `${diffHours} h ago`;
+
+  const diffDays = Math.round(diffHours / 24);
+  return `${diffDays} d ago`;
+}
+
+function formatSeconds(seconds) {
+  if (seconds === null || seconds === undefined || Number.isNaN(seconds)) return "N/A";
+  if (seconds < 60) return `${seconds}s`;
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+  if (minutes < 60) return `${minutes}m ${remainingSeconds}s`;
+  const hours = Math.floor(minutes / 60);
+  const remainingMinutes = minutes % 60;
+  return `${hours}h ${remainingMinutes}m`;
+}
+
+function severityClasses(severity) {
+  switch (severity) {
+    case "critical":
+      return "bg-red-50 border-red-200 text-red-800";
+    case "warning":
+      return "bg-amber-50 border-amber-200 text-amber-800";
+    case "ok":
+      return "bg-emerald-50 border-emerald-200 text-emerald-800";
+    default:
+      return "bg-slate-50 border-slate-200 text-slate-800";
+  }
+}
+
+function statusPillClasses(status) {
+  const normalized = (status || "").toLowerCase();
+  if (["connected", "operational", "ok", "idle", "polling"].includes(normalized)) {
+    return "bg-emerald-100 text-emerald-700";
+  }
+  if (["warning", "degraded", "starting", "disabled", "unknown"].includes(normalized)) {
+    return "bg-amber-100 text-amber-700";
+  }
+  return "bg-red-100 text-red-700";
+}
+
+function MetricCard({ label, value, note, accent = "text-slate-900" }) {
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">{label}</div>
+      <div className={`mt-3 text-3xl font-bold ${accent}`}>{value}</div>
+      {note ? <div className="mt-2 text-sm text-slate-500">{note}</div> : null}
+    </div>
+  );
+}
+
+function ServiceCard({ title, status, detail, secondary }) {
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <div className="text-sm font-semibold text-slate-800">{title}</div>
+          {detail ? <div className="mt-1 text-sm text-slate-500">{detail}</div> : null}
+        </div>
+        <span className={`rounded-full px-3 py-1 text-xs font-semibold ${statusPillClasses(status)}`}>
+          {status || "Unknown"}
+        </span>
+      </div>
+      {secondary ? <div className="mt-4 text-sm text-slate-600">{secondary}</div> : null}
+    </div>
+  );
+}
+
+export default function SystemDashboard() {
+  const auth = useAuth();
+  const [overview, setOverview] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [requestLatencyMs, setRequestLatencyMs] = useState(null);
+
+  const loadOverview = useCallback(async () => {
+    const started = performance.now();
+    try {
+      const response = await apiClient.get("/operations/overview");
+      setOverview(response.data);
+      setRequestLatencyMs(Math.round(performance.now() - started));
+      setError("");
+    } catch (err) {
+      setError(err.response?.data?.detail?.message || err.message || "Failed to load operations overview");
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  const checkSystemStatus = async () => {
-    const apiUrl = process.env.REACT_APP_API_URL || 'https://portal-be.paicc.tech';
+  useEffect(() => {
+    loadOverview();
+    const interval = setInterval(loadOverview, 30000);
+    return () => clearInterval(interval);
+  }, [loadOverview]);
 
-    try {
-      const start = Date.now();
-      const response = await axios.get(`${apiUrl}/health`);
-      const responseTime = Date.now() - start;
+  const topSeverity = useMemo(() => {
+    const severities = (overview?.alerts || []).map((alert) => alert.severity);
+    if (severities.includes("critical")) return "critical";
+    if (severities.includes("warning")) return "warning";
+    return "ok";
+  }, [overview]);
 
-      if (response.data) {
-        setSystemStatus({
-          api: {
-            status: 'operational',
-            responseTime,
-            version: response.data.version || '1.0.0'
-          },
-          database: {
-            status: response.data.database === 'Connected' ? 'operational' : 'degraded',
-            collections: response.data.collections || 0
-          },
-          kafka: {
-            status: response.data.kafka === 'Connected' ? 'operational' : 'degraded',
-            topics: response.data.kafkaTopics || 7
-          },
-          redis: {
-            status: response.data.redis === 'Connected' ? 'operational' : 'degraded',
-            keys: response.data.redisKeys || 0
-          },
-          worker: {
-            status: 'operational',
-            processed: response.data.processedJobs || 0
-          }
-        });
-      }
-    } catch (error) {
-      setSystemStatus(prev => ({
-        ...prev,
-        api: { status: 'error', responseTime: 0 }
-      }));
-    }
-  };
+  if (!auth.hasRole(["admin"])) {
+    return (
+      <div className="mx-auto max-w-3xl rounded-3xl border border-red-200 bg-red-50 p-8 text-red-800 shadow-sm">
+        <h1 className="text-2xl font-bold">Access denied</h1>
+        <p className="mt-3 text-sm text-red-700">
+          The operations dashboard is restricted to admin users because it exposes live platform health and capacity data.
+        </p>
+      </div>
+    );
+  }
 
-  const fetchStats = async () => {
-    const apiUrl = process.env.REACT_APP_API_URL || 'https://portal-be.paicc.tech';
+  if (loading) {
+    return (
+      <div className="mx-auto max-w-7xl space-y-6">
+        <div className="h-28 animate-pulse rounded-3xl bg-slate-200" />
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3 xl:grid-cols-6">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <div key={index} className="h-32 animate-pulse rounded-2xl bg-slate-200" />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
-    try {
-      // Fetch applications
-      const appsResponse = await axios.get(`${apiUrl}/api/applications`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
+  const traffic = overview?.traffic || {};
+  const serviceHealth = overview?.serviceHealth || {};
+  const queue = overview?.queue || {};
+  const storage = overview?.storage || {};
+  const pipeline = overview?.pipeline || {};
+  const capacity = overview?.capacity || {};
+  const runbook = overview?.runbook || {};
 
-      // Fetch jobs
-      const jobsResponse = await axios.get(`${apiUrl}/api/jobs`);
-
-      const applications = appsResponse.data.applications || appsResponse.data || [];
-      const jobs = jobsResponse.data.jobs || jobsResponse.data || [];
-
-      setStats({
-        totalApplications: applications.length || 0,
-        totalJobs: jobs.length || 0,
-        totalCandidates: applications.length || 0,
-        processingQueue: Math.floor(Math.random() * 10), // Mock
-        avgResponseTime: systemStatus.api.responseTime,
-        uptime: calculateUptime()
-      });
-
-      // Calculate current load
-      const currentRPS = Math.floor(applications.length / 3600); // rough estimate
-      setPerformance(prev => ({
-        ...prev,
-        requestsPerSecond: currentRPS,
-        currentLoad: `${Math.round((currentRPS / 2727) * 100)}%`
-      }));
-    } catch (error) {
-      console.error('Failed to fetch stats:', error);
-    }
-  };
-
-  const calculateUptime = () => {
-    const uptime = process.uptime ? Math.floor(process.uptime()) : 0;
-    const hours = Math.floor(uptime / 3600);
-    const minutes = Math.floor((uptime % 3600) / 60);
-    return `${hours}h ${minutes}m`;
-  };
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'operational': return 'text-green-500';
-      case 'degraded': return 'text-yellow-500';
-      case 'error': return 'text-red-500';
-      default: return 'text-gray-500';
-    }
-  };
-
-  const getStatusBg = (status) => {
-    switch (status) {
-      case 'operational': return 'bg-green-100';
-      case 'degraded': return 'bg-yellow-100';
-      case 'error': return 'bg-red-100';
-      default: return 'bg-gray-100';
-    }
-  };
+  const currentApplicationsPerSecond = traffic.submissionsLastHour ? traffic.submissionsLastHour / 3600 : 0;
+  const recommendedMax = capacity.recommendedSustainedApplicationsPerSecond?.max || 0;
+  const loadPercent = recommendedMax > 0
+    ? Math.min(999, Math.round((currentApplicationsPerSecond / recommendedMax) * 100))
+    : 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">System Dashboard</h1>
-          <p className="text-gray-600">Real-time monitoring and performance metrics</p>
-        </div>
-
-        {/* System Health Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-          {/* Overall Status */}
-          <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-700">System Status</h3>
-              <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <div className="text-3xl font-bold text-green-600">Operational</div>
-            <p className="text-sm text-gray-500 mt-2">All systems running smoothly</p>
+    <div className="mx-auto max-w-7xl space-y-6">
+      <div className={`rounded-3xl border p-6 shadow-sm ${severityClasses(topSeverity)}`}>
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-[0.22em]">Operations Command</div>
+            <h1 className="mt-2 text-3xl font-bold text-slate-900">Live platform confidence board</h1>
+            <p className="mt-3 max-w-3xl text-sm text-slate-600">
+              This page is the single place for launch confidence: service health, queue backlog, storage pressure,
+              candidate funnel timing, and the last verified capacity baseline.
+            </p>
           </div>
-
-          {/* Uptime */}
-          <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-700">Uptime</h3>
-              <svg className="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <div className="text-3xl font-bold text-blue-600">{stats.uptime}</div>
-            <p className="text-sm text-gray-500 mt-2">99.9% availability</p>
-          </div>
-
-          {/* Response Time */}
-          <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-purple-500">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-700">Avg Response</h3>
-              <svg className="w-8 h-8 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-            </div>
-            <div className="text-3xl font-bold text-purple-600">{systemStatus.api.responseTime}ms</div>
-            <p className="text-sm text-gray-500 mt-2">P95: 4ms</p>
+          <div className="flex flex-col gap-2 text-sm text-slate-600">
+            <div>Last refresh: <span className="font-semibold text-slate-900">{formatDateTime(overview?.generatedAt)}</span></div>
+            <div>Browser to API latency: <span className="font-semibold text-slate-900">{requestLatencyMs ?? "N/A"} ms</span></div>
+            <div>Server uptime: <span className="font-semibold text-slate-900">{formatSeconds(serviceHealth.api?.uptimeSeconds)}</span></div>
+            <button
+              type="button"
+              onClick={loadOverview}
+              className="mt-2 inline-flex items-center justify-center rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700"
+            >
+              Refresh now
+            </button>
           </div>
         </div>
+        {error ? <div className="mt-4 rounded-2xl border border-red-200 bg-red-100/80 px-4 py-3 text-sm text-red-700">{error}</div> : null}
+      </div>
 
-        {/* Services Status Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-          {/* API Service */}
-          <div className={`bg-white rounded-xl shadow-lg p-6 ${getStatusBg(systemStatus.api.status)}`}>
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-3">
-                <svg className={`w-10 h-10 ${getStatusColor(systemStatus.api.status)}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
-                </svg>
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-800">API Server</h3>
-                  <p className="text-sm text-gray-600">v{systemStatus.api.version}</p>
-                </div>
-              </div>
-              <div className={`w-3 h-3 rounded-full ${systemStatus.api.status === 'operational' ? 'bg-green-500' : 'bg-red-500'} animate-pulse`}></div>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3 xl:grid-cols-6">
+        <MetricCard
+          label="Total Applications"
+          value={traffic.totalApplications ?? 0}
+          note={`${traffic.stalePipelineItems24h ?? 0} stale for more than 24h`}
+        />
+        <MetricCard
+          label="Submissions 24h"
+          value={traffic.submissionsLast24Hours ?? 0}
+          note={`${traffic.submissionsLastHour ?? 0} in the last hour`}
+        />
+        <MetricCard
+          label="Unique Candidates 24h"
+          value={traffic.uniqueCandidates24h ?? 0}
+          note="Distinct applicant emails in the last 24h"
+        />
+        <MetricCard
+          label="Active Staff 24h"
+          value={traffic.activeStaff24h ?? 0}
+          note={`${traffic.totalStaffUsers ?? 0} total staff accounts`}
+        />
+        <MetricCard
+          label="Queue Visible"
+          value={queue.visibleMessages ?? "N/A"}
+          note={`${queue.inFlightMessages ?? 0} in flight`}
+          accent={queue.visibleMessages > 100 ? "text-amber-600" : "text-slate-900"}
+        />
+        <MetricCard
+          label="Current Load"
+          value={`${loadPercent}%`}
+          note={`${currentApplicationsPerSecond.toFixed(2)} submit TPS vs safe sustained band`}
+          accent={loadPercent >= 80 ? "text-amber-600" : "text-slate-900"}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-5">
+        <ServiceCard
+          title="API"
+          status={serviceHealth.api?.status}
+          detail={`Started ${formatRelativeTime(serviceHealth.api?.startedAt)}`}
+          secondary={`${serviceHealth.api?.collections ?? 0} Mongo collections visible`}
+        />
+        <ServiceCard
+          title="Database"
+          status={serviceHealth.database?.status}
+          detail="Primary source of truth"
+          secondary="If this turns red, stop launch operations until it is stable."
+        />
+        <ServiceCard
+          title="Event Bus"
+          status={serviceHealth.eventBus?.status}
+          detail={`Provider: ${serviceHealth.eventBus?.provider || "none"}`}
+          secondary={`Visible ${queue.visibleMessages ?? "N/A"} | In flight ${queue.inFlightMessages ?? "N/A"}`}
+        />
+        <ServiceCard
+          title="Worker"
+          status={serviceHealth.worker?.status}
+          detail={`Last heartbeat ${formatRelativeTime(serviceHealth.worker?.lastHeartbeatAt)}`}
+          secondary={`${serviceHealth.worker?.processedJobs ?? 0} jobs processed | ${serviceHealth.worker?.errorCount ?? 0} errors`}
+        />
+        <ServiceCard
+          title="Redis"
+          status={serviceHealth.redis?.status}
+          detail="Optional component"
+          secondary={serviceHealth.redis?.status === "Disabled" ? "Not currently in active use." : `${serviceHealth.redis?.keys ?? 0} keys`}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1.4fr_1fr]">
+        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-bold text-slate-900">Capacity and confidence</h2>
+              <p className="mt-2 text-sm text-slate-500">
+                This is the last verified baseline from production testing. Treat it as a guardrail, not a promise.
+              </p>
             </div>
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Status</span>
-                <span className={`font-semibold ${getStatusColor(systemStatus.api.status)}`}>
-                  {systemStatus.api.status.charAt(0).toUpperCase() + systemStatus.api.status.slice(1)}
-                </span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Response Time</span>
-                <span className="font-semibold text-gray-800">{systemStatus.api.responseTime}ms</span>
-              </div>
+            <div className="rounded-2xl bg-slate-900 px-4 py-3 text-right text-white">
+              <div className="text-xs uppercase tracking-[0.18em] text-slate-300">Verified burst</div>
+              <div className="text-2xl font-bold">{capacity.observedBurstApplicationsPerSecond ?? "N/A"} TPS</div>
             </div>
           </div>
 
-          {/* Database */}
-          <div className={`bg-white rounded-xl shadow-lg p-6 ${getStatusBg(systemStatus.database.status)}`}>
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-3">
-                <svg className={`w-10 h-10 ${getStatusColor(systemStatus.database.status)}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
-                </svg>
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-800">MongoDB</h3>
-                  <p className="text-sm text-gray-600">Database</p>
-                </div>
-              </div>
-              <div className={`w-3 h-3 rounded-full ${systemStatus.database.status === 'operational' ? 'bg-green-500' : 'bg-red-500'} animate-pulse`}></div>
-            </div>
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Status</span>
-                <span className={`font-semibold ${getStatusColor(systemStatus.database.status)}`}>
-                  {systemStatus.database.status.charAt(0).toUpperCase() + systemStatus.database.status.slice(1)}
-                </span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Collections</span>
-                <span className="font-semibold text-gray-800">{systemStatus.database.collections}</span>
-              </div>
-            </div>
+          <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
+            <MetricCard
+              label="Observed Burst"
+              value={`${capacity.observedBurstApplicationsPerSecond ?? "N/A"} TPS`}
+              note={`${capacity.observedBurstConcurrency ?? "N/A"} concurrent submitters`}
+              accent="text-emerald-700"
+            />
+            <MetricCard
+              label="Safe Sustained"
+              value={
+                capacity.recommendedSustainedApplicationsPerSecond
+                  ? `${capacity.recommendedSustainedApplicationsPerSecond.min}-${capacity.recommendedSustainedApplicationsPerSecond.max} TPS`
+                  : "N/A"
+              }
+              note="Use this for launch planning on the current single node"
+              accent="text-blue-700"
+            />
+            <MetricCard
+              label="Read Throughput"
+              value={`${capacity.observedReadRequestsPerSecond ?? "N/A"} RPS`}
+              note={`Last verified ${formatDateTime(capacity.verifiedAt)}`}
+              accent="text-violet-700"
+            />
           </div>
 
-          {/* Kafka */}
-          <div className={`bg-white rounded-xl shadow-lg p-6 ${getStatusBg(systemStatus.kafka.status)}`}>
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-3">
-                <svg className={`w-10 h-10 ${getStatusColor(systemStatus.kafka.status)}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-                </svg>
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-800">Kafka</h3>
-                  <p className="text-sm text-gray-600">Message Queue</p>
-                </div>
-              </div>
-              <div className={`w-3 h-3 rounded-full ${systemStatus.kafka.status === 'operational' ? 'bg-green-500' : 'bg-red-500'} animate-pulse`}></div>
-            </div>
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Status</span>
-                <span className={`font-semibold ${getStatusColor(systemStatus.kafka.status)}`}>
-                  {systemStatus.kafka.status.charAt(0).toUpperCase() + systemStatus.kafka.status.slice(1)}
-                </span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Topics</span>
-                <span className="font-semibold text-gray-800">{systemStatus.kafka.topics}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Redis */}
-          <div className={`bg-white rounded-xl shadow-lg p-6 ${getStatusBg(systemStatus.redis.status)}`}>
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-3">
-                <svg className={`w-10 h-10 ${getStatusColor(systemStatus.redis.status)}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-800">Redis</h3>
-                  <p className="text-sm text-gray-600">Cache</p>
-                </div>
-              </div>
-              <div className={`w-3 h-3 rounded-full ${systemStatus.redis.status === 'operational' ? 'bg-green-500' : 'bg-red-500'} animate-pulse`}></div>
-            </div>
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Status</span>
-                <span className={`font-semibold ${getStatusColor(systemStatus.redis.status)}`}>
-                  {systemStatus.redis.status.charAt(0).toUpperCase() + systemStatus.redis.status.slice(1)}
-                </span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Cached Keys</span>
-                <span className="font-semibold text-gray-800">{systemStatus.redis.keys}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* AI Worker */}
-          <div className={`bg-white rounded-xl shadow-lg p-6 ${getStatusBg(systemStatus.worker.status)}`}>
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-3">
-                <svg className={`w-10 h-10 ${getStatusColor(systemStatus.worker.status)}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                </svg>
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-800">AI Worker</h3>
-                  <p className="text-sm text-gray-600">Processing</p>
-                </div>
-              </div>
-              <div className={`w-3 h-3 rounded-full ${systemStatus.worker.status === 'operational' ? 'bg-green-500' : 'bg-red-500'} animate-pulse`}></div>
-            </div>
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Status</span>
-                <span className={`font-semibold ${getStatusColor(systemStatus.worker.status)}`}>
-                  {systemStatus.worker.status.charAt(0).toUpperCase() + systemStatus.worker.status.slice(1)}
-                </span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Processed</span>
-                <span className="font-semibold text-gray-800">{systemStatus.worker.processed}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Performance */}
-          <div className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl shadow-lg p-6 text-white">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-3">
-                <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                </svg>
-                <div>
-                  <h3 className="text-lg font-semibold">Performance</h3>
-                  <p className="text-sm text-indigo-100">Load Metrics</p>
-                </div>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-indigo-100">Current Load</span>
-                <span className="font-semibold">{performance.currentLoad}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-indigo-100">Peak Capacity</span>
-                <span className="font-semibold">{performance.peakLoad} TPS</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-indigo-100">Overcapacity</span>
-                <span className="font-semibold">{performance.capacity}</span>
-              </div>
-            </div>
+          <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
+            <div className="font-semibold text-slate-900">CTO line to the team</div>
+            <p className="mt-2">
+              The platform has a measured burst baseline and live monitoring, but it is still a single-node deployment.
+              Confidence comes from watching this dashboard, keeping the worker healthy, and reacting to alerts before
+              the queue or storage becomes the bottleneck.
+            </p>
           </div>
         </div>
 
-        {/* Statistics */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6">
-          <div className="bg-white rounded-xl shadow-lg p-6">
-            <div className="flex items-center space-x-3 mb-2">
-              <svg className="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              <div>
-                <p className="text-sm text-gray-600">Applications</p>
-                <p className="text-2xl font-bold text-gray-800">{stats.totalApplications}</p>
-              </div>
-            </div>
-          </div>
+        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <h2 className="text-xl font-bold text-slate-900">Candidate journey timing</h2>
+          <p className="mt-2 text-sm text-slate-500">
+            These averages help the team answer, “Are applicants being handled quickly enough?”
+          </p>
 
-          <div className="bg-white rounded-xl shadow-lg p-6">
-            <div className="flex items-center space-x-3 mb-2">
-              <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
-              <div>
-                <p className="text-sm text-gray-600">Active Jobs</p>
-                <p className="text-2xl font-bold text-gray-800">{stats.totalJobs}</p>
-              </div>
-            </div>
+          <div className="mt-6 space-y-4">
+            <MetricCard
+              label="Submit to Test Invite"
+              value={formatHours(pipeline.timings?.averageHoursToTestInvite)}
+              note={`${pipeline.timings?.averageHoursToTestInviteSampleSize ?? 0} samples`}
+              accent="text-slate-900"
+            />
+            <MetricCard
+              label="Candidate Test Completion"
+              value={formatHours(pipeline.timings?.averageCandidateTestCompletionHours)}
+              note={`${pipeline.timings?.averageCandidateTestCompletionSampleSize ?? 0} samples`}
+              accent="text-slate-900"
+            />
+            <MetricCard
+              label="Offer Response"
+              value={formatHours(pipeline.timings?.averageOfferResponseHours)}
+              note={`${pipeline.timings?.averageOfferResponseSampleSize ?? 0} samples`}
+              accent="text-slate-900"
+            />
+            <MetricCard
+              label="Latest Update Lag"
+              value={formatHours(pipeline.timings?.averageHoursToLatestUpdate)}
+              note={`${pipeline.timings?.averageHoursToLatestUpdateSampleSize ?? 0} samples`}
+              accent="text-slate-900"
+            />
           </div>
+        </div>
+      </div>
 
-          <div className="bg-white rounded-xl shadow-lg p-6">
-            <div className="flex items-center space-x-3 mb-2">
-              <svg className="w-8 h-8 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-              </svg>
-              <div>
-                <p className="text-sm text-gray-600">Candidates</p>
-                <p className="text-2xl font-bold text-gray-800">{stats.totalCandidates}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-lg p-6">
-            <div className="flex items-center space-x-3 mb-2">
-              <svg className="w-8 h-8 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <div>
-                <p className="text-sm text-gray-600">In Queue</p>
-                <p className="text-2xl font-bold text-gray-800">{stats.processingQueue}</p>
-              </div>
-            </div>
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1.15fr_0.85fr]">
+        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <h2 className="text-xl font-bold text-slate-900">Pipeline pressure</h2>
+          <p className="mt-2 text-sm text-slate-500">
+            Current status distribution. Watch for stages growing faster than the team or worker can drain them.
+          </p>
+          <div className="mt-6 flex flex-wrap gap-3">
+            {Object.entries(pipeline.statusCounts || {}).length === 0 ? (
+              <div className="text-sm text-slate-500">No application status data available.</div>
+            ) : (
+              Object.entries(pipeline.statusCounts || {}).map(([status, count]) => (
+                <div key={status} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                  <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">{status}</div>
+                  <div className="mt-2 text-2xl font-bold text-slate-900">{count}</div>
+                </div>
+              ))
+            )}
           </div>
         </div>
 
-        {/* Recent Activity Timeline */}
-        <div className="bg-white rounded-xl shadow-lg p-6">
-          <h3 className="text-xl font-bold text-gray-800 mb-4">System Activity</h3>
-          <div className="space-y-4">
-            <div className="flex items-center space-x-4 p-3 bg-green-50 rounded-lg">
-              <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-gray-800">All security tests passed</p>
-                <p className="text-xs text-gray-600">12/12 tests successful - System production ready</p>
+        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <h2 className="text-xl font-bold text-slate-900">Storage and host</h2>
+          <div className="mt-6 space-y-4">
+            <MetricCard
+              label="S3 CV Storage"
+              value={formatBytes(storage.s3?.totalBytes)}
+              note={`${storage.s3?.objectCount ?? 0} objects in ${storage.s3?.bucketName || "N/A"}`}
+            />
+            <MetricCard
+              label="Local Uploads"
+              value={formatBytes(storage.local?.uploadBytes)}
+              note={storage.local?.uploadPath || "N/A"}
+            />
+            <MetricCard
+              label="Server Disk Free"
+              value={formatBytes(storage.local?.diskFreeBytes)}
+              note={`${storage.local?.diskUsagePercent ?? "N/A"}% used`}
+              accent={storage.local?.diskUsagePercent >= 85 ? "text-amber-600" : "text-slate-900"}
+            />
+            <MetricCard
+              label="Worker Heartbeat"
+              value={formatRelativeTime(serviceHealth.worker?.lastHeartbeatAt)}
+              note={serviceHealth.worker?.hostname ? `Host ${serviceHealth.worker.hostname}` : "No worker heartbeat yet"}
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <h2 className="text-xl font-bold text-slate-900">Alerts and actions</h2>
+          <div className="mt-6 space-y-4">
+            {(overview?.alerts || []).map((alert, index) => (
+              <div key={`${alert.title}-${index}`} className={`rounded-2xl border p-4 ${severityClasses(alert.severity)}`}>
+                <div className="flex items-center justify-between gap-4">
+                  <div className="text-lg font-semibold">{alert.title}</div>
+                  <span className="rounded-full bg-white/70 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em]">
+                    {alert.severity}
+                  </span>
+                </div>
+                <p className="mt-3 text-sm">{alert.message}</p>
+                <p className="mt-3 text-sm font-semibold">Action: <span className="font-normal">{alert.action}</span></p>
               </div>
-              <span className="text-xs text-gray-500">Just now</span>
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-3xl border border-slate-200 bg-slate-950 p-6 text-white shadow-sm">
+          <h2 className="text-xl font-bold">Incident flow</h2>
+          <p className="mt-2 text-sm text-slate-300">
+            Keep the response visual and role-driven. One owner leads, others fix, and one person communicates.
+          </p>
+
+          <div className="mt-6 space-y-4">
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
+              <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Roles</div>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {(runbook.incidentRoles || []).map((role) => (
+                  <span key={role} className="rounded-full bg-slate-800 px-3 py-1 text-xs font-semibold text-slate-200">
+                    {role}
+                  </span>
+                ))}
+              </div>
             </div>
 
-            <div className="flex items-center space-x-4 p-3 bg-blue-50 rounded-lg">
-              <svg className="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-gray-800">Performance validated</p>
-                <p className="text-xs text-gray-600">2,727 TPS confirmed - 48x over requirement</p>
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
+              <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">First 15 minutes</div>
+              <div className="mt-3 space-y-3">
+                {(runbook.firstActions || []).map((action) => (
+                  <div key={action} className="flex gap-3 text-sm text-slate-200">
+                    <span className="mt-0.5 inline-flex h-6 w-6 flex-none items-center justify-center rounded-full bg-emerald-500/20 text-xs font-bold text-emerald-300">
+                      •
+                    </span>
+                    <span>{action}</span>
+                  </div>
+                ))}
               </div>
-              <span className="text-xs text-gray-500">2 min ago</span>
             </div>
 
-            <div className="flex items-center space-x-4 p-3 bg-purple-50 rounded-lg">
-              <svg className="w-6 h-6 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-              </svg>
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-gray-800">Kafka operational</p>
-                <p className="text-xs text-gray-600">7 topics active with 3 partitions each</p>
-              </div>
-              <span className="text-xs text-gray-500">5 min ago</span>
+            <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 text-sm text-slate-300">
+              <div className="font-semibold text-white">Recommended monitoring rotation</div>
+              <p className="mt-2">
+                During launch, assign one person to this dashboard continuously, one to AWS/server logs, one to application
+                behavior, and one to stakeholder updates. Swap every 2-3 hours to keep judgment sharp.
+              </p>
             </div>
           </div>
         </div>
       </div>
     </div>
   );
-};
-
-export default SystemDashboard;
+}

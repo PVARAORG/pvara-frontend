@@ -18,6 +18,7 @@ import LoginInline from "./LoginInline"; // Import validated LoginInline compone
 import apiClient from "./api/client";
 import TestManagement from "./TestManagement";
 import SettingsPanel from "./SettingsPanel";
+import SystemDashboard from "./SystemDashboard";
 import ContentPage from "./pages/ContentPage";
 import ContentManagementPanel from "./ContentManagementPanel";
 import { OfferManagementPanel, InterviewSchedulingPanel, InterviewFeedbackModal, ExtendOfferModal } from "./AdvancedFeaturesUI";
@@ -2086,6 +2087,10 @@ function PvaraPhase2() {
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" /><circle cx="12" cy="12" r="3" /></svg>
                   Settings
                 </button>
+                <button onClick={() => { setView("operations"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "operations" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 13h4l3-9 4 16 3-7h4" /></svg>
+                  Operations
+                </button>
                 <button onClick={() => { setView("content-admin"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "content-admin" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                   Content Management
@@ -3617,6 +3622,7 @@ function PvaraPhase2() {
               }}
             />
           )}
+          {view === "operations" && <SystemDashboard />}
           {view === "content-admin" && <ContentManagementPanel />}
           {view === "about-us" && <ContentPage slug="about-us" onBack={() => setView("jobs")} />}
           {view === "faq" && <ContentPage slug="faq" onBack={() => setView("jobs")} />}
@@ -3624,7 +3630,7 @@ function PvaraPhase2() {
           {view === "terms-of-service" && <ContentPage slug="terms-of-service" onBack={() => setView("jobs")} />}
 
           {/* 404 Not Found fallback */}
-          {!["jobs","dashboard","apply","candidate-login","my-apps","admin","hr","ai-screening","test-management","interview-management","offer-management","analytics","shortlists","audit","settings","content-admin","about-us","faq","privacy-policy","terms-of-service"].includes(view) && (
+          {!["jobs","dashboard","apply","candidate-login","my-apps","admin","hr","ai-screening","test-management","interview-management","offer-management","analytics","shortlists","audit","settings","operations","content-admin","about-us","faq","privacy-policy","terms-of-service","staff-login"].includes(view) && (
             <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
               <div className="text-8xl font-bold text-green-600/20 mb-2">404</div>
               <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-3">Page Not Found</h1>
