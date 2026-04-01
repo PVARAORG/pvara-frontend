@@ -209,7 +209,7 @@ EMAIL_USER=your-email@gmail.com
 EMAIL_PASSWORD=xxxx xxxx xxxx xxxx
 PORT=5000
 NODE_ENV=development
-REACT_APP_API_URL=http://localhost:5000
+REACT_APP_API_URL=https://backend.pvara.team
 
 Gmail App Password Setup:
 ──────────────────────────

@@ -74,7 +74,7 @@ Set in Netlify dashboard (Site settings → Build & deploy → Environment):
 
 ```
 REACT_APP_ENV=production
-REACT_APP_API_URL=https://your-backend-domain.com
+REACT_APP_API_URL=https://backend.pvara.team
 ```
 
 ### Backend Environment Variables (if using Netlify Functions)

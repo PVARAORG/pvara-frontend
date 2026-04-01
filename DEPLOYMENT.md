@@ -165,7 +165,7 @@ Create `.env.production` for production settings:
 
 ```env
 REACT_APP_ENV=production
-REACT_APP_API_URL=https://api.example.com
+REACT_APP_API_URL=https://backend.pvara.team
 ```
 
 ---

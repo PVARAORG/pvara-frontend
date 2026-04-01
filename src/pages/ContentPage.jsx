@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import DOMPurify from 'dompurify';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+const API_URL = process.env.REACT_APP_API_URL || 'https://backend.pvara.team';
 
 /**
  * ContentPage - Generic component to display content pages (About Us, FAQ, Privacy Policy, Terms of Service)

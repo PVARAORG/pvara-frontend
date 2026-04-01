@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 
 const AuthCtx = createContext();
-const API_URL = process.env.REACT_APP_API_URL || 'https://portal-be.paicc.tech';
+const API_URL = process.env.REACT_APP_API_URL || 'https://backend.pvara.team';
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {

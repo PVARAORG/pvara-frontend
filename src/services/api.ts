@@ -1,9 +1,7 @@
 import axios, { AxiosInstance } from 'axios';
 
 // Use relative URL for Vercel deployment, or full URL for local development
-const API_BASE_URL = process.env.REACT_APP_API_URL || (
-  process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:3001/api'
-);
+const API_BASE_URL = `${(process.env.REACT_APP_API_URL || 'https://backend.pvara.team').replace(/\/$/, '')}/api`;
 
 const apiClient: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,

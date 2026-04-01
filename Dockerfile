@@ -3,7 +3,7 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install --legacy-peer-deps
 COPY . .
-ARG REACT_APP_API_URL=https://portal-be.paicc.tech
+ARG REACT_APP_API_URL=https://backend.pvara.team
 ENV REACT_APP_API_URL=$REACT_APP_API_URL
 RUN npm run build
 

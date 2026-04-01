@@ -236,7 +236,7 @@ EMAIL_USER=your-email@gmail.com
 EMAIL_PASSWORD=your-16-char-app-password
 PORT=5000 (or your port)
 NODE_ENV=production
-REACT_APP_API_URL=https://your-domain.com (for frontend)
+REACT_APP_API_URL=https://backend.pvara.team (for frontend)
 ```
 
 ### Deployment Platforms

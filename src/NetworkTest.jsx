@@ -8,7 +8,7 @@ export default function NetworkTest() {
   useEffect(() => {
     const test = async () => {
       try {
-        const url = process.env.REACT_APP_API_URL || 'https://portal-be.paicc.tech';
+        const url = process.env.REACT_APP_API_URL || 'https://backend.pvara.team';
         const fullUrl = url + '/api/jobs';
 
         console.log('Testing URL:', fullUrl);

@@ -3,6 +3,8 @@ import { FiFileText, FiUpload, FiChevronDown, FiChevronUp, FiFolder, FiFile, FiE
 import { applicationsApi } from '../services/applications.api';
 import '../styles/document-management.css';
 
+const API_ORIGIN = (process.env.REACT_APP_API_URL || 'https://backend.pvara.team').replace(/\/$/, '');
+
 interface DocumentManagementPanelProps {
   applicationId: string;
   documents?: string[];
@@ -190,7 +192,7 @@ export const DocumentManagementPanel: React.FC<DocumentManagementPanelProps> = (
     const fetchDocLibrary = async () => {
       try {
         setLoadingLibrary(true);
-        const response = await fetch('http://localhost:3001/api/applications/documents/library');
+        const response = await fetch(`${API_ORIGIN}/api/applications/documents/library`);
         const data = await response.json();
         if (data.success) {
           setDocLibrary(data.documentLibrary);

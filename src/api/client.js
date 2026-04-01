@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const DEFAULT_REMOTE_API = 'https://portal-be.paicc.tech';
-const LOCAL_DEV_API = 'https://portal-be.paicc.tech';
+const DEFAULT_REMOTE_API = 'https://backend.pvara.team';
+const LOCAL_DEV_API = 'https://backend.pvara.team';
 
 const nodeEnv = process.env.NODE_ENV;
 let API_URL = process.env.REACT_APP_API_URL
