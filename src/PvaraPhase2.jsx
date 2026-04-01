@@ -1502,7 +1502,7 @@ function PvaraPhase2() {
   }, [addToast, audit]); // eslint-disable-line react-hooks/exhaustive-deps
 
 
-  function submitApplication(formData) {
+  async function submitApplication(formData) {
     // Handle both event (from internal form) and form data (from ApplicationForm component)
     if (formData && typeof formData.preventDefault === 'function') {
       formData.preventDefault();
@@ -1540,7 +1540,7 @@ function PvaraPhase2() {
     const job = (state.jobs || []).find((j) => j.id === applicantData.jobId);
     if (!job) {
       addToast("Select job", { type: "error" });
-      return;
+      return false;
     }
 
     const errs = [];
@@ -1558,21 +1558,22 @@ function PvaraPhase2() {
         open: true,
         title: "Validation",
         message: errs.join("\n") + "\nSubmit anyway?",
-        onConfirm: () => {
-          finalizeApplication(job, files, true, applicantData);
+        onConfirm: async () => {
+          await finalizeApplication(job, files, true, applicantData);
           setConfirm({ open: false, title: "", message: "", onConfirm: null });
         },
       });
-      return;
+      return false;
     }
 
-    finalizeApplication(job, files, false, applicantData);
+    return finalizeApplication(job, files, false, applicantData);
   }
 
   async function finalizeApplication(job, files, manual, applicantData) {
     const data = applicantData || appForm;
     const filesNames = (files || []).map((f) => f.name);
     const serializedApplicant = buildApplicantPayload(data);
+    let submissionSucceeded = false;
 
     // Check if candidate profile exists by CNIC
     const cnic = data.cnic || 'N/A';
@@ -1585,7 +1586,7 @@ function PvaraPhase2() {
       );
       if (existingApp) {
         addToast(`You have already applied to ${job.title}`, { type: "warning" });
-        return;
+        return false;
       }
     }
 
@@ -1596,7 +1597,10 @@ function PvaraPhase2() {
     };
 
     try {
-      const response = await apiClient.post('/applications/', applicationPayload);
+      const requestConfig = data.turnstileToken
+        ? { headers: { 'X-Turnstile-Token': data.turnstileToken } }
+        : undefined;
+      const response = await apiClient.post('/applications/', applicationPayload, requestConfig);
       const backendApp = normalizeApplicationRecord(response.data?.application || {});
       const app = {
         ...backendApp,
@@ -1613,6 +1617,7 @@ function PvaraPhase2() {
       setTimeout(() => {
         setView("my-apps");
       }, 1500);
+      submissionSucceeded = true;
     } catch (err) {
       const responseMessage =
         err.response?.data?.detail?.message ||
@@ -1622,7 +1627,7 @@ function PvaraPhase2() {
       if (err.response) {
         console.error('Application submission rejected:', err.response.data);
         addToast(responseMessage || "Unable to submit this application.", { type: "error" });
-        return;
+        return false;
       }
 
       console.error('Backend sync error:', err);
@@ -1641,11 +1646,13 @@ function PvaraPhase2() {
       setTimeout(() => {
         setView("my-apps");
       }, 1500);
+      submissionSucceeded = true;
     }
 
     // Reset form
     setAppForm({ jobId: state.jobs[0]?.id || "", name: "", email: "", cnic: "", phone: "", degree: "", experienceYears: "", address: "", linkedin: "" });
     if (fileRef.current) fileRef.current.value = null;
+    return submissionSucceeded;
   }
 
   function updateLocalState(app, cnic, existingCandidate) {

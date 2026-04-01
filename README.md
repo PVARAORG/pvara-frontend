@@ -16,6 +16,15 @@ npm start
 # open http://localhost:3000
 ```
 
+Optional candidate-form bot protection:
+
+```bash
+# frontend
+REACT_APP_TURNSTILE_SITE_KEY=your-cloudflare-turnstile-site-key
+```
+
+Turnstile is only shown on the candidate-facing CV extraction and final application submit flow when the site key is configured.
+
 Run unit tests:
 
 ```bash

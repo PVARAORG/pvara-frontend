@@ -1,4 +1,5 @@
 import React from "react";
+import TurnstileWidget from "./components/TurnstileWidget";
 import {
   validateEmail,
   validatePhone,
@@ -55,7 +56,15 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
   const [showValidationPopup, setShowValidationPopup] = React.useState(false);
   const [validationPopupErrors, setValidationPopupErrors] = React.useState([]);
   const [showSubmitConfirm, setShowSubmitConfirm] = React.useState(false);
+  const [extractTurnstileToken, setExtractTurnstileToken] = React.useState("");
+  const [submitTurnstileToken, setSubmitTurnstileToken] = React.useState("");
+  const [extractVerificationError, setExtractVerificationError] = React.useState("");
+  const [submitVerificationError, setSubmitVerificationError] = React.useState("");
+  const [extractTurnstileResetKey, setExtractTurnstileResetKey] = React.useState(0);
+  const [submitTurnstileResetKey, setSubmitTurnstileResetKey] = React.useState(0);
   const advancingRef = React.useRef(false);
+  const turnstileSiteKey = process.env.REACT_APP_TURNSTILE_SITE_KEY || "";
+  const turnstileEnabled = Boolean(turnstileSiteKey);
 
   // Language options for dropdown
   const LANGUAGE_OPTIONS = [
@@ -89,6 +98,24 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
     }
   }, [selectedJobId]);
 
+  React.useEffect(() => {
+    if (currentStep !== steps.length - 1 && submitTurnstileToken) {
+      setSubmitTurnstileToken("");
+      setSubmitVerificationError("");
+      setSubmitTurnstileResetKey((value) => value + 1);
+    }
+  }, [currentStep, submitTurnstileToken, steps.length]);
+
+  function refreshExtractTurnstile() {
+    setExtractTurnstileToken("");
+    setExtractTurnstileResetKey((value) => value + 1);
+  }
+
+  function refreshSubmitTurnstile() {
+    setSubmitTurnstileToken("");
+    setSubmitTurnstileResetKey((value) => value + 1);
+  }
+
   function handleChange(field, value) {
     setForm((prev) => ({ ...prev, [field]: value }));
     // Clear error when user starts typing
@@ -99,8 +126,15 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
 
   // Step 0: Store CV locally and extract data (NO upload yet - CNIC not known)
   async function extractAndUploadCV(file) {
+    if (turnstileEnabled && !extractTurnstileToken) {
+      setErrors(prev => ({ ...prev, cvFile: "Complete the human verification before AI analyzes your CV." }));
+      setExtractVerificationError("Complete the human verification before AI analyzes your CV.");
+      return;
+    }
+
     setIsExtracting(true);
     setErrors(prev => ({ ...prev, cvFile: null }));
+    setExtractVerificationError("");
 
     // Store file locally (NOT uploaded yet)
     setForm(prev => ({
@@ -116,6 +150,9 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
     try {
       const formData = new FormData();
       formData.append('cv', file);
+      if (turnstileEnabled && extractTurnstileToken) {
+        formData.append('cf-turnstile-response', extractTurnstileToken);
+      }
 
       const apiUrl = process.env.REACT_APP_API_URL || 'https://portal-be.paicc.tech';
       // Use extract endpoint without CNIC - file will be temporary
@@ -125,7 +162,17 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
       });
 
       if (!response.ok) {
-        console.error('CV extraction failed with status:', response.status);
+        const errorBody = await response.json().catch(() => null);
+        const errorMessage =
+          errorBody?.detail?.message ||
+          errorBody?.message ||
+          'Unable to analyze your CV right now.';
+        console.error('CV extraction failed with status:', response.status, errorBody);
+        if (/verification/i.test(errorMessage)) {
+          setExtractVerificationError(errorMessage);
+        } else {
+          setErrors(prev => ({ ...prev, cvFile: errorMessage }));
+        }
         return;
       }
 
@@ -146,7 +193,11 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
       }
     } catch (error) {
       console.error('CV extraction error:', error);
+      setExtractVerificationError("Unable to verify your request right now. Please try again.");
     } finally {
+      if (turnstileEnabled) {
+        refreshExtractTurnstile();
+      }
       setIsExtracting(false);
     }
   }
@@ -511,13 +562,26 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
   }
 
   function handleSubmitClick() {
+    if (turnstileEnabled && !submitTurnstileToken) {
+      setSubmitVerificationError("Complete the human verification before submitting your application.");
+      return;
+    }
+
     // Show confirmation before submitting
     setShowSubmitConfirm(true);
   }
 
-  function confirmSubmit() {
+  async function confirmSubmit() {
+    if (turnstileEnabled && !submitTurnstileToken) {
+      setSubmitVerificationError("Complete the human verification before submitting your application.");
+      return;
+    }
+
     setShowSubmitConfirm(false);
-    onSubmit(form);
+    await Promise.resolve(onSubmit({ ...form, turnstileToken: submitTurnstileToken }));
+    if (turnstileEnabled) {
+      refreshSubmitTurnstile();
+    }
   }
 
   async function nextStep() {
@@ -680,6 +744,35 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
                 <span className="ml-2 px-2 py-1 bg-red-100 text-red-700 text-xs font-bold rounded-full">REQUIRED</span>
               </h2>
               <p className="text-gray-600 mb-6">Please upload your CV/Resume. Accepted formats: PDF, DOC, DOCX (Max 5MB)</p>
+
+              {turnstileEnabled && (
+                <div className="mb-6 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                  <p className="text-sm font-medium text-slate-800">Human verification is required before CV analysis.</p>
+                  <p className="mt-1 text-sm text-slate-600">This protects AI CV extraction from automated abuse.</p>
+                  <div className="mt-4">
+                    <TurnstileWidget
+                      siteKey={turnstileSiteKey}
+                      action="cv_extract"
+                      resetKey={extractTurnstileResetKey}
+                      onVerify={(token) => {
+                        setExtractTurnstileToken(token);
+                        setExtractVerificationError("");
+                      }}
+                      onExpire={() => {
+                        setExtractTurnstileToken("");
+                        setExtractVerificationError("Verification expired. Please complete it again before analyzing your CV.");
+                      }}
+                      onError={(message) => {
+                        setExtractTurnstileToken("");
+                        setExtractVerificationError(message);
+                      }}
+                    />
+                  </div>
+                  {extractVerificationError && (
+                    <p className="mt-3 text-sm text-red-600">{extractVerificationError}</p>
+                  )}
+                </div>
+              )}
 
               {/* Drag and Drop Zone */}
               <div
@@ -1375,6 +1468,34 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
                   </div>
                 </div>
               )}
+              {turnstileEnabled && (
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 md:p-6">
+                  <h3 className="font-bold text-base md:text-lg text-slate-900">Final verification</h3>
+                  <p className="mt-1 text-sm text-slate-600">Complete this check before submitting your application.</p>
+                  <div className="mt-4">
+                    <TurnstileWidget
+                      siteKey={turnstileSiteKey}
+                      action="candidate_apply"
+                      resetKey={submitTurnstileResetKey}
+                      onVerify={(token) => {
+                        setSubmitTurnstileToken(token);
+                        setSubmitVerificationError("");
+                      }}
+                      onExpire={() => {
+                        setSubmitTurnstileToken("");
+                        setSubmitVerificationError("Verification expired. Please complete it again before submitting.");
+                      }}
+                      onError={(message) => {
+                        setSubmitTurnstileToken("");
+                        setSubmitVerificationError(message);
+                      }}
+                    />
+                  </div>
+                  {submitVerificationError && (
+                    <p className="mt-3 text-sm text-red-600">{submitVerificationError}</p>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -1405,7 +1526,12 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
             <button
               type="button"
               onClick={handleSubmitClick}
-              className="px-4 py-2 md:px-8 md:py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-bold text-sm md:text-lg transition shadow-lg hover:shadow-xl flex items-center justify-center gap-1 md:gap-2"
+              className={`px-4 py-2 md:px-8 md:py-3 text-white rounded-lg font-bold text-sm md:text-lg transition shadow-lg flex items-center justify-center gap-1 md:gap-2 ${
+                turnstileEnabled && !submitTurnstileToken
+                  ? 'bg-green-400 cursor-not-allowed'
+                  : 'bg-green-600 hover:bg-green-700 hover:shadow-xl'
+              }`}
+              disabled={turnstileEnabled && !submitTurnstileToken}
             >
               <svg className="w-4 h-4 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
