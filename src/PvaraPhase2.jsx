@@ -2950,7 +2950,14 @@ function PvaraPhase2() {
                   </span>
                   About the Role
                 </h2>
-                <p className="text-gray-600 leading-relaxed text-lg whitespace-pre-line">{job.description}</p>
+                <ul className="text-gray-600 leading-relaxed text-lg space-y-2">
+                  {(job.description || '').split('\n').map((line, i) => {
+                    const trimmed = line.trim();
+                    if (!trimmed) return null;
+                    if (trimmed.startsWith('- ')) return <li key={i} className="ml-4 list-disc">{trimmed.substring(2)}</li>;
+                    return <li key={i} className="list-none font-medium text-gray-800">{trimmed}</li>;
+                  })}
+                </ul>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

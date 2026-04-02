@@ -731,7 +731,14 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
                   {jobs.find(j => j.id === form.jobId) && (
                     <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                       <h3 className="font-semibold text-blue-900 mb-2">{jobs.find(j => j.id === form.jobId).title}</h3>
-                      <p className="text-sm text-blue-700">{jobs.find(j => j.id === form.jobId).description}</p>
+                      <div className="text-sm text-blue-700">
+                        {(jobs.find(j => j.id === form.jobId).description || '').split('\n').map((line, i) => {
+                          const trimmed = line.trim();
+                          if (!trimmed) return null;
+                          if (trimmed.startsWith('- ')) return <li key={i} className="ml-4 mb-1">{trimmed.substring(2)}</li>;
+                          return <p key={i} className="mb-1">{trimmed}</p>;
+                        })}
+                      </div>
                       <div className="mt-3 flex flex-wrap gap-3 text-xs">
                         <span className="flex items-center gap-1 px-2 py-1 bg-blue-100 rounded-full text-blue-700">
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

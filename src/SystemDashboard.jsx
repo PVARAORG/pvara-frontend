@@ -84,12 +84,12 @@ const SystemDashboard = () => {
 
     try {
       // Fetch applications
-      const appsResponse = await axios.get(`${apiUrl}/api/applications`, {
+      const appsResponse = await axios.get(`${apiUrl}/api/applications/`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
 
       // Fetch jobs
-      const jobsResponse = await axios.get(`${apiUrl}/api/jobs`);
+      const jobsResponse = await axios.get(`${apiUrl}/api/jobs/`);
 
       const applications = appsResponse.data.applications || appsResponse.data || [];
       const jobs = jobsResponse.data.jobs || jobsResponse.data || [];
