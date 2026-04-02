@@ -2139,7 +2139,7 @@ function PvaraPhase2() {
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 20h9" /><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" /></svg>
               Apply Now
             </button>
-            <button onClick={() => { setView("candidate-login"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "candidate-login" || view === "my-apps" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
+            <button onClick={() => { setView(candidateSession ? "my-apps" : "candidate-login"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "candidate-login" || view === "my-apps" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" /><path d="M14 2v4a2 2 0 0 0 2 2h4" /></svg>
               Track My Applications
             </button>
@@ -3852,7 +3852,7 @@ function PvaraPhase2() {
                 <ul className="space-y-1.5 md:space-y-2 text-xs md:text-sm">
                   <li><button type="button" onClick={() => setView("jobs")} className="text-gray-600 hover:text-green-700 transition">Browse Jobs</button></li>
                   <li><button type="button" onClick={() => setView("apply")} className="text-gray-600 hover:text-green-700 transition">Apply Now</button></li>
-                  <li><button type="button" onClick={() => setView("candidate-login")} className="text-gray-600 hover:text-green-700 transition">Track My Applications</button></li>
+                  <li><button type="button" onClick={() => setView(candidateSession ? "my-apps" : "candidate-login")} className="text-gray-600 hover:text-green-700 transition">Track My Applications</button></li>
                 </ul>
               </div>
 
