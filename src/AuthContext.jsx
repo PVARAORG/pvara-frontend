@@ -1,8 +1,8 @@
-// src/AuthContext.jsx
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { getApiOrigin } from './utils/apiBase';
 
 const AuthCtx = createContext();
-const API_URL = process.env.REACT_APP_API_URL || 'https://backend.pvara.team';
+const API_URL = getApiOrigin();
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {

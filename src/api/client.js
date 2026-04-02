@@ -1,30 +1,18 @@
 import axios from 'axios';
-
-const DEFAULT_REMOTE_API = 'https://backend.pvara.team';
-const LOCAL_DEV_API = 'https://backend.pvara.team';
+import { getApiBaseUrl, getApiOrigin } from '../utils/apiBase';
 
 const nodeEnv = process.env.NODE_ENV;
-let API_URL = process.env.REACT_APP_API_URL
-  || (nodeEnv === 'development' ? LOCAL_DEV_API : DEFAULT_REMOTE_API);
+const API_URL = getApiOrigin();
+const API_BASE_URL = getApiBaseUrl();
 
-if (!API_URL && typeof window !== 'undefined') {
-  API_URL = DEFAULT_REMOTE_API;
-}
-
-// Enforce HTTPS in production to prevent Mixed Content errors
-if (typeof window !== 'undefined' && window.location.protocol === 'https:' && API_URL.startsWith('http://')) {
-  API_URL = API_URL.replace('http://', 'https://');
-  console.warn('[api] Upgraded API URL to HTTPS to prevent mixed content:', API_URL);
-}
-
-if (nodeEnv === 'development' && typeof window !== 'undefined') {
+if (nodeEnv === 'development' && typeof window !== 'undefined' && API_URL) {
   console.info('[api] Using backend base URL:', API_URL);
 }
 
 
 // Create axios instance
 const apiClient = axios.create({
-  baseURL: `${API_URL}/api`,
+  baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
     'ngrok-skip-browser-warning': 'true'

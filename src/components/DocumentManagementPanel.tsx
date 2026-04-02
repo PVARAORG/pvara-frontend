@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { getApiOrigin } from '../utils/apiBase';
 import { FiFileText, FiUpload, FiChevronDown, FiChevronUp, FiFolder, FiFile, FiExternalLink, FiRefreshCw, FiClock, FiCheckCircle } from 'react-icons/fi';
 import { applicationsApi } from '../services/applications.api';
 import '../styles/document-management.css';
 
-const API_ORIGIN = (process.env.REACT_APP_API_URL || 'https://backend.pvara.team').replace(/\/$/, '');
+const API_ORIGIN = getApiOrigin();
 
 interface DocumentManagementPanelProps {
   applicationId: string;

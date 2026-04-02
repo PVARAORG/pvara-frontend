@@ -1,5 +1,6 @@
 import React from "react";
 import TurnstileWidget from "./components/TurnstileWidget";
+import { getApiOrigin } from "./utils/apiBase";
 import {
   validateEmail,
   validatePhone,
@@ -14,6 +15,7 @@ import {
 } from "./utils/validationUtils";
 
 const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
+  const apiUrl = getApiOrigin();
   const [currentStep, setCurrentStep] = React.useState(0);
   const [form, setForm] = React.useState({
     jobId: selectedJobId || jobs[0]?.id || "",
@@ -153,7 +155,6 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
         formData.append('cf-turnstile-response', extractTurnstileToken);
       }
 
-      const apiUrl = process.env.REACT_APP_API_URL || 'https://portal-be.paicc.tech';
       // Use extract endpoint without CNIC - file will be temporary
       const response = await fetch(`${apiUrl}/api/upload/cv/extract`, {
         method: 'POST',
@@ -220,7 +221,6 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
       console.log('DEBUG uploadCVWithCNIC - selectedJob:', selectedJob?.title);
       const jobTitle = selectedJob?.title || '';
 
-      const apiUrl = process.env.REACT_APP_API_URL || 'https://portal-be.paicc.tech';
       formData.append('cnic', cleanCnic);
       formData.append('job_title', jobTitle);
       const response = await fetch(`${apiUrl}/api/upload/cv`, {

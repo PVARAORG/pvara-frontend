@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import DOMPurify from 'dompurify';
+import { getApiOrigin } from '../utils/apiBase';
 
-const API_URL = process.env.REACT_APP_API_URL || 'https://backend.pvara.team';
+const API_URL = getApiOrigin();
 
 /**
  * ContentPage - Generic component to display content pages (About Us, FAQ, Privacy Policy, Terms of Service)

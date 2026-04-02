@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { getApiOrigin } from './utils/apiBase';
 
-const API_URL = process.env.REACT_APP_API_URL || 'https://backend.pvara.team';
+const API_URL = getApiOrigin();
 
 /**
  * ContentManagementPanel - Admin panel for managing content pages

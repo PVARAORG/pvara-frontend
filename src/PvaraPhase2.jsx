@@ -16,6 +16,7 @@ import Toasts from "./Toasts";
 import { batchEvaluateApplications } from "./aiScreening";
 import LoginInline from "./LoginInline"; // Import validated LoginInline component
 import apiClient from "./api/client";
+import { getApiOrigin } from "./utils/apiBase";
 import TestManagement from "./TestManagement";
 import SettingsPanel from "./SettingsPanel";
 import SystemDashboard from "./SystemDashboard";
@@ -60,6 +61,8 @@ function toAbsoluteUrl(baseUrl, value) {
   if (value.startsWith("/")) return `${baseUrl}${value}`;
   return `${baseUrl}/${value}`;
 }
+
+const API_ORIGIN = getApiOrigin();
 
 function getCandidateCvReference(candidate) {
   const cvValue = candidate?.applicant?.cv || candidate?.cv || "";
@@ -333,7 +336,7 @@ function CandidateProfileModal({ open, candidate, onClose, jobs }) {
   const [cvExists, setCvExists] = React.useState(null); // null = loading, true/false = result
   const [cvUrl, setCvUrl] = React.useState(null);
 
-  const apiUrl = process.env.REACT_APP_API_URL || "https://portal-be.paicc.tech";
+  const apiUrl = API_ORIGIN;
 
   // Check if CV exists when modal opens
   React.useEffect(() => {
@@ -1811,7 +1814,7 @@ function PvaraPhase2() {
       },
     };
 
-    const apiUrl = process.env.REACT_APP_API_URL || "https://portal-be.paicc.tech";
+    const apiUrl = API_ORIGIN;
     fetch(`${apiUrl}/api/email/send-template`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -1901,7 +1904,7 @@ function PvaraPhase2() {
           },
         };
 
-        const apiUrl = process.env.REACT_APP_API_URL || "https://portal-be.paicc.tech";
+        const apiUrl = API_ORIGIN;
         fetch(`${apiUrl}/api/email/send-template`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
