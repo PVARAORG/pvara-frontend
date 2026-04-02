@@ -2837,56 +2837,7 @@ function PvaraPhase2() {
       if (e?.preventDefault) e.preventDefault();
     }, []);
 
-    // Skeleton loading state
-    if (isLoading) {
-      return (
-        <div>
-          {/* Hero skeleton */}
-          <div className="bg-gradient-to-br from-green-600 to-green-800 rounded-2xl p-8 md:p-12 mb-8 animate-pulse">
-            <div className="max-w-3xl mx-auto text-center space-y-4">
-              <div className="h-4 w-24 bg-white/20 rounded-full mx-auto" />
-              <div className="h-10 w-96 bg-white/20 rounded-lg mx-auto" />
-              <div className="h-5 w-80 bg-white/15 rounded-lg mx-auto" />
-              <div className="h-12 w-full max-w-xl bg-white/10 rounded-xl mx-auto mt-6" />
-            </div>
-          </div>
-          {/* Stats skeleton */}
-          <div className="flex justify-center gap-6 mb-8">
-            {[1, 2].map(i => (
-              <div key={i} className="bg-white rounded-xl border border-gray-100 p-6 w-40 animate-pulse">
-                <div className="h-8 w-12 bg-gray-200 rounded mx-auto mb-2" />
-                <div className="h-4 w-24 bg-gray-100 rounded mx-auto" />
-              </div>
-            ))}
-          </div>
-          {/* Job cards skeleton */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
-            {[1, 2, 3, 4].map(i => (
-              <div key={i} className="bg-white rounded-xl border border-gray-100 p-6 animate-pulse">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="h-5 w-20 bg-green-100 rounded-full" />
-                  <div className="h-5 w-16 bg-gray-100 rounded-full" />
-                </div>
-                <div className="h-6 w-3/4 bg-gray-200 rounded mb-2" />
-                <div className="h-4 w-1/2 bg-gray-100 rounded mb-4" />
-                <div className="space-y-2 mb-4">
-                  <div className="h-3 w-full bg-gray-100 rounded" />
-                  <div className="h-3 w-5/6 bg-gray-100 rounded" />
-                </div>
-                <div className="flex gap-2 mb-4">
-                  <div className="h-4 w-28 bg-gray-100 rounded" />
-                  <div className="h-4 w-32 bg-gray-100 rounded" />
-                </div>
-                <div className="flex gap-3">
-                  <div className="h-10 flex-1 bg-green-100 rounded-lg" />
-                  <div className="h-10 flex-1 bg-gray-100 rounded-lg" />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      );
-    }
+    // Loading handled inline — no skeleton to avoid layout shift
 
     // Job Detail View
     if (selectedJobId) {
