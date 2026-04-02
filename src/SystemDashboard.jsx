@@ -39,7 +39,7 @@ const SystemDashboard = () => {
   }, []);
 
   const checkSystemStatus = async () => {
-    const apiUrl = process.env.REACT_APP_API_URL || 'https://backend.pvara.team';
+    const apiUrl = (typeof process !== 'undefined' && process.env && process.env.REACT_APP_API_URL) || 'https://backend.pvara.team';
 
     try {
       const start = Date.now();
@@ -80,7 +80,7 @@ const SystemDashboard = () => {
   };
 
   const fetchStats = async () => {
-    const apiUrl = process.env.REACT_APP_API_URL || 'https://backend.pvara.team';
+    const apiUrl = (typeof process !== 'undefined' && process.env && process.env.REACT_APP_API_URL) || 'https://backend.pvara.team';
 
     try {
       // Fetch applications
