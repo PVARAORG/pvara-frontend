@@ -2969,7 +2969,7 @@ function PvaraPhase2() {
       <div className="max-w-7xl mx-auto">
         {/* Hero Section - Compact with Pakistan Monuments */}
         <div className="relative mb-6 md:mb-10 rounded-xl md:rounded-2xl overflow-hidden mx-[-1rem] md:mx-0">
-          <div className="absolute inset-0 bg-[url('/pvara-hero-v2.jpg')] bg-cover bg-center"></div>
+          <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${process.env.PUBLIC_URL}/pvara-hero-v2.jpg)` }}></div>
           <div className="absolute inset-0 bg-gradient-to-r from-green-900/85 via-green-800/75 to-emerald-900/85"></div>
           <div className="relative px-4 py-6 md:px-8 md:py-10 lg:py-12 text-center text-white pt-10 md:pt-10">
             <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-3 py-1.5 md:px-4 md:py-2 rounded-full mb-4 md:mb-6">
