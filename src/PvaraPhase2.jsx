@@ -3106,7 +3106,7 @@ function PvaraPhase2() {
         {/* Stats Bar */}
         <div className="grid grid-cols-2 gap-3 md:gap-4 mb-6 md:mb-10 max-w-md mx-auto px-1">
           <div className="bg-white rounded-lg md:rounded-xl p-3 md:p-5 shadow-sm border border-gray-100 text-center">
-            <div className="text-2xl md:text-3xl font-bold text-green-600 mb-0.5 md:mb-1">{visibleJobs.length}</div>
+            <div className="text-2xl md:text-3xl font-bold text-green-600 mb-0.5 md:mb-1">{visibleJobs.reduce((sum, j) => sum + (j.openings || 1), 0)}</div>
             <div className="text-xs md:text-sm text-gray-500 font-medium">Open Positions</div>
           </div>
           <div className="bg-white rounded-lg md:rounded-xl p-3 md:p-5 shadow-sm border border-gray-100 text-center">
@@ -3156,7 +3156,7 @@ function PvaraPhase2() {
         <div className="flex items-center justify-between mb-4 md:mb-6 px-1">
           <div>
             <h2 className="text-lg md:text-2xl font-bold text-gray-800">Current Openings</h2>
-            <p className="text-xs md:text-base text-gray-500">{visibleJobs.length} position{visibleJobs.length !== 1 ? 's' : ''} available</p>
+            <p className="text-xs md:text-base text-gray-500">{visibleJobs.reduce((sum, j) => sum + (j.openings || 1), 0)} position{visibleJobs.reduce((sum, j) => sum + (j.openings || 1), 0) !== 1 ? 's' : ''} available</p>
           </div>
           {normalizedSearch && (
             <button
