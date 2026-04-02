@@ -3016,19 +3016,20 @@ function PvaraPhase2() {
     // Main Job Listing View - Enhanced with PVARA branding
     return (
       <div className="max-w-7xl mx-auto">
-        {/* Hero Section - Professional PVARA Branding */}
-        <div className="relative mb-6 md:mb-12 rounded-xl md:rounded-2xl overflow-hidden mx-[-1rem] md:mx-0">
-          <div className="absolute inset-0 bg-gradient-to-br from-green-600 via-green-700 to-emerald-800"></div>
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMzLjMxNCAwIDYgMi42ODYgNiA2cy0yLjY4NiA2LTYgNi02LTIuNjg2LTYtNiAyLjY4Ni02IDYtNiIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMSkiIHN0cm9rZS13aWR0aD0iMiIvPjwvZz48L3N2Zz4=')] opacity-40"></div>
-          <div className="relative px-4 py-8 md:px-8 md:py-16 lg:py-20 text-center text-white pt-14 md:pt-16">
+        {/* Hero Section - Compact with Pakistan Monuments */}
+        <div className="relative mb-6 md:mb-10 rounded-xl md:rounded-2xl overflow-hidden mx-[-1rem] md:mx-0">
+          <div className="absolute inset-0 bg-gradient-to-r from-green-800 via-green-700 to-emerald-800"></div>
+          <div className="absolute inset-0 bg-[url('/pvara-hero.jpg')] bg-cover bg-center opacity-20"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-green-900/80 via-transparent to-green-900/40"></div>
+          <div className="relative px-4 py-6 md:px-8 md:py-10 lg:py-12 text-center text-white pt-10 md:pt-10">
             <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-3 py-1.5 md:px-4 md:py-2 rounded-full mb-4 md:mb-6">
               <span className="w-2 h-2 bg-green-300 rounded-full animate-pulse"></span>
               <span className="text-xs md:text-sm font-medium">Now Hiring</span>
             </div>
-            <h1 className="font-display text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold mb-3 md:mb-4 leading-tight">
+            <h1 className="font-display text-xl sm:text-2xl md:text-4xl lg:text-5xl font-bold mb-2 md:mb-3 leading-tight">
               Build Your Future with PVARA
             </h1>
-            <p className="text-sm md:text-lg lg:text-xl text-green-100 max-w-3xl mx-auto mb-6 md:mb-8 px-2">
+            <p className="text-xs md:text-base lg:text-lg text-green-100 max-w-2xl mx-auto mb-4 md:mb-6 px-2">
               Join Pakistan's Virtual Assets Regulatory Authority and be part of the team shaping the future of digital finance regulation
             </p>
 
