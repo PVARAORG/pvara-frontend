@@ -2968,12 +2968,8 @@ function PvaraPhase2() {
                   <div className="text-sm font-bold text-blue-700">{job.employmentType || 'Contract'}</div>
                   <div className="text-xs text-gray-500 mt-1">Type</div>
                 </div>
-                <div className="p-4 bg-purple-50 rounded-xl border border-purple-100 text-center">
-                  <div className="text-sm font-bold text-purple-700">{job.grade || 'N/A'}</div>
-                  <div className="text-xs text-gray-500 mt-1">Grade</div>
-                </div>
                 <div className="p-4 bg-amber-50 rounded-xl border border-amber-100 text-center">
-                  <div className="text-sm font-bold text-amber-700">15 Days</div>
+                  <div className="text-sm font-bold text-amber-700">18th April 2026</div>
                   <div className="text-xs text-gray-500 mt-1">Deadline</div>
                 </div>
               </div>
@@ -3048,20 +3044,7 @@ function PvaraPhase2() {
                 </div>
               )}
 
-              {/* Terms and Conditions Section */}
-              {job.termsAndConditions && (
-                <div className="p-6 bg-gradient-to-br from-amber-50 to-yellow-50 rounded-xl border border-amber-200">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 bg-amber-500 rounded-lg flex items-center justify-center">
-                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                    </div>
-                    <h3 className="font-bold text-gray-800 text-lg">Terms & Conditions</h3>
-                  </div>
-                  <p className="text-gray-700 leading-relaxed whitespace-pre-line">{job.termsAndConditions}</p>
-                </div>
-              )}
+              {/* Terms and Conditions - hidden from public view */}
 
               <div className="pt-6 border-t border-gray-100 flex flex-col sm:flex-row gap-4">
                 <button
@@ -3272,14 +3255,7 @@ function PvaraPhase2() {
                           <span className="truncate max-w-[80px] md:max-w-[120px]" title={job.education}>Education Req.</span>
                         </div>
                       )}
-                      {job.termsAndConditions && (
-                        <div className="flex items-center gap-1 text-xs text-amber-600">
-                          <svg className="w-3 h-3 md:w-3.5 md:h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                          </svg>
-                          <span>T&C</span>
-                        </div>
-                      )}
+                      {/* T&C badge hidden */}
                     </div>
 
                     <div className="flex items-center gap-2 md:gap-3">
