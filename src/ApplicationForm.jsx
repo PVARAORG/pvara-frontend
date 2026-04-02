@@ -875,6 +875,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
                     <div>
                       <p className="text-lg font-semibold text-blue-700">Analyzing your CV...</p>
                       <p className="text-blue-600 text-sm">AI is extracting your information to auto-fill the form</p>
+                      <p className="text-gray-400 text-xs mt-2">This may take up to a minute</p>
                     </div>
                   </div>
                 ) : (form.cvFile || form.cvUrl || form.cv) ? (
