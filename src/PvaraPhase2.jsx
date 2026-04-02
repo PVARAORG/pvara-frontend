@@ -3259,7 +3259,7 @@ function PvaraPhase2() {
               onCancel={() => setView("jobs")}
             />
           )}
-          {view === "my-apps" && candidateSession && (
+          {(view === "my-apps" || view === "candidate-login") && candidateSession && (
             <MyCandidateApplications
               applications={state.applications}
               candidateProfile={candidateSession}
