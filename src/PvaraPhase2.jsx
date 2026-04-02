@@ -2947,15 +2947,47 @@ function PvaraPhase2() {
                   </span>
                   About the Role
                 </h2>
-                <ul className="text-gray-600 leading-relaxed text-lg space-y-2">
+                <ul className="text-gray-600 leading-relaxed text-base space-y-3">
                   {(job.description || '').split('\n').map((line, i) => {
                     const trimmed = line.trim();
                     if (!trimmed) return null;
-                    if (trimmed.startsWith('- ')) return <li key={i} className="ml-4 list-disc">{trimmed.substring(2)}</li>;
-                    return <li key={i} className="list-none font-medium text-gray-800">{trimmed}</li>;
+                    if (trimmed.startsWith('Application Deadline:')) return null;
+                    const text = trimmed.startsWith('- ') ? trimmed.substring(2) : trimmed;
+                    return <li key={i} className="ml-5 list-disc">{text}</li>;
                   })}
                 </ul>
               </div>
+
+              {/* Job Info Cards */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="p-4 bg-green-50 rounded-xl border border-green-100 text-center">
+                  <div className="text-2xl font-bold text-green-700">{job.openings || 1}</div>
+                  <div className="text-xs text-gray-500 mt-1">Opening{(job.openings || 1) > 1 ? 's' : ''}</div>
+                </div>
+                <div className="p-4 bg-blue-50 rounded-xl border border-blue-100 text-center">
+                  <div className="text-sm font-bold text-blue-700">{job.employmentType || 'Contract'}</div>
+                  <div className="text-xs text-gray-500 mt-1">Type</div>
+                </div>
+                <div className="p-4 bg-purple-50 rounded-xl border border-purple-100 text-center">
+                  <div className="text-sm font-bold text-purple-700">{job.grade || 'N/A'}</div>
+                  <div className="text-xs text-gray-500 mt-1">Grade</div>
+                </div>
+                <div className="p-4 bg-amber-50 rounded-xl border border-amber-100 text-center">
+                  <div className="text-sm font-bold text-amber-700">15 Days</div>
+                  <div className="text-xs text-gray-500 mt-1">Deadline</div>
+                </div>
+              </div>
+
+              {/* Education Requirements */}
+              {job.education && (
+                <div className="p-5 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl border border-indigo-100">
+                  <h3 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
+                    <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" /></svg>
+                    Education & Qualifications
+                  </h3>
+                  <p className="text-gray-600 text-sm leading-relaxed">{job.education}</p>
+                </div>
+              )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="p-5 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border border-green-100">
