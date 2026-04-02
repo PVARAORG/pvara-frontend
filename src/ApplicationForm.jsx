@@ -36,6 +36,8 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
     city: "",
     state: "",
     postalCode: "",
+    // Experience
+    experienceYears: "",
     // Education
     education: [{ school: "", fieldOfStudy: "", degree: "", graduated: "no", stillAttending: false }],
     // Employment
@@ -390,7 +392,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
         validation = validateTextLength(value, { min: 2, max: 100, required: true, fieldName: field === 'city' ? 'City' : 'State' });
         break;
       case 'postalCode':
-        validation = validatePostalCode(value, true);
+        validation = value ? validatePostalCode(value, false) : { valid: true };
         break;
       case 'coverLetter':
         validation = validateTextLength(value, { max: 2000, fieldName: 'Cover letter' });
@@ -434,7 +436,8 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
         cnic: { validator: () => validateCNIC(form.cnic), label: 'CNIC' },
         city: { validator: () => validateTextLength(form.city, { min: 2, max: 100, required: true, fieldName: 'City' }), label: 'City' },
         state: { validator: () => validateTextLength(form.state, { min: 2, max: 100, required: true, fieldName: 'State' }), label: 'State' },
-        postalCode: { validator: () => validatePostalCode(form.postalCode, true), label: 'Postal Code' },
+        postalCode: { validator: () => form.postalCode ? validatePostalCode(form.postalCode, false) : { valid: true }, label: 'Postal Code' },
+        experienceYears: { validator: () => (!form.experienceYears && form.experienceYears !== 0) ? { valid: false, error: 'Years of experience is required' } : (isNaN(form.experienceYears) || form.experienceYears < 0 || form.experienceYears > 50) ? { valid: false, error: 'Enter a valid number (0-50)' } : { valid: true }, label: 'Experience' },
       };
 
       Object.entries(fieldConfigs).forEach(([field, config]) => {
@@ -1119,6 +1122,27 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
                     <p className="text-sm text-red-600 mt-1">{errors.cnic}</p>
                   ) : (
                     <p className="text-xs text-gray-500 mt-1">Your CNIC helps us identify your profile and link all your applications</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Years of Experience */}
+              <div className="mt-6 pt-6 border-t border-gray-200">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Total Years of Experience *</label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="50"
+                    value={form.experienceYears}
+                    onChange={e => handleChange('experienceYears', e.target.value)}
+                    onBlur={() => handleBlur('experienceYears')}
+                    placeholder="e.g. 8"
+                    className={`w-full max-w-xs px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition ${touched.experienceYears && errors.experienceYears ? 'border-red-500' : 'border-gray-300'}`}
+                    required
+                  />
+                  {touched.experienceYears && errors.experienceYears && (
+                    <p className="text-sm text-red-600 mt-1">{errors.experienceYears}</p>
                   )}
                 </div>
               </div>
