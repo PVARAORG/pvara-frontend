@@ -18,6 +18,7 @@ import LoginInline from "./LoginInline"; // Import validated LoginInline compone
 import apiClient from "./api/client";
 import TestManagement from "./TestManagement";
 import SettingsPanel from "./SettingsPanel";
+import SystemDashboard from "./SystemDashboard";
 import ContentPage from "./pages/ContentPage";
 import ContentManagementPanel from "./ContentManagementPanel";
 import { OfferManagementPanel, InterviewSchedulingPanel, InterviewFeedbackModal, ExtendOfferModal } from "./AdvancedFeaturesUI";
@@ -48,6 +49,53 @@ function getApplicationTimestamp(application) {
   return Number.isFinite(timestamp) ? timestamp : 0;
 }
 
+function toExternalUrl(value) {
+  if (!value) return "";
+  return /^https?:\/\//i.test(value) ? value : `https://${value}`;
+}
+
+function toAbsoluteUrl(baseUrl, value) {
+  if (!value) return "";
+  if (/^https?:\/\//i.test(value)) return value;
+  if (value.startsWith("/")) return `${baseUrl}${value}`;
+  return `${baseUrl}/${value}`;
+}
+
+function getCandidateCvReference(candidate) {
+  const cvValue = candidate?.applicant?.cv || candidate?.cv || "";
+  if (!cvValue || cvValue === "/uploads/default.pdf") {
+    return "";
+  }
+  return cvValue;
+}
+
+function getCvDisplayName(candidate, resolvedUrl) {
+  const cvReference = getCandidateCvReference(candidate);
+  const candidateName = candidate?.applicant?.name || candidate?.name || "CV / Resume";
+  const source = resolvedUrl || cvReference;
+
+  try {
+    const sanitizedSource = source.startsWith("http")
+      ? source
+      : source.startsWith("/")
+        ? `https://placeholder.local${source}`
+        : `https://placeholder.local/${source}`;
+    const parsedUrl = new URL(sanitizedSource);
+    const rawName = parsedUrl.pathname.split("/").pop();
+    if (rawName) {
+      return decodeURIComponent(rawName);
+    }
+  } catch (e) { }
+
+  return `${candidateName} CV`;
+}
+
+function withCacheBust(url) {
+  if (!url) return url;
+  const separator = url.includes("?") ? "&" : "?";
+  return `${url}${separator}ts=${Date.now()}`;
+}
+
 function normalizeApplicant(applicant = {}) {
   return {
     ...applicant,
@@ -58,6 +106,9 @@ function normalizeApplicant(applicant = {}) {
     streetAddress1: applicant.streetAddress1 ?? applicant.street_address1 ?? null,
     streetAddress2: applicant.streetAddress2 ?? applicant.street_address2 ?? null,
     postalCode: applicant.postalCode ?? applicant.postal_code ?? null,
+    linkedin: applicant.linkedin ?? applicant.linkedinUrl ?? applicant.linkedin_url ?? applicant.portfolioLink ?? applicant.portfolio_link ?? null,
+    xProfile: applicant.xProfile ?? applicant.x_profile ?? null,
+    substackUrl: applicant.substackUrl ?? applicant.substack_url ?? null,
     portfolioLink: applicant.portfolioLink ?? applicant.portfolio_link ?? applicant.linkedin ?? null,
     education: Array.isArray(applicant.education) ? applicant.education : [],
     employment: Array.isArray(applicant.employment) ? applicant.employment : [],
@@ -72,6 +123,10 @@ function normalizeApplicationRecord(application = {}) {
     ...application,
     id: application._id || application.id,
     jobId: application.job_id || application.jobId,
+    job: application.job || null,
+    jobTitle: application.jobTitle || application.job?.title || null,
+    jobDepartment: application.jobDepartment || application.job?.department || null,
+    jobEmploymentType: application.jobEmploymentType || application.job?.employmentType || null,
     applicant,
     status: application.status || "submitted",
     aiScore: application.ai_score ?? application.aiScore,
@@ -146,7 +201,9 @@ function buildCandidateProfileFromApplications(applications = [], seed = {}) {
     emails: Array.from(emailSet),
     applications: sortedApplications.map((application) => application.id),
     address: latestApplicant.address || seed.address || "",
-    linkedin: latestApplicant.linkedin || latestApplicant.portfolioLink || seed.linkedin || "",
+    linkedin: latestApplicant.linkedin || seed.linkedin || "",
+    xProfile: latestApplicant.xProfile || seed.xProfile || "",
+    substackUrl: latestApplicant.substackUrl || seed.substackUrl || "",
     createdAt: seed.createdAt || createdAtValues[0] || new Date().toISOString(),
     updatedAt: updatedAtValues[updatedAtValues.length - 1] || seed.updatedAt || new Date().toISOString(),
   };
@@ -189,8 +246,10 @@ function buildApplicantPayload(data = {}) {
     state: data.state || null,
     postalCode: data.postalCode || null,
     address: data.address || addressParts.join(", ") || null,
-    linkedin: data.linkedin || data.portfolioLink || null,
-    portfolioLink: data.portfolioLink || data.linkedin || null,
+    linkedin: data.linkedinUrl || data.linkedin || null,
+    xProfile: data.xProfile || null,
+    substackUrl: data.substackUrl || null,
+    portfolioLink: data.portfolioLink || null,
     education: Array.isArray(data.education)
       ? data.education.map((item) => ({
         school: item.school || "",
@@ -274,7 +333,7 @@ function CandidateProfileModal({ open, candidate, onClose, jobs }) {
   const [cvExists, setCvExists] = React.useState(null); // null = loading, true/false = result
   const [cvUrl, setCvUrl] = React.useState(null);
 
-  const apiUrl = process.env.REACT_APP_API_URL || "https://backend.pvara.team";
+  const apiUrl = process.env.REACT_APP_API_URL || "https://portal-be.paicc.tech";
 
   // Check if CV exists when modal opens
   React.useEffect(() => {
@@ -283,6 +342,36 @@ function CandidateProfileModal({ open, candidate, onClose, jobs }) {
       setCvUrl(null);
       return;
     }
+
+    const resolveStoredCv = async (cvReference) => {
+      if (!cvReference) return null;
+
+      if (/^https?:\/\//i.test(cvReference)) {
+        return cvReference;
+      }
+
+      if (cvReference.startsWith("/api/upload/cv-url/")) {
+        try {
+          const response = await fetch(withCacheBust(`${apiUrl}${cvReference}`));
+          if (response.ok) {
+            const data = await response.json();
+            if (data?.success && data?.url) {
+              return data.url.startsWith("http") ? data.url : `${apiUrl}${data.url}`;
+            }
+          }
+        } catch (e) { }
+        return null;
+      }
+
+      if (
+        cvReference.startsWith("/uploads/") ||
+        cvReference.startsWith("/api/upload/files/")
+      ) {
+        return toAbsoluteUrl(apiUrl, cvReference);
+      }
+
+      return null;
+    };
 
     const cnic = candidate.applicant.cnic;
     const cleanCnic = cnic.replace(/-/g, '');
@@ -304,12 +393,19 @@ function CandidateProfileModal({ open, candidate, onClose, jobs }) {
     const checkCvExists = async () => {
       setCvExists(null);
 
+      const storedCvUrl = await resolveStoredCv(getCandidateCvReference(candidate));
+      if (storedCvUrl) {
+        setCvExists(true);
+        setCvUrl(storedCvUrl);
+        return;
+      }
+
       for (const ext of extensions) {
         const filename = `${cleanCnic}_${cleanJobTitle}${ext}`;
 
         // Try cv-url endpoint first (works with S3)
         try {
-          const response = await fetch(`${apiUrl}/api/upload/cv-url/${filename}`);
+          const response = await fetch(withCacheBust(`${apiUrl}/api/upload/cv-url/${filename}`));
           if (response.ok) {
             const data = await response.json();
             if (data.success && data.url) {
@@ -340,6 +436,11 @@ function CandidateProfileModal({ open, candidate, onClose, jobs }) {
 
   if (!open || !candidate) return null;
   const c = candidate;
+  const socialLinks = [
+    { label: "LinkedIn", value: c.applicant?.linkedin || c.linkedin },
+    { label: "X", value: c.applicant?.xProfile || c.xProfile },
+    { label: "Substack", value: c.applicant?.substackUrl || c.substackUrl },
+  ];
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={onClose}>
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
@@ -376,7 +477,25 @@ function CandidateProfileModal({ open, candidate, onClose, jobs }) {
                 <div className="grid grid-cols-3 gap-2"><dt className="text-gray-500">Phone</dt><dd className="col-span-2 font-medium">{c.applicant?.phone || '-'}</dd></div>
                 <div className="grid grid-cols-3 gap-2"><dt className="text-gray-500">CNIC</dt><dd className="col-span-2 font-medium">{c.applicant?.cnic || '-'}</dd></div>
                 <div className="grid grid-cols-3 gap-2"><dt className="text-gray-500">Address</dt><dd className="col-span-2 font-medium">{c.applicant?.address || '-'}</dd></div>
-                <div className="grid grid-cols-3 gap-2"><dt className="text-gray-500">LinkedIn</dt><dd className="col-span-2 font-medium text-blue-600 truncate">{c.applicant?.linkedin || '-'}</dd></div>
+                {socialLinks.map((link) => (
+                  <div key={link.label} className="grid grid-cols-3 gap-2">
+                    <dt className="text-gray-500">{link.label}</dt>
+                    <dd className="col-span-2 font-medium truncate">
+                      {link.value ? (
+                        <a
+                          href={toExternalUrl(link.value)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:text-blue-700 hover:underline"
+                        >
+                          {link.value}
+                        </a>
+                      ) : (
+                        "-"
+                      )}
+                    </dd>
+                  </div>
+                ))}
               </div>
             </section>
 
@@ -403,7 +522,7 @@ function CandidateProfileModal({ open, candidate, onClose, jobs }) {
                       </svg>
                       <div className="flex-1">
                         <div className="font-medium text-gray-900">CV / Resume</div>
-                        <div className="text-xs text-gray-500">{c.applicant?.cnic?.replace(/-/g, '')}.pdf</div>
+                        <div className="text-xs text-gray-500">{getCvDisplayName(c, cvUrl)}</div>
                       </div>
                     </div>
                     <div className="flex gap-2">
@@ -1229,7 +1348,11 @@ function PvaraPhase2() {
     setSuccessModal({ open: true, title: "AI Evaluation Complete!", message: `Successfully evaluated ${unevaluatedCount} application(s).` });
   }, [state.applications, state.jobs, user, addToast]);
 
-  const [view, setView] = useState("jobs");
+  const [view, setView] = useState(() => {
+    const hash = window.location.hash.replace('#', '');
+    if (hash === 'staff') return 'staff-login';
+    return 'jobs';
+  });
   const [selectedJobId, setSelectedJobId] = useState(null);
   const [editingJobId, setEditingJobId] = useState(null);
   const [jobForm, setJobForm] = useState(emptyJobForm);
@@ -1243,6 +1366,8 @@ function PvaraPhase2() {
     experienceYears: "",
     address: "",
     linkedin: "",
+    xProfile: "",
+    substackUrl: "",
   });
   const fileRef = useRef(null);
   const [confirm, setConfirm] = useState({ open: false, title: "", message: "", onConfirm: null });
@@ -1501,7 +1626,7 @@ function PvaraPhase2() {
   }, [addToast, audit]); // eslint-disable-line react-hooks/exhaustive-deps
 
 
-  function submitApplication(formData) {
+  async function submitApplication(formData) {
     // Handle both event (from internal form) and form data (from ApplicationForm component)
     if (formData && typeof formData.preventDefault === 'function') {
       formData.preventDefault();
@@ -1532,14 +1657,16 @@ function PvaraPhase2() {
         experienceYears: applicantData.experienceYears ||
           (primaryEmployment.startYear ? new Date().getFullYear() - parseInt(primaryEmployment.startYear) : 0),
         address: applicantData.address || computedAddress || `${applicantData.city || ''}, ${applicantData.state || ''}`.trim(),
-        linkedin: applicantData.portfolioLink || applicantData.linkedin || '',
+        linkedin: applicantData.linkedinUrl || applicantData.linkedin || '',
+        xProfile: applicantData.xProfile || '',
+        substackUrl: applicantData.substackUrl || '',
       };
     }
 
     const job = (state.jobs || []).find((j) => j.id === applicantData.jobId);
     if (!job) {
       addToast("Select job", { type: "error" });
-      return;
+      return false;
     }
 
     const errs = [];
@@ -1557,21 +1684,22 @@ function PvaraPhase2() {
         open: true,
         title: "Validation",
         message: errs.join("\n") + "\nSubmit anyway?",
-        onConfirm: () => {
-          finalizeApplication(job, files, true, applicantData);
+        onConfirm: async () => {
+          await finalizeApplication(job, files, true, applicantData);
           setConfirm({ open: false, title: "", message: "", onConfirm: null });
         },
       });
-      return;
+      return false;
     }
 
-    finalizeApplication(job, files, false, applicantData);
+    return finalizeApplication(job, files, false, applicantData);
   }
 
   async function finalizeApplication(job, files, manual, applicantData) {
     const data = applicantData || appForm;
     const filesNames = (files || []).map((f) => f.name);
     const serializedApplicant = buildApplicantPayload(data);
+    let submissionSucceeded = false;
 
     // Check if candidate profile exists by CNIC
     const cnic = data.cnic || 'N/A';
@@ -1584,7 +1712,7 @@ function PvaraPhase2() {
       );
       if (existingApp) {
         addToast(`You have already applied to ${job.title}`, { type: "warning" });
-        return;
+        return false;
       }
     }
 
@@ -1595,7 +1723,10 @@ function PvaraPhase2() {
     };
 
     try {
-      const response = await apiClient.post('/applications/', applicationPayload);
+      const requestConfig = data.turnstileToken
+        ? { headers: { 'X-Turnstile-Token': data.turnstileToken } }
+        : undefined;
+      const response = await apiClient.post('/applications/', applicationPayload, requestConfig);
       const backendApp = normalizeApplicationRecord(response.data?.application || {});
       const app = {
         ...backendApp,
@@ -1612,6 +1743,7 @@ function PvaraPhase2() {
       setTimeout(() => {
         setView("my-apps");
       }, 1500);
+      submissionSucceeded = true;
     } catch (err) {
       const responseMessage =
         err.response?.data?.detail?.message ||
@@ -1621,7 +1753,7 @@ function PvaraPhase2() {
       if (err.response) {
         console.error('Application submission rejected:', err.response.data);
         addToast(responseMessage || "Unable to submit this application.", { type: "error" });
-        return;
+        return false;
       }
 
       console.error('Backend sync error:', err);
@@ -1640,11 +1772,13 @@ function PvaraPhase2() {
       setTimeout(() => {
         setView("my-apps");
       }, 1500);
+      submissionSucceeded = true;
     }
 
     // Reset form
-    setAppForm({ jobId: state.jobs[0]?.id || "", name: "", email: "", cnic: "", phone: "", degree: "", experienceYears: "", address: "", linkedin: "" });
+    setAppForm({ jobId: state.jobs[0]?.id || "", name: "", email: "", cnic: "", phone: "", degree: "", experienceYears: "", address: "", linkedin: "", xProfile: "", substackUrl: "" });
     if (fileRef.current) fileRef.current.value = null;
+    return submissionSucceeded;
   }
 
   function updateLocalState(app, cnic, existingCandidate) {
@@ -1677,7 +1811,7 @@ function PvaraPhase2() {
       },
     };
 
-    const apiUrl = process.env.REACT_APP_API_URL || "https://backend.pvara.team";
+    const apiUrl = process.env.REACT_APP_API_URL || "https://portal-be.paicc.tech";
     fetch(`${apiUrl}/api/email/send-template`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -1767,7 +1901,7 @@ function PvaraPhase2() {
           },
         };
 
-        const apiUrl = process.env.REACT_APP_API_URL || "https://backend.pvara.team";
+        const apiUrl = process.env.REACT_APP_API_URL || "https://portal-be.paicc.tech";
         fetch(`${apiUrl}/api/email/send-template`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -1991,7 +2125,7 @@ function PvaraPhase2() {
             <DarkModeToggleIcon />
           </div>
 
-          <nav className={`space-y-1 ${user ? "flex-1 min-h-0" : ""}`}>
+          <nav className="flex-1 space-y-1">
             {/* Public Candidate Portal - Always Visible */}
             <div className="text-xs uppercase font-semibold text-gray-500 px-3 py-2 mb-1">For Candidates</div>
             <button onClick={() => { setView("jobs"); setMobileMenuOpen(false); setSelectedJobId(null); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "jobs" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
@@ -2086,6 +2220,10 @@ function PvaraPhase2() {
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" /><circle cx="12" cy="12" r="3" /></svg>
                   Settings
                 </button>
+                <button onClick={() => { setView("operations"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "operations" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 13h4l3-9 4 16 3-7h4" /></svg>
+                  Operations
+                </button>
                 <button onClick={() => { setView("content-admin"); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 ${view === "content-admin" ? "glass-button text-green-700 shadow-md" : "hover:glass-button"}`}>
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                   Content Management
@@ -2095,7 +2233,7 @@ function PvaraPhase2() {
 
           </nav>
 
-          <div className={`text-xs text-gray-700 ${user ? "mt-4" : "mt-4 border-t border-gray-300/50 pt-4"}`}>
+          <div className="mt-4 text-xs text-gray-700">
             {user ? (
               <div className="mt-auto glass-card p-4 rounded-lg">
                 <div className="flex items-center gap-2 font-medium mb-2">
@@ -2116,17 +2254,7 @@ function PvaraPhase2() {
                   Logout
                 </button>
               </div>
-            ) : (
-              <div className="lg:mt-auto">
-                <LoginInline
-                  onLogin={async (cred) => {
-                    const res = await auth.login(cred);
-                    if (!res.ok) addToast(res.message || "Login failed", { type: 'error' });
-                    else setView("dashboard");
-                  }}
-                />
-              </div>
-            )}
+            ) : null}
           </div>
         </div>
       </>
@@ -2724,21 +2852,7 @@ function PvaraPhase2() {
                   </span>
                   About the Role
                 </h2>
-                <div className="text-gray-600 leading-relaxed text-lg">
-                  {(() => {
-                    const text = job.description;
-                    if (!text) return null;
-                    const lines = text.split('\n').filter(l => l.trim().length > 0);
-                    if (lines.length > 1) {
-                      return <ul className="list-disc list-outside ml-6 space-y-2">{lines.map((l, i) => <li key={i}>{l.replace(/^-/, '').trim()}</li>)}</ul>;
-                    }
-                    const sentences = text.split('. ').filter(s => s.trim().length > 0);
-                    if (sentences.length > 1) {
-                      return <ul className="list-disc list-outside ml-6 space-y-2">{sentences.map((s, i) => <li key={i}>{s.trim() + (s.trim().endsWith('.') ? '' : '.')}</li>)}</ul>;
-                    }
-                    return <p className="whitespace-pre-line">{text}</p>;
-                  })()}
-                </div>
+                <p className="text-gray-600 leading-relaxed text-lg whitespace-pre-line">{job.description}</p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -3135,14 +3249,6 @@ function PvaraPhase2() {
     <div className="flex min-h-screen dark:bg-gray-900 transition-colors">
       <Sidebar />
       <div className="flex-1 flex flex-col min-h-screen p-4 md:p-6 lg:ml-0 pt-16 lg:pt-6 dark:text-gray-100">
-        {!user && (
-          <div
-            className="lg:hidden mb-4 rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 px-4 py-3 text-sm text-green-900 dark:text-green-100"
-            role="status"
-          >
-            <strong>Staff (HR / Admin)?</strong> Tap the menu button <span className="font-semibold">(top-left)</span>, then use <strong>Staff Login</strong> in that panel.
-          </div>
-        )}
         <div className="flex-1">
           {/* Modularized views for maintainability */}
           {view === "jobs" && <JobBoardView />}
@@ -3639,14 +3745,38 @@ function PvaraPhase2() {
               }}
             />
           )}
+          {view === "operations" && <SystemDashboard />}
           {view === "content-admin" && <ContentManagementPanel />}
           {view === "about-us" && <ContentPage slug="about-us" onBack={() => setView("jobs")} />}
           {view === "faq" && <ContentPage slug="faq" onBack={() => setView("jobs")} />}
           {view === "privacy-policy" && <ContentPage slug="privacy-policy" onBack={() => setView("jobs")} />}
           {view === "terms-of-service" && <ContentPage slug="terms-of-service" onBack={() => setView("jobs")} />}
 
+          {/* Staff Login - separate page at /staff */}
+          {view === "staff-login" && !user && (
+            <div className="max-w-md mx-auto mt-8 md:mt-16">
+              <div className="bg-white rounded-2xl shadow-xl p-6 md:p-10 border border-gray-100">
+                <div className="text-center mb-6 md:mb-8">
+                  <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-2xl mb-4">
+                    <svg className="w-8 h-8 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                  </div>
+                  <h1 className="text-2xl font-bold text-gray-800">Staff Portal</h1>
+                  <p className="text-sm text-gray-500 mt-1">Authorized personnel only</p>
+                </div>
+                <LoginInline
+                  onLogin={async (cred) => {
+                    const res = await auth.login(cred);
+                    if (!res.ok) addToast(res.message || "Login failed", { type: 'error' });
+                    else setView("dashboard");
+                  }}
+                />
+              </div>
+            </div>
+          )}
+          {view === "staff-login" && user && (() => { setView("dashboard"); return null; })()}
+
           {/* 404 Not Found fallback */}
-          {!["jobs","dashboard","apply","candidate-login","my-apps","admin","hr","ai-screening","test-management","interview-management","offer-management","analytics","shortlists","audit","settings","content-admin","about-us","faq","privacy-policy","terms-of-service"].includes(view) && (
+          {!["jobs","dashboard","apply","candidate-login","my-apps","admin","hr","ai-screening","test-management","interview-management","offer-management","analytics","shortlists","audit","settings","operations","content-admin","about-us","faq","privacy-policy","terms-of-service","staff-login"].includes(view) && (
             <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
               <div className="text-8xl font-bold text-green-600/20 mb-2">404</div>
               <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-3">Page Not Found</h1>
@@ -3716,20 +3846,27 @@ function PvaraPhase2() {
                 <h3 className="font-semibold text-gray-800 mb-2 md:mb-4 text-sm md:text-base">Quick Links</h3>
                 <ul className="space-y-1.5 md:space-y-2 text-xs md:text-sm">
                   <li><button type="button" onClick={() => setView("jobs")} className="text-gray-600 hover:text-green-700 transition">Browse Jobs</button></li>
-                  <li><button type="button" onClick={() => setView("about-us")} className="text-gray-600 hover:text-green-700 transition">About Us</button></li>
-                  <li><button type="button" onClick={() => setView("jobs")} className="text-gray-600 hover:text-green-700 transition">Careers</button></li>
                   <li><button type="button" onClick={() => setView("apply")} className="text-gray-600 hover:text-green-700 transition">Apply Now</button></li>
+                  <li><button type="button" onClick={() => setView("candidate-login")} className="text-gray-600 hover:text-green-700 transition">Track My Applications</button></li>
                 </ul>
               </div>
 
-              {/* Support */}
+              {/* Contact */}
               <div>
-                <h3 className="font-semibold text-gray-800 mb-2 md:mb-4 text-sm md:text-base">Support</h3>
+                <h3 className="font-semibold text-gray-800 mb-2 md:mb-4 text-sm md:text-base">Contact</h3>
                 <ul className="space-y-1.5 md:space-y-2 text-xs md:text-sm">
-                  <li><button type="button" onClick={() => setView("faq")} className="text-gray-600 hover:text-green-700 transition">FAQ</button></li>
-                  <li><button type="button" onClick={() => setView("privacy-policy")} className="text-gray-600 hover:text-green-700 transition">Privacy Policy</button></li>
-                  <li><button type="button" onClick={() => setView("terms-of-service")} className="text-gray-600 hover:text-green-700 transition">Terms of Service</button></li>
-                  <li><button type="button" onClick={() => setView("about-us")} className="text-gray-600 hover:text-green-700 transition">Contact Us</button></li>
+                  <li className="text-gray-600 flex items-start gap-1.5">
+                    <svg className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                    <span>Office No. 12, Ground Floor, Evacuee Trust Complex, F-5/1, Aga Khan Road, Islamabad</span>
+                  </li>
+                  <li className="text-gray-600 flex items-center gap-1.5">
+                    <svg className="w-3.5 h-3.5 flex-shrink-0 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+                    <span>051-9037100</span>
+                  </li>
+                  <li className="text-gray-600 flex items-center gap-1.5">
+                    <svg className="w-3.5 h-3.5 flex-shrink-0 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064" /></svg>
+                    <a href="https://pvara.gov.pk" target="_blank" rel="noopener noreferrer" className="hover:text-green-700 transition">pvara.gov.pk</a>
+                  </li>
                 </ul>
               </div>
             </div>

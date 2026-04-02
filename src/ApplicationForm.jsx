@@ -1,4 +1,5 @@
 import React from "react";
+import TurnstileWidget from "./components/TurnstileWidget";
 import {
   validateEmail,
   validatePhone,
@@ -40,10 +41,13 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
     // Skills
     skills: [],
     skillInput: "",
-    // Languages
-    languages: [{ language: "", proficiency: "Fluent" }],
+    // Certifications
+    certifications: [],
     // Additional
     coverLetter: "",
+    linkedinUrl: "",
+    xProfile: "",
+    substackUrl: "",
     portfolioLink: "",
   });
   const [errors, setErrors] = React.useState({});
@@ -55,7 +59,15 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
   const [showValidationPopup, setShowValidationPopup] = React.useState(false);
   const [validationPopupErrors, setValidationPopupErrors] = React.useState([]);
   const [showSubmitConfirm, setShowSubmitConfirm] = React.useState(false);
+  const [extractTurnstileToken, setExtractTurnstileToken] = React.useState("");
+  const [submitTurnstileToken, setSubmitTurnstileToken] = React.useState("");
+  const [extractVerificationError, setExtractVerificationError] = React.useState("");
+  const [submitVerificationError, setSubmitVerificationError] = React.useState("");
+  const [extractTurnstileResetKey, setExtractTurnstileResetKey] = React.useState(0);
+  const [submitTurnstileResetKey, setSubmitTurnstileResetKey] = React.useState(0);
   const advancingRef = React.useRef(false);
+  const turnstileSiteKey = process.env.REACT_APP_TURNSTILE_SITE_KEY || "";
+  const turnstileEnabled = Boolean(turnstileSiteKey);
 
   // Language options for dropdown
   const LANGUAGE_OPTIONS = [
@@ -73,10 +85,6 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
       icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
     },
     {
-      name: "Self-Disclosure",
-      icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-    },
-    {
       name: "Review & Submit",
       icon: <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
     },
@@ -89,6 +97,24 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
     }
   }, [selectedJobId]);
 
+  React.useEffect(() => {
+    if (currentStep !== steps.length - 1 && submitTurnstileToken) {
+      setSubmitTurnstileToken("");
+      setSubmitVerificationError("");
+      setSubmitTurnstileResetKey((value) => value + 1);
+    }
+  }, [currentStep, submitTurnstileToken, steps.length]);
+
+  function refreshExtractTurnstile() {
+    setExtractTurnstileToken("");
+    setExtractTurnstileResetKey((value) => value + 1);
+  }
+
+  function refreshSubmitTurnstile() {
+    setSubmitTurnstileToken("");
+    setSubmitTurnstileResetKey((value) => value + 1);
+  }
+
   function handleChange(field, value) {
     setForm((prev) => ({ ...prev, [field]: value }));
     // Clear error when user starts typing
@@ -99,8 +125,15 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
 
   // Step 0: Store CV locally and extract data (NO upload yet - CNIC not known)
   async function extractAndUploadCV(file) {
+    if (turnstileEnabled && !extractTurnstileToken) {
+      setErrors(prev => ({ ...prev, cvFile: "Complete the human verification before AI analyzes your CV." }));
+      setExtractVerificationError("Complete the human verification before AI analyzes your CV.");
+      return;
+    }
+
     setIsExtracting(true);
     setErrors(prev => ({ ...prev, cvFile: null }));
+    setExtractVerificationError("");
 
     // Store file locally (NOT uploaded yet)
     setForm(prev => ({
@@ -116,8 +149,11 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
     try {
       const formData = new FormData();
       formData.append('cv', file);
+      if (turnstileEnabled && extractTurnstileToken) {
+        formData.append('cf-turnstile-response', extractTurnstileToken);
+      }
 
-      const apiUrl = process.env.REACT_APP_API_URL || 'https://backend.pvara.team';
+      const apiUrl = process.env.REACT_APP_API_URL || 'https://portal-be.paicc.tech';
       // Use extract endpoint without CNIC - file will be temporary
       const response = await fetch(`${apiUrl}/api/upload/cv/extract`, {
         method: 'POST',
@@ -125,7 +161,17 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
       });
 
       if (!response.ok) {
-        console.error('CV extraction failed with status:', response.status);
+        const errorBody = await response.json().catch(() => null);
+        const errorMessage =
+          errorBody?.detail?.message ||
+          errorBody?.message ||
+          'Unable to analyze your CV right now.';
+        console.error('CV extraction failed with status:', response.status, errorBody);
+        if (/verification/i.test(errorMessage)) {
+          setExtractVerificationError(errorMessage);
+        } else {
+          setErrors(prev => ({ ...prev, cvFile: errorMessage }));
+        }
         return;
       }
 
@@ -146,7 +192,11 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
       }
     } catch (error) {
       console.error('CV extraction error:', error);
+      setExtractVerificationError("Unable to verify your request right now. Please try again.");
     } finally {
+      if (turnstileEnabled) {
+        refreshExtractTurnstile();
+      }
       setIsExtracting(false);
     }
   }
@@ -170,7 +220,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
       console.log('DEBUG uploadCVWithCNIC - selectedJob:', selectedJob?.title);
       const jobTitle = selectedJob?.title || '';
 
-      const apiUrl = process.env.REACT_APP_API_URL || 'https://backend.pvara.team';
+      const apiUrl = process.env.REACT_APP_API_URL || 'https://portal-be.paicc.tech';
       formData.append('cnic', cleanCnic);
       formData.append('job_title', jobTitle);
       const response = await fetch(`${apiUrl}/api/upload/cv`, {
@@ -217,7 +267,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
     if (currentData.city) updates.city = currentData.city;
     if (currentData.state) updates.state = currentData.state;
     if (currentData.country) updates.country = currentData.country;
-    if (currentData.linkedinUrl) updates.portfolioLink = currentData.linkedinUrl;
+    if (currentData.linkedinUrl) updates.linkedinUrl = currentData.linkedinUrl;
 
     // Skills - combine all skills
     const allSkills = [
@@ -340,11 +390,14 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
         validation = validateTextLength(value, { min: 2, max: 100, required: true, fieldName: field === 'city' ? 'City' : 'State' });
         break;
       case 'postalCode':
-        validation = validatePostalCode(value, false);
+        validation = validatePostalCode(value, true);
         break;
       case 'coverLetter':
         validation = validateTextLength(value, { max: 2000, fieldName: 'Cover letter' });
         break;
+      case 'linkedinUrl':
+      case 'xProfile':
+      case 'substackUrl':
       case 'portfolioLink':
         validation = validateURL(value, false);
         break;
@@ -381,7 +434,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
         cnic: { validator: () => validateCNIC(form.cnic), label: 'CNIC' },
         city: { validator: () => validateTextLength(form.city, { min: 2, max: 100, required: true, fieldName: 'City' }), label: 'City' },
         state: { validator: () => validateTextLength(form.state, { min: 2, max: 100, required: true, fieldName: 'State' }), label: 'State' },
-        postalCode: { validator: () => validatePostalCode(form.postalCode, false), label: 'Postal Code' },
+        postalCode: { validator: () => validatePostalCode(form.postalCode, true), label: 'Postal Code' },
       };
 
       Object.entries(fieldConfigs).forEach(([field, config]) => {
@@ -433,6 +486,27 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
         const validation = validateURL(form.portfolioLink, false);
         if (!validation.isValid) {
           stepErrors.portfolioLink = validation.error;
+          isValid = false;
+        }
+      }
+      if (form.linkedinUrl) {
+        const validation = validateURL(form.linkedinUrl, false);
+        if (!validation.isValid) {
+          stepErrors.linkedinUrl = validation.error;
+          isValid = false;
+        }
+      }
+      if (form.xProfile) {
+        const validation = validateURL(form.xProfile, false);
+        if (!validation.isValid) {
+          stepErrors.xProfile = validation.error;
+          isValid = false;
+        }
+      }
+      if (form.substackUrl) {
+        const validation = validateURL(form.substackUrl, false);
+        if (!validation.isValid) {
+          stepErrors.substackUrl = validation.error;
           isValid = false;
         }
       }
@@ -511,13 +585,26 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
   }
 
   function handleSubmitClick() {
+    if (turnstileEnabled && !submitTurnstileToken) {
+      setSubmitVerificationError("Complete the human verification before submitting your application.");
+      return;
+    }
+
     // Show confirmation before submitting
     setShowSubmitConfirm(true);
   }
 
-  function confirmSubmit() {
+  async function confirmSubmit() {
+    if (turnstileEnabled && !submitTurnstileToken) {
+      setSubmitVerificationError("Complete the human verification before submitting your application.");
+      return;
+    }
+
     setShowSubmitConfirm(false);
-    onSubmit(form);
+    await Promise.resolve(onSubmit({ ...form, turnstileToken: submitTurnstileToken }));
+    if (turnstileEnabled) {
+      refreshSubmitTurnstile();
+    }
   }
 
   async function nextStep() {
@@ -644,21 +731,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
                   {jobs.find(j => j.id === form.jobId) && (
                     <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                       <h3 className="font-semibold text-blue-900 mb-2">{jobs.find(j => j.id === form.jobId).title}</h3>
-                      <div className="text-sm text-blue-700">
-                        {(() => {
-                          const text = jobs.find(j => j.id === form.jobId).description;
-                          if (!text) return null;
-                          const lines = text.split('\n').filter(l => l.trim().length > 0);
-                          if (lines.length > 1) {
-                            return <ul className="list-disc list-outside ml-4 space-y-1">{lines.map((l, i) => <li key={i}>{l.replace(/^-/, '').trim()}</li>)}</ul>;
-                          }
-                          const sentences = text.split('. ').filter(s => s.trim().length > 0);
-                          if (sentences.length > 1) {
-                            return <ul className="list-disc list-outside ml-4 space-y-1">{sentences.map((s, i) => <li key={i}>{s.trim() + (s.trim().endsWith('.') ? '' : '.')}</li>)}</ul>;
-                          }
-                          return <p>{text}</p>;
-                        })()}
-                      </div>
+                      <p className="text-sm text-blue-700">{jobs.find(j => j.id === form.jobId).description}</p>
                       <div className="mt-3 flex flex-wrap gap-3 text-xs">
                         <span className="flex items-center gap-1 px-2 py-1 bg-blue-100 rounded-full text-blue-700">
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -694,6 +767,35 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
                 <span className="ml-2 px-2 py-1 bg-red-100 text-red-700 text-xs font-bold rounded-full">REQUIRED</span>
               </h2>
               <p className="text-gray-600 mb-6">Please upload your CV/Resume. Accepted formats: PDF, DOC, DOCX (Max 5MB)</p>
+
+              {turnstileEnabled && (
+                <div className="mb-6 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                  <p className="text-sm font-medium text-slate-800">Human verification is required before CV analysis.</p>
+                  <p className="mt-1 text-sm text-slate-600">This protects AI CV extraction from automated abuse.</p>
+                  <div className="mt-4">
+                    <TurnstileWidget
+                      siteKey={turnstileSiteKey}
+                      action="cv_extract"
+                      resetKey={extractTurnstileResetKey}
+                      onVerify={(token) => {
+                        setExtractTurnstileToken(token);
+                        setExtractVerificationError("");
+                      }}
+                      onExpire={() => {
+                        setExtractTurnstileToken("");
+                        setExtractVerificationError("Verification expired. Please complete it again before analyzing your CV.");
+                      }}
+                      onError={(message) => {
+                        setExtractTurnstileToken("");
+                        setExtractVerificationError(message);
+                      }}
+                    />
+                  </div>
+                  {extractVerificationError && (
+                    <p className="mt-3 text-sm text-red-600">{extractVerificationError}</p>
+                  )}
+                </div>
+              )}
 
               {/* Drag and Drop Zone */}
               <div
@@ -1013,12 +1115,94 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
                 </div>
               </div>
 
+              {/* Social Links */}
+              <div className="mt-6 pt-6 border-t border-gray-200">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">LinkedIn Profile <span className="font-normal text-gray-400">(Optional)</span></label>
+                    <input
+                      type="url"
+                      value={form.linkedinUrl || ""}
+                      onChange={e => handleChange('linkedinUrl', e.target.value)}
+                      onBlur={() => handleBlur('linkedinUrl')}
+                      placeholder="https://linkedin.com/in/your-profile"
+                      className={getInputClassName('linkedinUrl')}
+                    />
+                    {touched.linkedinUrl && errors.linkedinUrl && (
+                      <p className="text-sm text-red-600 mt-1">{errors.linkedinUrl}</p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">X Profile <span className="font-normal text-gray-400">(Optional)</span></label>
+                    <input
+                      type="url"
+                      value={form.xProfile || ""}
+                      onChange={e => handleChange('xProfile', e.target.value)}
+                      onBlur={() => handleBlur('xProfile')}
+                      placeholder="https://x.com/your-profile"
+                      className={getInputClassName('xProfile')}
+                    />
+                    {touched.xProfile && errors.xProfile && (
+                      <p className="text-sm text-red-600 mt-1">{errors.xProfile}</p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Substack Profile <span className="font-normal text-gray-400">(Optional)</span></label>
+                    <input
+                      type="url"
+                      value={form.substackUrl || ""}
+                      onChange={e => handleChange('substackUrl', e.target.value)}
+                      onBlur={() => handleBlur('substackUrl')}
+                      placeholder="https://your-name.substack.com"
+                      className={getInputClassName('substackUrl')}
+                    />
+                    {touched.substackUrl && errors.substackUrl && (
+                      <p className="text-sm text-red-600 mt-1">{errors.substackUrl}</p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Portfolio / Website <span className="font-normal text-gray-400">(Optional)</span></label>
+                    <input
+                      type="url"
+                      value={form.portfolioLink || ""}
+                      onChange={e => handleChange('portfolioLink', e.target.value)}
+                      onBlur={() => handleBlur('portfolioLink')}
+                      placeholder="https://..."
+                      className={getInputClassName('portfolioLink')}
+                    />
+                    {touched.portfolioLink && errors.portfolioLink && (
+                      <p className="text-sm text-red-600 mt-1">{errors.portfolioLink}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
               <div className="mt-6 pt-6 border-t border-gray-200">
                 <h3 className="text-lg font-semibold text-gray-800 mb-4">Address</h3>
                 <div className="grid grid-cols-1 gap-4">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Country/Region *</label>
-                    <input value={form.country} onChange={e => handleChange('country', e.target.value)} className="w-full px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition" required />
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Country *</label>
+                    <select value={form.country} onChange={e => handleChange('country', e.target.value)} className="w-full px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition" required>
+                      <option value="">Select Country</option>
+                      <option value="Pakistan">Pakistan</option>
+                      <option value="United Arab Emirates">United Arab Emirates</option>
+                      <option value="Saudi Arabia">Saudi Arabia</option>
+                      <option value="United Kingdom">United Kingdom</option>
+                      <option value="United States">United States</option>
+                      <option value="Canada">Canada</option>
+                      <option value="Australia">Australia</option>
+                      <option value="Qatar">Qatar</option>
+                      <option value="Bahrain">Bahrain</option>
+                      <option value="Oman">Oman</option>
+                      <option value="Kuwait">Kuwait</option>
+                      <option value="Malaysia">Malaysia</option>
+                      <option value="Singapore">Singapore</option>
+                      <option value="Turkey">Turkey</option>
+                      <option value="Germany">Germany</option>
+                      <option value="China">China</option>
+                      <option value="India">India</option>
+                      <option value="Other">Other</option>
+                    </select>
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">Street Address 1</label>
@@ -1062,6 +1246,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
                         onChange={e => handleChange('postalCode', e.target.value)}
                         onBlur={() => handleBlur('postalCode')}
                         className={getInputClassName('postalCode')}
+                        required
                       />
                       {touched.postalCode && errors.postalCode && (
                         <p className="text-sm text-red-600 mt-1">{errors.postalCode}</p>
@@ -1105,11 +1290,17 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
                       <label className="block text-sm font-semibold text-gray-700 mb-2">Degree *</label>
                       <select value={edu.degree} onChange={e => handleArrayChange('education', index, 'degree', e.target.value)} className="w-full px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition" required>
                         <option value="">Select Degree</option>
-                        <option value="High School">High School</option>
+                        <option value="SSC/Matric">SSC / Matric</option>
+                        <option value="HSSC/Intermediate">HSSC / Intermediate</option>
+                        <option value="Diploma">Diploma</option>
                         <option value="Associate's">Associate's Degree</option>
                         <option value="Bachelor's">Bachelor's Degree</option>
+                        <option value="Equivalent to Bachelor's">Equivalent to Bachelor's</option>
                         <option value="Master's">Master's Degree</option>
-                        <option value="Doctorate">Doctorate</option>
+                        <option value="Equivalent to Master's">Equivalent to Master's</option>
+                        <option value="MPhil/MS">MPhil / MS</option>
+                        <option value="Doctorate">Doctorate / PhD</option>
+                        <option value="Post Doctorate">Post Doctorate</option>
                       </select>
                     </div>
                     <div className="flex items-center gap-4 mt-8">
@@ -1255,100 +1446,52 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
               </div>
             </div>
 
-            {/* Languages */}
+            {/* Certifications (Optional) */}
             <div className="bg-white rounded-lg shadow-md p-4 md:p-8">
               <h2 className="text-lg md:text-2xl font-bold text-gray-800 mb-4 md:mb-6 flex items-center gap-2 md:gap-3">
                 <svg className="w-5 h-5 md:w-7 md:h-7 text-green-700 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
                 </svg>
-                Languages Spoken
+                Certifications
+                <span className="text-sm font-normal text-gray-400 ml-2">Optional</span>
               </h2>
-              {form.languages.map((lang, index) => (
-                <div key={index} className="mb-3 md:mb-4 p-3 md:p-4 bg-gray-50 rounded-lg border-2 border-gray-200 flex flex-col sm:flex-row sm:items-center gap-3 md:gap-4">
-                  <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+              {(form.certifications || []).map((cert, index) => (
+                <div key={index} className="mb-3 md:mb-4 p-3 md:p-4 bg-gray-50 rounded-lg border-2 border-gray-200">
+                  <div className="flex justify-between items-center mb-3">
+                    <h3 className="font-semibold text-gray-700">Certification {index + 1}</h3>
+                    {(form.certifications || []).length > 1 && (
+                      <button type="button" onClick={() => removeArrayItem('certifications', index)} className="text-red-600 hover:text-red-800 text-sm font-medium">Remove</button>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">Language</label>
-                      <select value={lang.language} onChange={e => handleArrayChange('languages', index, 'language', e.target.value)} className="w-full px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition">
-                        <option value="">Select Language</option>
-                        {LANGUAGE_OPTIONS.map(langOpt => (
-                          <option key={langOpt} value={langOpt}>{langOpt}</option>
-                        ))}
-                      </select>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Certification Name</label>
+                      <input value={cert.name} onChange={e => handleArrayChange('certifications', index, 'name', e.target.value)} placeholder="e.g. CISSP, CFA, PMP" className="w-full px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition" />
                     </div>
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">Proficiency</label>
-                      <select value={lang.proficiency} onChange={e => handleArrayChange('languages', index, 'proficiency', e.target.value)} className="w-full px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition">
-                        <option value="Basic">Basic</option>
-                        <option value="Conversational">Conversational</option>
-                        <option value="Fluent">Fluent</option>
-                        <option value="Native">Native</option>
-                      </select>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Issuing Organization</label>
+                      <input value={cert.issuingOrg} onChange={e => handleArrayChange('certifications', index, 'issuingOrg', e.target.value)} placeholder="e.g. ISC2, CFA Institute" className="w-full px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Year Obtained</label>
+                      <input type="number" min="1990" max="2026" value={cert.year} onChange={e => handleArrayChange('certifications', index, 'year', e.target.value)} placeholder="2024" className="w-full px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Credential ID</label>
+                      <input value={cert.credentialId} onChange={e => handleArrayChange('certifications', index, 'credentialId', e.target.value)} placeholder="Optional" className="w-full px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition" />
                     </div>
                   </div>
-                  {form.languages.length > 1 && (
-                    <button type="button" onClick={() => removeArrayItem('languages', index)} className="text-red-600 hover:text-red-800 text-sm font-medium">
-                      Remove
-                    </button>
-                  )}
                 </div>
               ))}
-              <button type="button" onClick={() => addArrayItem('languages', { language: "", proficiency: "Fluent" })} className="px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 font-medium transition">
-                + Add Language
+              <button type="button" onClick={() => addArrayItem('certifications', { name: "", issuingOrg: "", year: "", credentialId: "" })} className="px-4 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 font-medium transition">
+                + Add Certification
               </button>
             </div>
           </div>
         )}
 
-        {/* Step 2: Self-Disclosure */}
+        {/* Step 2: Review & Submit */}
         {currentStep === 2 && (
-          <div className="bg-white rounded-lg shadow-md p-4 md:p-8">
-            <h2 className="text-lg md:text-2xl font-bold text-gray-800 mb-4 md:mb-6 flex items-center gap-2 md:gap-3">
-              <svg className="w-5 h-5 md:w-7 md:h-7 text-green-700 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-              </svg>
-              Self-Disclosure (Optional)
-            </h2>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Cover Letter</label>
-                <textarea
-                  value={form.coverLetter}
-                  onChange={e => handleChange('coverLetter', e.target.value)}
-                  onBlur={() => handleBlur('coverLetter')}
-                  rows="6"
-                  placeholder="Why are you interested in this position?"
-                  className={getInputClassName('coverLetter')}
-                  maxLength="2000"
-                />
-                <div className="flex justify-between items-center mt-1">
-                  {touched.coverLetter && errors.coverLetter ? (
-                    <p className="text-sm text-red-600">{errors.coverLetter}</p>
-                  ) : (
-                    <span></span>
-                  )}
-                  <p className="text-xs text-gray-500">{form.coverLetter.length}/2000 characters</p>
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Portfolio Link</label>
-                <input
-                  type="url"
-                  value={form.portfolioLink}
-                  onChange={e => handleChange('portfolioLink', e.target.value)}
-                  onBlur={() => handleBlur('portfolioLink')}
-                  placeholder="https://..."
-                  className={getInputClassName('portfolioLink')}
-                />
-                {touched.portfolioLink && errors.portfolioLink && (
-                  <p className="text-sm text-red-600 mt-1">{errors.portfolioLink}</p>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Step 3: Review & Submit */}
-        {currentStep === 3 && (
           <div className="bg-white rounded-lg shadow-md p-4 md:p-8">
             <h2 className="text-lg md:text-2xl font-bold text-gray-800 mb-4 md:mb-6 flex items-center gap-2 md:gap-3">
               <svg className="w-5 h-5 md:w-7 md:h-7 text-green-700 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1388,6 +1531,34 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
                   </div>
                 </div>
               )}
+              {turnstileEnabled && (
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 md:p-6">
+                  <h3 className="font-bold text-base md:text-lg text-slate-900">Final verification</h3>
+                  <p className="mt-1 text-sm text-slate-600">Complete this check before submitting your application.</p>
+                  <div className="mt-4">
+                    <TurnstileWidget
+                      siteKey={turnstileSiteKey}
+                      action="candidate_apply"
+                      resetKey={submitTurnstileResetKey}
+                      onVerify={(token) => {
+                        setSubmitTurnstileToken(token);
+                        setSubmitVerificationError("");
+                      }}
+                      onExpire={() => {
+                        setSubmitTurnstileToken("");
+                        setSubmitVerificationError("Verification expired. Please complete it again before submitting.");
+                      }}
+                      onError={(message) => {
+                        setSubmitTurnstileToken("");
+                        setSubmitVerificationError(message);
+                      }}
+                    />
+                  </div>
+                  {submitVerificationError && (
+                    <p className="mt-3 text-sm text-red-600">{submitVerificationError}</p>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -1418,7 +1589,12 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
             <button
               type="button"
               onClick={handleSubmitClick}
-              className="px-4 py-2 md:px-8 md:py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-bold text-sm md:text-lg transition shadow-lg hover:shadow-xl flex items-center justify-center gap-1 md:gap-2"
+              className={`px-4 py-2 md:px-8 md:py-3 text-white rounded-lg font-bold text-sm md:text-lg transition shadow-lg flex items-center justify-center gap-1 md:gap-2 ${
+                turnstileEnabled && !submitTurnstileToken
+                  ? 'bg-green-400 cursor-not-allowed'
+                  : 'bg-green-600 hover:bg-green-700 hover:shadow-xl'
+              }`}
+              disabled={turnstileEnabled && !submitTurnstileToken}
             >
               <svg className="w-4 h-4 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />

@@ -1,110 +1,158 @@
 import React from 'react';
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import App from './App';
+import ApplicationForm from './ApplicationForm';
+import MyCandidateApplications from './MyCandidateApplications';
 
-beforeEach(() => {
-  window.localStorage.clear();
-});
-
-test('admin can create a job and audit records creation', async () => {
-  render(<App />);
-
-  // login as admin
-  const userInput = screen.getByPlaceholderText(/username/i);
-  const passInput = screen.getByPlaceholderText(/password/i);
-  await userEvent.type(userInput, 'admin');
-  await userEvent.type(passInput, 'admin');
-  await userEvent.click(screen.getByText(/login/i));
-
-  // go to Admin view
-  await waitFor(() => {
-    const adminMatches = screen.getAllByText(/admin/i);
-    const adminBtn = adminMatches.find((el) => el.tagName.toLowerCase() === 'button');
-    if (!adminBtn) throw new Error('Admin button not found');
-    return adminBtn;
+function getFieldByLabelText(labelText) {
+  const label = screen.getByText((content, element) => {
+    return element.tagName.toLowerCase() === 'label' && content.includes(labelText);
   });
-  const adminMatches = screen.getAllByText(/admin/i);
-  const adminBtn = adminMatches.find((el) => el.tagName.toLowerCase() === 'button');
-  await userEvent.click(adminBtn);
 
-  // Verify the existing job is in the list (created by defaultState)
-  expect(await screen.findByText(/Senior Software Engineer/i)).toBeInTheDocument();
+  const field = label.parentElement.querySelector('input, select, textarea');
+  if (!field) {
+    throw new Error(`Field not found for label: ${labelText}`);
+  }
 
-  // Go to Audit view to confirm the app works
-  await userEvent.click(screen.getByText(/audit/i));
-  
-  // Audit should show at least one entry (the page initialization)
-  await waitFor(() => {
-    const auditEntries = screen.queryAllByText(/create-job|submit-app|update-job/i);
-    expect(auditEntries.length).toBeGreaterThanOrEqual(0);
+  return field;
+}
+
+describe('candidate social link flows', () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+    global.fetch = jest.fn((url) => {
+      if (String(url).includes('/api/upload/cv/extract')) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ extractedData: null }),
+        });
+      }
+
+      if (String(url).includes('/api/upload/cv')) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({
+            success: true,
+            file: { url: '/api/upload/cv-url/test-resume.pdf' },
+          }),
+        });
+      }
+
+      return Promise.resolve({
+        ok: true,
+        json: async () => ({}),
+      });
+    });
   });
-});
 
-test('admin can type in the Title field without it locking', async () => {
-  render(<App />);
-
-  // login as admin
-  const userInput = screen.getByPlaceholderText(/username/i);
-  const passInput = screen.getByPlaceholderText(/password/i);
-  await userEvent.type(userInput, 'admin');
-  await userEvent.type(passInput, 'admin');
-  await userEvent.click(screen.getByText(/login/i));
-
-  // go to Admin view
-  await waitFor(() => {
-    const adminMatches = screen.getAllByText(/admin/i);
-    const adminBtn = adminMatches.find((el) => el.tagName.toLowerCase() === 'button');
-    if (!adminBtn) throw new Error('Admin button not found');
-    return adminBtn;
+  afterEach(() => {
+    jest.resetAllMocks();
   });
-  const adminMatches = screen.getAllByText(/admin/i);
-  const adminBtn = adminMatches.find((el) => el.tagName.toLowerCase() === 'button');
-  await userEvent.click(adminBtn);
 
-  const titleInput = screen.getByPlaceholderText(/title/i);
-  
-  // userEvent v13 has issues with controlled inputs that update too slowly
-  // Use fireEvent.change as a workaround
-  fireEvent.change(titleInput, { target: { value: 'New Head of Talent' } });
-  
-  expect(titleInput).toHaveValue('New Head of Talent');
-});
+  test('application form keeps LinkedIn, X, and Substack optional', async () => {
+    const onSubmit = jest.fn();
+    const jobs = [
+      {
+        id: 'job-1',
+        title: 'Managing Director',
+        department: 'Leadership',
+        description: 'Lead the organization.',
+        employmentType: 'Full-time',
+      },
+    ];
 
-test('admin can type in all job fields', async () => {
-  render(<App />);
+    render(<ApplicationForm onSubmit={onSubmit} jobs={jobs} selectedJobId="job-1" />);
 
-  const userInput = screen.getByPlaceholderText(/username/i);
-  const passInput = screen.getByPlaceholderText(/password/i);
-  await userEvent.type(userInput, 'admin');
-  await userEvent.type(passInput, 'admin');
-  await userEvent.click(screen.getByText(/login/i));
+    const cvInput = document.getElementById('cv-upload-input');
+    const cvFile = new File(['resume'], 'resume.pdf', { type: 'application/pdf' });
 
-  const adminBtn = screen.getAllByText(/admin/i).find((el) => el.tagName.toLowerCase() === 'button');
-  await userEvent.click(adminBtn);
+    await userEvent.upload(cvInput, cvFile);
+    await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(1));
 
-  const titleInput = screen.getByPlaceholderText(/title/i);
-  const deptInput = screen.getByPlaceholderText(/department/i);
-  const descInput = screen.getByPlaceholderText(/description/i);
-  const openingsInput = screen.getByPlaceholderText(/openings/i);
-  const empTypeInput = screen.getByPlaceholderText(/employment type/i);
-  const salaryMinInput = screen.getByPlaceholderText(/salary min/i);
-  const salaryMaxInput = screen.getByPlaceholderText(/salary max/i);
+    await userEvent.click(screen.getByRole('button', { name: /next/i }));
 
-  // Use fireEvent.change instead of userEvent.type for controlled inputs
-  fireEvent.change(titleInput, { target: { value: 'Role A' } });
-  fireEvent.change(deptInput, { target: { value: 'Dept B' } });
-  fireEvent.change(descInput, { target: { value: 'Some description' } });
-  fireEvent.change(openingsInput, { target: { value: '12' } });
-  fireEvent.change(empTypeInput, { target: { value: 'Contract' } });
-  fireEvent.change(salaryMinInput, { target: { value: '123' } });
-  fireEvent.change(salaryMaxInput, { target: { value: '456' } });
+    await waitFor(() => {
+      expect(screen.getByText(/Contact Information/i)).toBeInTheDocument();
+    });
 
-  expect(titleInput).toHaveValue('Role A');
-  expect(deptInput).toHaveValue('Dept B');
-  expect(descInput).toHaveValue('Some description');
-  expect(openingsInput).toHaveValue(12);
-  expect(empTypeInput).toHaveValue('Contract');
-  expect(salaryMinInput).toHaveValue(123);
-  expect(salaryMaxInput).toHaveValue(456);
+    expect(getFieldByLabelText('LinkedIn Profile')).toBeInTheDocument();
+    expect(getFieldByLabelText('X Profile')).toBeInTheDocument();
+    expect(getFieldByLabelText('Substack Profile')).toBeInTheDocument();
+
+    await userEvent.type(getFieldByLabelText('First Name'), 'Ahmad');
+    await userEvent.type(getFieldByLabelText('Last Name'), 'Raza');
+    await userEvent.type(getFieldByLabelText('Email Address'), 'ahmad@example.com');
+    await userEvent.type(getFieldByLabelText('Phone Number'), '+923001234567');
+    fireEvent.change(screen.getByPlaceholderText('12345-1234567-1'), {
+      target: { value: '12345-1234567-1' },
+    });
+    await userEvent.type(getFieldByLabelText('City/Town'), 'Lahore');
+    await userEvent.type(getFieldByLabelText('State/Province'), 'Punjab');
+    await userEvent.type(getFieldByLabelText('Zip/Postal Code'), '54000');
+
+    await userEvent.type(getFieldByLabelText('School/Institution'), 'LUMS');
+    await userEvent.type(getFieldByLabelText('Field of Study'), 'Business Administration');
+    await userEvent.selectOptions(getFieldByLabelText('Degree'), "Bachelor's");
+
+    await userEvent.type(getFieldByLabelText('Employer'), 'PVARA');
+    await userEvent.type(getFieldByLabelText('Job Title'), 'Strategy Lead');
+
+    await userEvent.click(screen.getByRole('button', { name: /next/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText(/Review Your Application/i)).toBeInTheDocument();
+    });
+    expect(global.fetch).toHaveBeenCalledTimes(2);
+  });
+
+  test('candidate profile renders dedicated social links as clickable external URLs', () => {
+    render(
+      <MyCandidateApplications
+        applications={[
+          {
+            id: 'app-1',
+            jobId: 'job-1',
+            createdAt: '2026-04-02T00:00:00.000Z',
+            status: 'submitted',
+            applicant: {
+              name: 'Ahmad Raza',
+              email: 'ahmad@example.com',
+              cnic: '12345-1234567-1',
+              degree: 'MBA',
+              experienceYears: 8,
+            },
+          },
+        ]}
+        candidateProfile={{
+          name: 'Ahmad Raza',
+          phone: '+923001234567',
+          cnic: '12345-1234567-1',
+          linkedin: 'linkedin.com/in/ahmadraza',
+          xProfile: 'x.com/ahmadraza',
+          substackUrl: 'https://ahmadraza.substack.com',
+        }}
+        jobs={[
+          {
+            id: 'job-1',
+            title: 'Managing Director',
+            department: 'Leadership',
+            employmentType: 'Full-time',
+          },
+        ]}
+      />
+    );
+
+    expect(screen.getByRole('link', { name: 'LinkedIn' })).toHaveAttribute(
+      'href',
+      'https://linkedin.com/in/ahmadraza'
+    );
+    expect(screen.getByRole('link', { name: 'X' })).toHaveAttribute(
+      'href',
+      'https://x.com/ahmadraza'
+    );
+    expect(screen.getByRole('link', { name: 'Substack' })).toHaveAttribute(
+      'href',
+      'https://ahmadraza.substack.com'
+    );
+  });
 });

@@ -1,27 +1,14 @@
 import React from "react";
 
+function toExternalUrl(value) {
+  if (!value) return "";
+  return /^https?:\/\//i.test(value) ? value : `https://${value}`;
+}
+
 /**
  * Candidate's view of their own applications (read-only)
  * Filters by CNIC to show all applications regardless of email used
  */
-
-const STEPS = [
-  { label: 'Submitted', description: 'Application received' },
-  { label: 'In Review', description: 'HR & AI evaluation' },
-  { label: 'Assessment', description: 'Skills & compatibility' },
-  { label: 'Interview', description: 'Team fit' },
-  { label: 'Decision', description: 'Offer or decline' }
-];
-
-const getStageIndex = (status) => {
-  if (['rejected'].includes(status)) return 4;
-  if (['offer', 'hired'].includes(status)) return 4;
-  if (['interview', 'interview-complete', 'phone-interview', 'interviewed'].includes(status)) return 3;
-  if (['testing', 'testing-complete'].includes(status)) return 2;
-  if (['hr-review', 'screening', 'ai-reviewed', 'shortlisted', 'manual-review'].includes(status)) return 1;
-  return 0; // submitted or fallback
-};
-
 const MyCandidateApplications = ({ applications, candidateProfile, jobs }) => {
   // Filter to show only this candidate's applications (by CNIC)
   const myApplications = (applications || []).filter(
@@ -30,6 +17,11 @@ const MyCandidateApplications = ({ applications, candidateProfile, jobs }) => {
   
   // Get unique emails used across applications
   const emailsUsed = [...new Set(myApplications.map(app => app.applicant?.email).filter(Boolean))];
+  const profileLinks = [
+    { label: "LinkedIn", value: candidateProfile?.linkedin },
+    { label: "X", value: candidateProfile?.xProfile },
+    { label: "Substack", value: candidateProfile?.substackUrl },
+  ].filter((item) => item.value);
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -60,6 +52,21 @@ const MyCandidateApplications = ({ applications, candidateProfile, jobs }) => {
                     {emailsUsed.join(", ")}
                   </p>
                 )}
+                {profileLinks.length > 0 && (
+                  <div className="flex flex-wrap gap-2 pt-2">
+                    {profileLinks.map((link) => (
+                      <a
+                        key={link.label}
+                        href={toExternalUrl(link.value)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center rounded-full bg-white/15 px-3 py-1 text-sm font-medium text-white hover:bg-white/25"
+                      >
+                        {link.label}
+                      </a>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
             <div className="text-right">
@@ -86,16 +93,20 @@ const MyCandidateApplications = ({ applications, candidateProfile, jobs }) => {
       ) : (
         <div className="space-y-4">
           {myApplications.map((app) => {
-            const job = (jobs || []).find(j => j.id === app.jobId);
+            const job = app.job || (jobs || []).find(j => j.id === app.jobId);
+            const jobTitle = app.jobTitle || job?.title || `Job #${app.jobId?.substring(0, 8)}`;
+            const jobMeta = [app.jobDepartment || job?.department, app.jobEmploymentType || job?.employmentType]
+              .filter(Boolean)
+              .join(" • ");
             return (
             <div key={app.id} className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition">
               <div className="flex justify-between items-start mb-4">
                 <div>
                   <h3 className="text-lg font-semibold text-gray-800">
-                    {job ? job.title : `Job #${app.jobId?.substring(0, 8)}`}
+                    {jobTitle}
                   </h3>
-                  {job && (
-                    <p className="text-sm text-gray-600 mt-1">{job.department} • {job.employmentType}</p>
+                  {jobMeta && (
+                    <p className="text-sm text-gray-600 mt-1">{jobMeta}</p>
                   )}
                   <p className="text-xs text-gray-500 mt-1">
                     Applied on {new Date(app.createdAt).toLocaleDateString('en-US', { 
@@ -139,42 +150,6 @@ const MyCandidateApplications = ({ applications, candidateProfile, jobs }) => {
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Experience</p>
                   <p className="font-medium text-gray-800">{app.applicant?.experienceYears || 0} years</p>
-                </div>
-              </div>
-
-              {/* Application Timeline Tracker */}
-              <div className="mt-8 mb-12 px-4 sm:px-8">
-                <div className="relative flex items-center justify-between w-full">
-                  <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-full h-1 bg-gray-200 rounded"></div>
-                  <div 
-                    className={`absolute left-0 top-1/2 transform -translate-y-1/2 h-1 rounded ${app.status === 'rejected' ? 'bg-red-500' : 'bg-green-500'} transition-all duration-500`} 
-                    style={{ width: `${(getStageIndex(app.status) / (STEPS.length - 1)) * 100}%` }}
-                  ></div>
-                  
-                  {STEPS.map((step, idx) => {
-                    const currentStage = getStageIndex(app.status);
-                    const isCompleted = idx < currentStage;
-                    const isActive = idx === currentStage;
-                    const isError = isActive && app.status === 'rejected';
-                    
-                    return (
-                      <div key={idx} className="relative z-10 flex flex-col items-center">
-                        <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full border-4 flex items-center justify-center bg-white ${isError ? 'border-red-500 text-red-500' : isActive ? 'border-green-600 text-green-600 shadow-[0_0_10px_rgba(22,163,74,0.4)]' : isCompleted ? 'border-green-500 bg-green-500 text-white' : 'border-gray-200 text-gray-400'}`}>
-                          {isCompleted ? (
-                            <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
-                          ) : isError ? (
-                            <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" /></svg>
-                          ) : (
-                            <span className="text-xs md:text-sm font-bold">{idx + 1}</span>
-                          )}
-                        </div>
-                        <div className="mt-2 text-center absolute top-10 md:top-12 w-24 md:w-32 -ml-8 md:-ml-11">
-                          <p className={`text-[10px] md:text-xs font-bold leading-tight ${isError ? 'text-red-600' : isActive ? 'text-green-700' : isCompleted ? 'text-gray-800' : 'text-gray-400'}`}>{step.label}</p>
-                          <p className={`hidden md:block text-[9px] mt-0.5 ${isError ? 'text-red-400' : isActive ? 'text-green-600' : isCompleted ? 'text-gray-500' : 'text-gray-300'}`}>{step.description}</p>
-                        </div>
-                      </div>
-                    );
-                  })}
                 </div>
               </div>
 
