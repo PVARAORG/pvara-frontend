@@ -2697,6 +2697,101 @@ function PvaraPhase2() {
   // Advanced Features View Functions removed (undefined components)
 
   // Public Job Board View
+  function FeatureToggles({ addToast }) {
+    const [toggles, setToggles] = React.useState({
+      emailEnabled: true,
+      captchaEnabled: false,
+      aiCvParsing: true,
+    });
+    const [loading, setLoading] = React.useState(true);
+    const [saving, setSaving] = React.useState(false);
+
+    React.useEffect(() => {
+      apiClient.get('/settings/').then(res => {
+        const sys = res.data?.system || res.data?.settings?.system || {};
+        setToggles({
+          emailEnabled: sys.autoEmailOnSubmit !== false,
+          captchaEnabled: sys.captchaEnabled || false,
+          aiCvParsing: sys.aiCvParsing !== false,
+        });
+        setLoading(false);
+      }).catch(() => setLoading(false));
+    }, []);
+
+    const saveToggle = async (key, value) => {
+      const updated = { ...toggles, [key]: value };
+      setToggles(updated);
+      setSaving(true);
+      try {
+        await apiClient.put('/settings/system', {
+          autoEmailOnSubmit: updated.emailEnabled,
+          autoEmailOnStatusChange: updated.emailEnabled,
+          captchaEnabled: updated.captchaEnabled,
+          aiCvParsing: updated.aiCvParsing,
+        });
+        addToast(`${key === 'emailEnabled' ? 'Email' : key === 'captchaEnabled' ? 'Captcha' : 'AI CV Parsing'} ${value ? 'enabled' : 'disabled'}`, { type: 'success' });
+      } catch (e) {
+        addToast('Failed to save setting', { type: 'error' });
+        setToggles(prev => ({ ...prev, [key]: !value }));
+      }
+      setSaving(false);
+    };
+
+    const Toggle = ({ label, description, checked, onChange, icon }) => (
+      <div className="flex items-center justify-between p-4 bg-white rounded-xl border border-gray-200 hover:border-green-200 transition">
+        <div className="flex items-center gap-3">
+          <span className="text-2xl">{icon}</span>
+          <div>
+            <div className="font-semibold text-gray-800 text-sm">{label}</div>
+            <div className="text-xs text-gray-500">{description}</div>
+          </div>
+        </div>
+        <button
+          onClick={() => onChange(!checked)}
+          disabled={saving}
+          className={`relative w-12 h-6 rounded-full transition-colors ${checked ? 'bg-green-500' : 'bg-gray-300'} ${saving ? 'opacity-50' : ''}`}
+        >
+          <div className={`absolute w-5 h-5 bg-white rounded-full top-0.5 transition-transform shadow ${checked ? 'translate-x-6' : 'translate-x-0.5'}`} />
+        </button>
+      </div>
+    );
+
+    if (loading) return <div className="p-6 text-center text-gray-400">Loading toggles...</div>;
+
+    return (
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <h2 className="text-xl font-bold text-gray-800 mb-1 flex items-center gap-2">
+          <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+          Feature Toggles
+        </h2>
+        <p className="text-sm text-gray-500 mb-4">Enable or disable platform features</p>
+        <div className="space-y-3">
+          <Toggle
+            icon="📧"
+            label="Email Notifications"
+            description="Send emails on application submit, status changes, OTP"
+            checked={toggles.emailEnabled}
+            onChange={(v) => saveToggle('emailEnabled', v)}
+          />
+          <Toggle
+            icon="🛡️"
+            label="Captcha (Turnstile)"
+            description="Require human verification before CV upload"
+            checked={toggles.captchaEnabled}
+            onChange={(v) => saveToggle('captchaEnabled', v)}
+          />
+          <Toggle
+            icon="🤖"
+            label="AI CV Parsing (OpenAI)"
+            description="Auto-extract candidate data from uploaded CVs"
+            checked={toggles.aiCvParsing}
+            onChange={(v) => saveToggle('aiCvParsing', v)}
+          />
+        </div>
+      </div>
+    );
+  }
+
   function JobBoardView() {
     const [currentPage, setCurrentPage] = React.useState(1);
     const [localSearch, setLocalSearch] = React.useState(jobSearch);
@@ -3736,17 +3831,23 @@ function PvaraPhase2() {
           {view === "shortlists" && <ShortlistPanel shortlist={state.shortlists} onUpdate={createShortlist} />}
           {view === "audit" && <AuditLog auditRecords={state.audit} />}
           {view === "settings" && (
-            <SettingsPanel
-              settings={state.settings}
-              onUpdateSettings={(newSettings) => {
-                setState(s => ({ ...s, settings: newSettings }));
-                addToast('Settings updated successfully', { type: 'success' });
-                audit('update-settings', { settingsUpdated: Object.keys(newSettings) });
-              }}
-              onTestEmail={async (testEmail) => {
-                addToast(`Test email sent to ${testEmail}`, { type: 'success' });
-              }}
-            />
+            <div>
+              {/* Feature Toggles */}
+              <FeatureToggles addToast={addToast} />
+              <div className="mt-6">
+                <SettingsPanel
+                  settings={state.settings}
+                  onUpdateSettings={(newSettings) => {
+                    setState(s => ({ ...s, settings: newSettings }));
+                    addToast('Settings updated successfully', { type: 'success' });
+                    audit('update-settings', { settingsUpdated: Object.keys(newSettings) });
+                  }}
+                  onTestEmail={async (testEmail) => {
+                    addToast(`Test email sent to ${testEmail}`, { type: 'success' });
+                  }}
+                />
+              </div>
+            </div>
           )}
           {view === "operations" && <SystemDashboard />}
           {view === "content-admin" && <ContentManagementPanel />}
