@@ -6,10 +6,6 @@ export function ThemeProvider({ children }) {
   const [dark, setDark] = useState(() => {
     const saved = localStorage.getItem("pvara_theme");
     if (saved) return saved === "dark";
-    if (typeof window !== "undefined" && typeof window.matchMedia === "function") {
-      const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-      return Boolean(mediaQuery && mediaQuery.matches);
-    }
     return false;
   });
 
