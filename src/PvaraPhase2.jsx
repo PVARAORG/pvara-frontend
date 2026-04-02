@@ -4005,15 +4005,78 @@ function PvaraPhase2() {
               <div className="font-semibold text-lg">{drawer.app.applicant.name}</div>
               <div className="text-sm text-gray-500">Applied: {new Date(drawer.app.createdAt).toLocaleString()}</div>
               <div className="mt-2 text-sm"><span className="font-semibold">Status:</span> <span className="text-blue-600">{drawer.app.status || "submitted"}</span></div>
-              <div className="mt-2">Email: {drawer.app.applicant.email}</div>
-              <div>Phone: {drawer.app.applicant.phone}</div>
-              <div>Degree: {drawer.app.applicant.degree}</div>
-              <div>Experience: {drawer.app.applicant.experienceYears}</div>
-              <div className="mt-2 text-xs text-red-600">Screening: {drawer.app.screeningErrors?.length ? drawer.app.screeningErrors.join(", ") : "Passed"}</div>
-              <div className="mt-3">
-                <div className="font-semibold mb-2">Files</div>
-                {drawer.app.files?.length ? drawer.app.files.map((f, i) => <div key={i} className="text-sm text-blue-600">{f}</div>) : <div className="text-sm text-gray-500">No files</div>}
+              {drawer.app.aiScore != null && (
+                <div className="mt-2 text-sm"><span className="font-semibold">AI Score:</span> <span className={drawer.app.aiScore >= 75 ? 'text-green-600 font-bold' : drawer.app.aiScore >= 50 ? 'text-yellow-600 font-bold' : 'text-red-600 font-bold'}>{drawer.app.aiScore}/100</span></div>
+              )}
+
+              {/* Contact Info */}
+              <div className="mt-3 p-3 bg-gray-50 rounded-lg space-y-1 text-sm">
+                <div className="font-semibold text-gray-800 mb-2">Contact</div>
+                <div><span className="text-gray-500">Email:</span> {drawer.app.applicant.email}</div>
+                <div><span className="text-gray-500">Phone:</span> {drawer.app.applicant.phone}</div>
+                {drawer.app.applicant.alternatePhone && <div><span className="text-gray-500">Alt Phone:</span> {drawer.app.applicant.alternatePhone}</div>}
+                <div><span className="text-gray-500">CNIC:</span> {drawer.app.applicant.cnic}</div>
+                {drawer.app.applicant.city && <div><span className="text-gray-500">Location:</span> {[drawer.app.applicant.city, drawer.app.applicant.state, drawer.app.applicant.country].filter(Boolean).join(', ')}</div>}
+                {drawer.app.applicant.linkedin && <div><span className="text-gray-500">LinkedIn:</span> <a href={drawer.app.applicant.linkedin} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Profile</a></div>}
               </div>
+
+              {/* Qualifications */}
+              <div className="mt-3 p-3 bg-gray-50 rounded-lg space-y-1 text-sm">
+                <div className="font-semibold text-gray-800 mb-2">Qualifications</div>
+                <div><span className="text-gray-500">Degree:</span> {drawer.app.applicant.degree}</div>
+                <div><span className="text-gray-500">Experience:</span> {drawer.app.applicant.experienceYears} years</div>
+                {drawer.app.applicant.skills?.length > 0 && (
+                  <div className="mt-2">
+                    <span className="text-gray-500">Skills:</span>
+                    <div className="flex flex-wrap gap-1 mt-1">{drawer.app.applicant.skills.map((s, i) => <span key={i} className="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">{s}</span>)}</div>
+                  </div>
+                )}
+              </div>
+
+              {/* Education */}
+              {drawer.app.applicant.education?.length > 0 && (
+                <div className="mt-3 p-3 bg-gray-50 rounded-lg text-sm">
+                  <div className="font-semibold text-gray-800 mb-2">Education</div>
+                  {drawer.app.applicant.education.map((edu, i) => (
+                    <div key={i} className="mb-2 pb-2 border-b border-gray-200 last:border-0">
+                      <div className="font-medium">{edu.degree} — {edu.fieldOfStudy}</div>
+                      <div className="text-gray-500 text-xs">{edu.school}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Employment */}
+              {drawer.app.applicant.employment?.length > 0 && (
+                <div className="mt-3 p-3 bg-gray-50 rounded-lg text-sm">
+                  <div className="font-semibold text-gray-800 mb-2">Employment</div>
+                  {drawer.app.applicant.employment.map((emp, i) => (
+                    <div key={i} className="mb-2 pb-2 border-b border-gray-200 last:border-0">
+                      <div className="font-medium">{emp.jobTitle}</div>
+                      <div className="text-gray-500 text-xs">{emp.employer} {emp.startYear && `(${emp.startYear}${emp.endYear ? '-' + emp.endYear : '-Present'})`}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Files */}
+              <div className="mt-3 p-3 bg-gray-50 rounded-lg text-sm">
+                <div className="font-semibold text-gray-800 mb-2">Documents</div>
+                {drawer.app.applicant.cv ? (
+                  <a href={`${process.env.REACT_APP_API_URL || 'https://backend.pvara.team'}${drawer.app.applicant.cv.startsWith('/') ? '' : '/'}${drawer.app.applicant.cv}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-blue-600 hover:underline mb-1">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                    Download CV
+                  </a>
+                ) : <div className="text-gray-400">No CV</div>}
+                {drawer.app.applicant.coverLetter ? (
+                  <a href={`${process.env.REACT_APP_API_URL || 'https://backend.pvara.team'}${drawer.app.applicant.coverLetter.startsWith('/') ? '' : '/'}${drawer.app.applicant.coverLetter}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-blue-600 hover:underline">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                    Download Cover Letter
+                  </a>
+                ) : <div className="text-gray-400">No cover letter</div>}
+              </div>
+
+              <div className="mt-2 text-xs text-red-600">Screening: {drawer.app.screeningErrors?.length ? drawer.app.screeningErrors.join(", ") : "Passed"}</div>
               {auth.hasRole(['hr', 'admin', 'recruiter']) && (
                 <div className="mt-4 border-t pt-4">
                   <div className="font-semibold mb-2 text-sm">Actions</div>
