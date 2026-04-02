@@ -3180,7 +3180,7 @@ function PvaraPhase2() {
                       </div>
                     </div>
 
-                    <p className="text-gray-600 text-xs md:text-sm line-clamp-2 mb-3 md:mb-4">{job.description}</p>
+                    <p className="text-gray-600 text-xs md:text-sm line-clamp-2 mb-3 md:mb-4">{(job.description || '').split('\n').filter(l => l.trim() && !l.trim().startsWith('Application Deadline')).map(l => l.trim().replace(/^- /, '')).join(' • ')}</p>
 
                     <div className="flex flex-wrap items-center gap-2 md:gap-3 mb-3 md:mb-5 pb-3 md:pb-5 border-b border-gray-100">
                       <div className="flex items-center gap-1 md:gap-1.5 text-xs md:text-sm text-gray-500">
