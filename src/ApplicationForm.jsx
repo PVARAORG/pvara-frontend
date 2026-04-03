@@ -391,9 +391,6 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
       case 'state':
         validation = validateTextLength(value, { min: 2, max: 100, required: true, fieldName: field === 'city' ? 'City' : 'State' });
         break;
-      case 'postalCode':
-        validation = { valid: true };
-        break;
       case 'coverLetter':
         validation = validateTextLength(value, { max: 2000, fieldName: 'Cover letter' });
         break;
@@ -436,7 +433,6 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
         cnic: { validator: () => validateCNIC(form.cnic), label: 'CNIC' },
         city: { validator: () => validateTextLength(form.city, { min: 2, max: 100, required: true, fieldName: 'City' }), label: 'City' },
         state: { validator: () => validateTextLength(form.state, { min: 2, max: 100, required: true, fieldName: 'State' }), label: 'State' },
-        postalCode: { validator: () => ({ valid: true }), label: 'Postal Code' },
       };
 
       Object.entries(fieldConfigs).forEach(([field, config]) => {
