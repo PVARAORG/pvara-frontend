@@ -1126,26 +1126,6 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
                 </div>
               </div>
 
-              {/* Years of Experience */}
-              <div className="mt-6 pt-6 border-t border-gray-200">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Total Years of Experience *</label>
-                  <input
-                    type="number"
-                    min="0"
-                    max="50"
-                    value={form.experienceYears}
-                    onChange={e => handleChange('experienceYears', e.target.value)}
-                    onBlur={() => handleBlur('experienceYears')}
-                    placeholder="e.g. 8"
-                    className={`w-full max-w-xs px-3 py-2 md:px-4 md:py-3 text-sm md:text-base border-2 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition ${touched.experienceYears && errors.experienceYears ? 'border-red-500' : 'border-gray-300'}`}
-                    required
-                  />
-                  {touched.experienceYears && errors.experienceYears && (
-                    <p className="text-sm text-red-600 mt-1">{errors.experienceYears}</p>
-                  )}
-                </div>
-              </div>
 
               {/* Social Links */}
               <div className="mt-6 pt-6 border-t border-gray-200">
@@ -1269,19 +1249,6 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
                       />
                       {touched.state && errors.state && (
                         <p className="text-sm text-red-600 mt-1">{errors.state}</p>
-                      )}
-                    </div>
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">Zip/Postal Code</label>
-                      <input
-                        value={form.postalCode}
-                        onChange={e => handleChange('postalCode', e.target.value)}
-                        onBlur={() => handleBlur('postalCode')}
-                        className={getInputClassName('postalCode')}
-                        required
-                      />
-                      {touched.postalCode && errors.postalCode && (
-                        <p className="text-sm text-red-600 mt-1">{errors.postalCode}</p>
                       )}
                     </div>
                   </div>
