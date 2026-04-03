@@ -394,9 +394,6 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
       case 'postalCode':
         validation = { valid: true };
         break;
-      case 'experienceYears':
-        validation = (value === '' || value === null || value === undefined) ? { valid: false, error: 'Required' } : { valid: true };
-        break;
       case 'coverLetter':
         validation = validateTextLength(value, { max: 2000, fieldName: 'Cover letter' });
         break;
@@ -440,7 +437,6 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
         city: { validator: () => validateTextLength(form.city, { min: 2, max: 100, required: true, fieldName: 'City' }), label: 'City' },
         state: { validator: () => validateTextLength(form.state, { min: 2, max: 100, required: true, fieldName: 'State' }), label: 'State' },
         postalCode: { validator: () => ({ valid: true }), label: 'Postal Code' },
-        experienceYears: { validator: () => (form.experienceYears === '' || form.experienceYears === null || form.experienceYears === undefined) ? { valid: false, error: 'Years of experience is required' } : (Number(form.experienceYears) < 0 || Number(form.experienceYears) > 50) ? { valid: false, error: 'Enter 0-50' } : { valid: true }, label: 'Experience' },
       };
 
       Object.entries(fieldConfigs).forEach(([field, config]) => {
