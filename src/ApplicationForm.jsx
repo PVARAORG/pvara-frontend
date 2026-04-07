@@ -627,8 +627,8 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
     setIsAdvancing(true);
 
     try {
-      // Show popup if moving from Step 0 to Step 1 and data was extracted
-      if (stepIndex === 0 && (form.cvFile || form.cvUrl) && extractedData) {
+      // Show popup if moving from Step 0 to Step 1 and data was actually extracted
+      if (stepIndex === 0 && (form.cvFile || form.cvUrl) && extractedData && (extractedData.firstName || extractedData.email || extractedData.phone)) {
         setShowAutoInfoModal(true);
       }
 
