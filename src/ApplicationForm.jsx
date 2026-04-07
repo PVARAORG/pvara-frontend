@@ -195,7 +195,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
       }
     } catch (error) {
       console.error('CV extraction error:', error);
-      setExtractVerificationError("Unable to verify your request right now. Please try again.");
+      setErrors(prev => ({ ...prev, cvFile: "CV analysis could not be completed. Don't worry — your CV is saved. You can fill in the details manually." }));
     } finally {
       if (turnstileEnabled) {
         refreshExtractTurnstile();
@@ -871,6 +871,7 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
                       <p className="text-lg font-semibold text-blue-700">Analyzing your CV...</p>
                       <p className="text-blue-600 text-sm">AI is extracting your information to auto-fill the form</p>
                       <p className="text-gray-400 text-xs mt-2">This may take up to a minute</p>
+                      <p className="text-gray-400 text-xs mt-1">Note: AI extraction is a best-effort feature and may not capture all details accurately. You will be able to review and correct any information before submitting.</p>
                     </div>
                   </div>
                 ) : (form.cvFile || form.cvUrl || form.cv) ? (
