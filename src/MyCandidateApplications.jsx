@@ -147,10 +147,7 @@ const MyCandidateApplications = ({ applications, candidateProfile, jobs }) => {
                   <p className="text-xs text-gray-500 mb-1">Education</p>
                   <p className="font-medium text-gray-800">{app.applicant?.degree || 'N/A'}</p>
                 </div>
-                <div>
-                  <p className="text-xs text-gray-500 mb-1">Experience</p>
-                  <p className="font-medium text-gray-800">{app.applicant?.experienceYears || 0} years</p>
-                </div>
+                {/* Experience hidden - data quality issue */}
               </div>
 
               {/* AI Score hidden from candidates - only visible to admin/HR */}
