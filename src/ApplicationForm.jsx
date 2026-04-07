@@ -627,9 +627,13 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
     setIsAdvancing(true);
 
     try {
-      // Show popup if moving from Step 0 to Step 1 and data was actually extracted
-      if (stepIndex === 0 && (form.cvFile || form.cvUrl) && extractedData && (extractedData.firstName || extractedData.email || extractedData.phone)) {
-        setShowAutoInfoModal(true);
+      // Show popup if moving from Step 0 to Step 1
+      if (stepIndex === 0 && (form.cvFile || form.cvUrl)) {
+        if (extractedData && (extractedData.firstName || extractedData.email || extractedData.phone)) {
+          setShowAutoInfoModal(true);
+        } else {
+          setShowAutoInfoModal('no-data');
+        }
       }
 
       // Upload CV with CNIC when moving from Step 1 to Step 2
@@ -1636,21 +1640,23 @@ const ApplicationForm = ({ onSubmit, jobs = [], selectedJobId }) => {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 p-6">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className={`w-10 h-10 ${showAutoInfoModal === 'no-data' ? 'bg-amber-100' : 'bg-blue-100'} rounded-full flex items-center justify-center`}>
+                <svg className={`w-5 h-5 ${showAutoInfoModal === 'no-data' ? 'text-amber-600' : 'text-blue-600'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h3 className="text-lg font-bold text-gray-900">Information Updated</h3>
+              <h3 className="text-lg font-bold text-gray-900">{showAutoInfoModal === 'no-data' ? 'Could Not Extract CV Data' : 'Information Updated'}</h3>
             </div>
             <p className="text-gray-600 mb-6">
-              We have already updated the available information from your CV. Please review and edit if required.
+              {showAutoInfoModal === 'no-data'
+                ? 'Our AI was unable to extract information from your CV automatically. This can happen with certain CV formats or scanned documents. Please fill in your details manually below.'
+                : 'We have updated the available information from your CV. Please review and edit if required.'}
             </p>
             <button
               onClick={() => setShowAutoInfoModal(false)}
-              className="w-full px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition"
+              className={`w-full px-4 py-2 ${showAutoInfoModal === 'no-data' ? 'bg-amber-600 hover:bg-amber-700' : 'bg-blue-600 hover:bg-blue-700'} text-white font-medium rounded-lg transition`}
             >
-              Okay, Review
+              {showAutoInfoModal === 'no-data' ? 'Okay, Fill Manually' : 'Okay, Review'}
             </button>
           </div>
         </div>
