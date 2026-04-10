@@ -186,27 +186,77 @@ export function AnalyticsDashboard({ state, onGenerateTestData }) {
       {/* Jobs Tab */}
       {selectedTab === "jobs" && (
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-gray-800">Job Performance</h3>
-          <div className="space-y-3">
-            {analytics.jobPerformance.map((job) => (
-              <div key={job.jobId} className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-                <div className="font-semibold text-gray-800">{job.title}</div>
-                <div className="grid grid-cols-3 gap-4 mt-3 text-sm">
-                  <div className="text-center p-2 bg-gray-50 rounded-lg">
-                    <div className="font-bold text-gray-800">{job.totalApplications}</div>
-                    <div className="text-xs text-gray-500">Applications</div>
-                  </div>
-                  <div className="text-center p-2 bg-green-50 rounded-lg">
-                    <div className="font-bold text-green-600">{job.offers}</div>
-                    <div className="text-xs text-gray-500">Offers</div>
-                  </div>
-                  <div className="text-center p-2 bg-blue-50 rounded-lg">
-                    <div className="font-bold text-blue-600">{job.averageScore}/100</div>
-                    <div className="text-xs text-gray-500">Avg Score</div>
-                  </div>
-                </div>
-              </div>
-            ))}
+          <div className="flex justify-between items-center">
+            <h3 className="text-lg font-semibold text-gray-800">Positions & Applicants Report</h3>
+            <button
+              onClick={() => exportPositionsReport(state)}
+              className="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 font-medium shadow-sm hover:shadow-md transition-all flex items-center gap-2 text-sm"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              Export CSV
+            </button>
+          </div>
+
+          {/* Summary Table */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-gray-50 border-b border-gray-200">
+                    <th className="text-left px-4 py-3 font-semibold text-gray-700">Position</th>
+                    <th className="text-left px-4 py-3 font-semibold text-gray-700">Department</th>
+                    <th className="text-center px-4 py-3 font-semibold text-gray-700">Openings</th>
+                    <th className="text-center px-4 py-3 font-semibold text-gray-700">Applications</th>
+                    <th className="text-center px-4 py-3 font-semibold text-gray-700">Screened</th>
+                    <th className="text-center px-4 py-3 font-semibold text-gray-700">Interview</th>
+                    <th className="text-center px-4 py-3 font-semibold text-gray-700">Offered</th>
+                    <th className="text-center px-4 py-3 font-semibold text-gray-700">Rejected</th>
+                    <th className="text-center px-4 py-3 font-semibold text-gray-700">Avg Score</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(state.jobs || [])
+                    .sort((a, b) => (a.sortOrder || 999) - (b.sortOrder || 999))
+                    .map((job) => {
+                      const apps = (state.applications || []).filter(a => (a.jobId || a.job_id) === job.id);
+                      const screened = apps.filter(a => ['ai-reviewed', 'shortlisted', 'screening'].includes(a.status)).length;
+                      const interview = apps.filter(a => ['interview', 'interview-complete', 'phone-interview'].includes(a.status)).length;
+                      const offered = apps.filter(a => a.status === 'offer').length;
+                      const rejected = apps.filter(a => a.status === 'rejected').length;
+                      const scores = apps.filter(a => a.aiScore > 0).map(a => a.aiScore);
+                      const avgScore = scores.length > 0 ? Math.round(scores.reduce((s, v) => s + v, 0) / scores.length) : 0;
+                      return (
+                        <tr key={job.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                          <td className="px-4 py-3 font-medium text-gray-800">{job.title}</td>
+                          <td className="px-4 py-3 text-gray-600 text-xs">{job.department}</td>
+                          <td className="text-center px-4 py-3">{job.openings || 1}</td>
+                          <td className="text-center px-4 py-3 font-bold text-gray-800">{apps.length}</td>
+                          <td className="text-center px-4 py-3 text-purple-600">{screened}</td>
+                          <td className="text-center px-4 py-3 text-orange-600">{interview}</td>
+                          <td className="text-center px-4 py-3 text-green-600">{offered}</td>
+                          <td className="text-center px-4 py-3 text-red-600">{rejected}</td>
+                          <td className="text-center px-4 py-3 text-blue-600">{avgScore > 0 ? avgScore : '-'}</td>
+                        </tr>
+                      );
+                    })}
+                </tbody>
+                <tfoot>
+                  <tr className="bg-gray-50 border-t-2 border-gray-300 font-bold">
+                    <td className="px-4 py-3 text-gray-800">Total</td>
+                    <td className="px-4 py-3"></td>
+                    <td className="text-center px-4 py-3">{(state.jobs || []).reduce((s, j) => s + (j.openings || 1), 0)}</td>
+                    <td className="text-center px-4 py-3">{(state.applications || []).length}</td>
+                    <td className="text-center px-4 py-3 text-purple-600">{(state.applications || []).filter(a => ['ai-reviewed', 'shortlisted', 'screening'].includes(a.status)).length}</td>
+                    <td className="text-center px-4 py-3 text-orange-600">{(state.applications || []).filter(a => ['interview', 'interview-complete', 'phone-interview'].includes(a.status)).length}</td>
+                    <td className="text-center px-4 py-3 text-green-600">{(state.applications || []).filter(a => a.status === 'offer').length}</td>
+                    <td className="text-center px-4 py-3 text-red-600">{(state.applications || []).filter(a => a.status === 'rejected').length}</td>
+                    <td className="text-center px-4 py-3"></td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
           </div>
         </div>
       )}
@@ -309,6 +359,48 @@ function FunnelChart({ funnel }) {
       })}
     </div>
   );
+}
+
+function exportPositionsReport(state) {
+  const jobs = (state.jobs || []).sort((a, b) => (a.sortOrder || 999) - (b.sortOrder || 999));
+  const apps = state.applications || [];
+
+  const headers = ['Position', 'Department', 'Openings', 'Total Applications', 'New', 'Screened', 'Interview', 'Offered', 'Rejected', 'Avg AI Score'];
+  const rows = jobs.map(job => {
+    const jobApps = apps.filter(a => (a.jobId || a.job_id) === job.id);
+    const newCount = jobApps.filter(a => ['submitted', 'hr-review'].includes(a.status)).length;
+    const screened = jobApps.filter(a => ['ai-reviewed', 'shortlisted', 'screening'].includes(a.status)).length;
+    const interview = jobApps.filter(a => ['interview', 'interview-complete', 'phone-interview'].includes(a.status)).length;
+    const offered = jobApps.filter(a => a.status === 'offer').length;
+    const rejected = jobApps.filter(a => a.status === 'rejected').length;
+    const scores = jobApps.filter(a => a.aiScore > 0).map(a => a.aiScore);
+    const avgScore = scores.length > 0 ? Math.round(scores.reduce((s, v) => s + v, 0) / scores.length) : '';
+    return [
+      `"${job.title}"`, `"${job.department || ''}"`, job.openings || 1,
+      jobApps.length, newCount, screened, interview, offered, rejected, avgScore
+    ].join(',');
+  });
+
+  // Totals row
+  const totalOpenings = jobs.reduce((s, j) => s + (j.openings || 1), 0);
+  const totals = [
+    '"TOTAL"', '""', totalOpenings, apps.length,
+    apps.filter(a => ['submitted', 'hr-review'].includes(a.status)).length,
+    apps.filter(a => ['ai-reviewed', 'shortlisted', 'screening'].includes(a.status)).length,
+    apps.filter(a => ['interview', 'interview-complete', 'phone-interview'].includes(a.status)).length,
+    apps.filter(a => a.status === 'offer').length,
+    apps.filter(a => a.status === 'rejected').length,
+    ''
+  ].join(',');
+
+  const csv = [headers.join(','), ...rows, '', totals].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `positions-report-${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 function exportReport(report) {
