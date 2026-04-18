@@ -2920,7 +2920,7 @@ function PvaraPhase2() {
                   <div className="text-xs text-gray-500 mt-1">Type</div>
                 </div>
                 <div className="p-4 bg-amber-50 rounded-xl border border-amber-100 text-center">
-                  <div className="text-sm font-bold text-amber-700">18th April 2026</div>
+                  <div className="text-sm font-bold text-amber-700">4th May 2026</div>
                   <div className="text-xs text-gray-500 mt-1">Deadline</div>
                 </div>
               </div>
