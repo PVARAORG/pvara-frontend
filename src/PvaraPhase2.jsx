@@ -3736,7 +3736,7 @@ function PvaraPhase2() {
           })()}
           {view === "analytics" && <AnalyticsDashboard state={state} onGenerateTestData={handleGenerateTestData} />}
           {view === "shortlists" && <ShortlistPanel shortlist={state.shortlists} onUpdate={createShortlist} />}
-          {view === "audit" && <AuditLog auditRecords={state.audit} />}
+          {view === "audit" && <AuditLog />}
           {view === "settings" && (
             <div>
               {/* Feature Toggles */}
